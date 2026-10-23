@@ -57,6 +57,7 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .big-btn:active{transform:translateY(4px); box-shadow:0 2px 0 #1f7246}
 .big-btn.alt{background:var(--table); box-shadow:0 6px 0 #18293d}
 .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+.langBtn[aria-pressed="true"]{background:var(--go); color:#fff; border-color:var(--go)}
 .small-btn{border:2px solid #D8CBA8; background:transparent; color:var(--ink); border-radius:12px; padding:8px 14px; font-size:.95rem}
 .small-btn.danger{border-color:var(--brick); color:#B23E22}
 .label{font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
@@ -95,10 +96,11 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
 
   <div class="overlay" id="startOv">
     <div class="card">
-      <span class="label">Obra en construcción</span>
+      <span class="label" data-t="startLbl">Obra en construcción</span>
       <h1>Trazos de Arquitecto</h1>
-      <p>Traza el camino con el dedo, empezando en el <b style="color:var(--go)">punto verde</b>. Cada trazo levanta una parte del edificio, y cada edificio se queda en tu calle.</p>
-      <button class="big-btn" id="btnStart">¡A construir!</button>
+      <p data-t="startP"></p>
+      <div class="row langRow"><button class="small-btn langBtn" data-l="es" aria-pressed="true">Español</button><button class="small-btn langBtn" data-l="en" aria-pressed="false">English</button></div>
+      <button class="big-btn" id="btnStart" data-t="btnStart">¡A construir!</button>
     </div>
   </div>
   <div class="overlay" id="restOv" hidden>
@@ -107,25 +109,29 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <h1 id="restH">¡Barrio terminado!</h1>
       <div id="restStars" style="font-size:2.4rem;letter-spacing:.15em;color:var(--sun);line-height:1"></div>
       <p id="restTxt">Construiste muchos edificios.</p>
-      <p>Buen momento para terminar por hoy. Tu ciudad se guarda.</p>
+      <p data-t="restP"></p>
       <div class="row">
-        <button class="big-btn" id="btnDone">Terminar por hoy</button>
+        <button class="big-btn" id="btnDone" data-t="btnDone">Terminar por hoy</button>
         <button class="big-btn alt" id="btnMore">Empezar el siguiente</button>
       </div>
     </div>
   </div>
   <div class="overlay" id="adultOv" hidden>
     <div class="card">
-      <div class="row" style="justify-content:space-between"><h2>Para adultos</h2><button class="small-btn" id="btnClose">Cerrar</button></div>
-      <p>Cada edificio lleva trazos de escritura: verticales, horizontales, diagonales, círculos y curvas, y después las letras mayúsculas dentro de la arquitectura y el nombre de cada edificio empieza con su letra (la torre de agua es una T, el banco una B), ordenadas de lo fácil a lo difícil: primero líneas rectas, luego curvas y al final diagonales. Solo avanza si sigue el camino desde el punto verde, así practica también la dirección. No hay castigo. La voz dice el nombre del edificio al empezar y el nombre de la letra al terminarla (aprendizaje indirecto). La ciudad crece por manzanas de 9 edificios (pequeña celebración, sin parar) y por barrios (36 por defecto): al terminar un barrio hay una gran celebración y un punto natural para parar.</p>
-      <div><span class="label">Trazos practicados</span><div class="skills" id="skills"></div></div>
+      <div class="row" style="justify-content:space-between"><h2 data-t="adultH">Para adultos</h2><button class="small-btn" id="btnClose" data-t="btnClose">Cerrar</button></div>
+      <p data-t="adultP"></p>
+      <div><span class="label" data-t="skillsL">Trazos practicados</span><div class="skills" id="skills"></div></div>
       <div class="row">
-        <label for="kidName" class="label">Nombre</label><input type="text" id="kidName" placeholder="Nombre del arquitecto" maxlength="20">
-        <label for="barrioSize" class="label">Tamaño del barrio</label>
+        <label for="kidName" class="label" data-t="nameL">Nombre</label><input type="text" id="kidName" placeholder="Nombre del arquitecto" maxlength="20">
+        <label for="barrioSize" class="label" data-t="sizeL">Tamaño del barrio</label>
         <select id="barrioSize"><option value="18">18 edificios (~6 min)</option><option value="36">36 edificios (~12 min)</option><option value="54">54 edificios (~18 min)</option><option value="72">72 edificios (~24 min)</option></select>
+        <label for="lang" class="label" data-t="langL">Idioma</label>
+        <select id="lang"><option value="es">Español</option><option value="en">English</option></select>
       </div>
-      <div><span class="label">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
-      <div class="row"><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
+      <div><span class="label" data-t="voiceL">Voz</span> <span id="voiceInfo" style="font-size:.9rem"></span>
+      </div>
+      <div><span class="label" data-t="piecesL">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
+      <div class="row"><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
     </div>
   </div>
 </div>
@@ -260,7 +266,35 @@ const PIECES = [
 ];
 const LNAME = {A:'a',B:'bé',C:'ce',D:'de',E:'e',F:'efe',G:'ge',H:'hache',I:'i',J:'jota',K:'ka',L:'ele',M:'eme',N:'ene','Ñ':'eñe',O:'o',P:'pe',Q:'cu',R:'erre',S:'ese',T:'te',U:'u',V:'uve',W:'doble uve',X:'equis',Y:'ye',Z:'zeta'};
 PIECES.forEach(p=>{ if (p.letter) p.strokes = p.strokes.map(st => st.map(([x,y]) => [x, Math.min(y, .88)*.93 + .01])); });
-PIECES.forEach(p=>{ const n = p.name.replace(/^(El|La|Los|Las) /,''); p.say = '¡' + n[0].toUpperCase() + n.slice(1) + '!'; }); // presented by its building name; the letter is named only when it is finished
+// ---------- two languages, never mixed: names, letter names and the voice all follow S.lang ----------
+// English buildings also start with their letter. Ñ is not part of the English alphabet, so it is skipped there.
+const EN = {
+  torre:['The tower','Down the walls, then the roof.'], casa:['The house','The roof, then the walls.'],
+  pisos:['Apartment building','Each floor, side to side.'], parque:['The park slide','The ladder, then the slide.'],
+  ventana:['Round window','Go around until it closes.'], observatorio:['The arch','Up, over the top, and down.'],
+  I:['Island chapel','One line down.'], L:['Laundromat','Down, then to the side.'], T:['Tank tower','The post, then the top line.'],
+  H:['Hospital','Two towers and the bridge.'], E:['Elementary school','A wall and three floors.'], F:['First aid center','Down, top, and middle.'],
+  O:['Observatory','One full turn.'], C:['Circus','Turn and leave it open.'], U:['University','Down, curve, and up.'],
+  D:['Dome','Down, then the big belly.'], P:['Pizzeria','Down, then a small belly on top.'], B:['Bank','Down, then two bellies.'],
+  R:['Ranch','Like the P, plus a leg.'], J:['Joy toy store','Down, then the hook.'], G:['Garage','Turn and go into the middle.'],
+  S:['Snake slide','Curve on top, curve below.'], Q:["Queen's cheese shop",'One turn and the tail.'], V:['Vet clinic','Down and up.'],
+  A:['Antenna','One side, the other, and across.'], X:['Xylophone','One diagonal, then the other.'], Y:['Yogurt shop','Two arms and the post.'],
+  K:['Kiosk','Down, then the arrow.'], N:['Nest tree house','Down, diagonal, and up.'], M:['Market','The wall and the zigzag.'],
+  W:['Waffle shop','Down, up, down, up.'], Z:['Zoo','Across, diagonal, across.'],
+};
+// letter names written so each language's voice says them correctly
+const LN = {
+  es: LNAME,
+  en: Object.fromEntries('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(l => [l, l])), // English voices read a capital letter by its name
+};
+PIECES.forEach(p => { p.es = [p.name, p.tip]; });
+const inLang = p => S.lang !== 'en' || EN[p.id];
+function applyLang(){
+  PIECES.forEach(p => {
+    [p.name, p.tip] = S.lang === 'en' && EN[p.id] ? EN[p.id] : p.es;
+    const n = p.name.replace(/^(El|La|Los|Las|The) /,''); p.say = (S.lang === 'en' ? '' : '¡') + n[0].toUpperCase() + n.slice(1) + '!';
+  });
+}
 const KINDS = ['vertical','horizontal','diagonal','círculo','curva','letra'];
 const PRAISE = ['¡Muy bien!','¡Genial!','¡Eso es!','¡Qué buen trazo!','¡Bien hecho!'];
 const STEP = .006, TOL = .09, MANZANA = 9;
@@ -268,10 +302,44 @@ const byId = id => PIECES.find(p=>p.id===id);
 
 // ---------- saved progress (per-device convenience) ----------
 const KEY = 'trazos-arquitecto-v2';
-let S = {level:0, city:[], bricks:0, done:{}, sound:true, name:'', barrioSize:36, barrioStart:0, barrios:0};
+let S = {level:0, city:[], bricks:0, done:{}, sound:true, name:'', barrioSize:36, barrioStart:0, barrios:0, lang:'es'};
 try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch(e) {}
 S.city = S.city.filter(byId);
 const BARRIO = () => S.barrioSize || 36;
+const TXT = {
+  es: { who:'Mi ciudad', whoN:n=>`Arquitecto: ${n}`, city:'Mi ciudad', cityN:n=>`Ciudad de ${n}`, strokes:n=>` (${n} trazos)`,
+    path:'Sigue el camino de puntitos. Lo que llevas se guarda.', pathV:'Por el camino', resume:'Sigue desde donde ibas, en el círculo verde.', resumeV:'Sigue aquí',
+    start:'Empieza en el punto verde.', startV:'Punto verde', next:n=>`¡Muy bien! Ahora el trazo ${n}.`,
+    built:l=>`¡Construiste la letra ${l}!`, builtV:l=>`¡Construiste la ${l}!`, done:n=>`¡Listo! ${n} ya está en tu ciudad.`, doneV:'¡Listo!',
+    block:'¡Manzana completa! Una cerca dorada en tu mapa.', bLbl:n=>`Barrio ${n} de tu ciudad`, bH:n=>`¡Barrio ${n} terminado!`,
+    bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
+    label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
+    tapNext:'Toca para la siguiente obra', tapBack:'Toca para volver a la obra', letter:'letra', reset:'Borrar ciudad y progreso', reset2:'Toca otra vez para borrar todo',
+    kinds:{vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'},
+    kind:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'círculo', curva:'curva'} },
+  en: { who:'My city', whoN:n=>`Architect: ${n}`, city:'My city', cityN:n=>`${n}'s city`, strokes:n=>` (${n} strokes)`,
+    path:'Follow the dotted path. What you did is saved.', pathV:'Follow the path', resume:'Keep going from the green circle.', resumeV:'Keep going here',
+    start:'Start at the green dot.', startV:'Green dot', next:n=>`Great! Now stroke ${n}.`,
+    built:l=>`You built the letter ${l}!`, builtV:l=>`You built the letter ${l}!`, done:n=>`Done! ${n} is in your city.`, doneV:'Done!',
+    block:'Block complete! A golden fence on your map.', bLbl:n=>`Neighborhood ${n} of your city`, bH:n=>`Neighborhood ${n} complete!`,
+    bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
+    label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
+    tapNext:'Tap for the next building', tapBack:'Tap to go back to building', letter:'letter', reset:'Erase city and progress', reset2:'Tap again to erase everything',
+    kinds:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circles', curva:'curves', letra:'strokes in letters'},
+    kind:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circle', curva:'curve'} },
+};
+const tx = () => TXT[S.lang === 'en' ? 'en' : 'es'];
+// static page text, swapped as a whole when the language changes
+const UI = {
+  es: { startLbl:'Obra en construcción', startP:'Traza el camino con el dedo, empezando en el <b style="color:var(--go)">punto verde</b>. Cada trazo levanta una parte del edificio, y cada edificio se queda en tu calle.', btnStart:'¡A construir!',
+    restP:'Buen momento para terminar por hoy. Tu ciudad se guarda.', btnDone:'Terminar por hoy', adultH:'Para adultos', btnClose:'Cerrar',
+    adultP:'Cada edificio lleva trazos de escritura: verticales, horizontales, diagonales, círculos y curvas, y después las letras mayúsculas dentro de la arquitectura. El nombre de cada edificio empieza con su letra. La voz dice el nombre del edificio al empezar y el nombre de la letra al terminarla. La ciudad crece por manzanas de 9 edificios y por barrios: al terminar un barrio hay una gran celebración y un punto natural para parar.',
+    skillsL:'Trazos practicados', nameL:'Nombre', namePh:'Nombre del arquitecto', sizeL:'Tamaño del barrio', langL:'Idioma', voiceL:'Voz', piecesL:'Siguiente obra', about:'Sobre la app y el TDAH', edif:'edificios' },
+  en: { startLbl:'Under construction', startP:'Trace the path with your finger, starting at the <b style="color:var(--go)">green dot</b>. Each stroke raises part of the building, and every building stays on your street.', btnStart:"Let's build!",
+    restP:'A good moment to stop for today. Your city is saved.', btnDone:'Stop for today', adultH:'For adults', btnClose:'Close',
+    adultP:'Each building holds writing strokes: vertical, horizontal, diagonal, circles and curves, and then capital letters inside the architecture. Each building name starts with its letter. The voice says the building name at the start and the letter name at the end. The city grows in blocks of 9 buildings and in neighborhoods: finishing a neighborhood brings a big celebration and a natural place to stop.',
+    skillsL:'Strokes practiced', nameL:'Name', namePh:"Architect's name", sizeL:'Neighborhood size', langL:'Language', voiceL:'Voice', piecesL:'Next building', about:'About the app and ADHD', edif:'buildings' },
+};
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
 
 const $ = id => document.getElementById(id);
@@ -288,12 +356,33 @@ function tone(f, d=.18, type='triangle', g=.18, delay=0){
   o.connect(v).connect(ac.destination); o.start(t); o.stop(t+d+.05);
 }
 const SCALE = [523,587,659,784,880,1047,1175,1319];
-let esVoice = null;
-function pickVoice(){ try { const vs = speechSynthesis.getVoices(); esVoice = vs.find(v=>/^es[-_](MX|US|419)/i.test(v.lang)) || vs.find(v=>/^es/i.test(v.lang)) || null; } catch(e) {} }
-try { speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); } catch(e) {}
+// one voice per language; never let an English voice read Spanish (it says "bi" for B, "i" for E)
+const VOICE_PREF = { es:[/^es[-_](MX|US|419)/i, /^es/i], en:[/^en[-_]US/i, /^en/i] };
+let voice = null, voiceLang = '';
+function pickVoice(){
+  try {
+    const L = S.lang === 'en' ? 'en' : 'es', vs = speechSynthesis.getVoices();
+    voice = null; for (const re of VOICE_PREF[L]){ voice = vs.find(v => re.test(v.lang) && v.localService) || vs.find(v => re.test(v.lang)); if (voice) break; }
+    voiceLang = L;
+  } catch(e) {}
+}
+try { speechSynthesis.onvoiceschanged = pickVoice; } catch(e) {}
 function speak(t){
   if (!S.sound) return;
-  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = esVoice ? esVoice.lang : 'es-MX'; if (esVoice) u.voice = esVoice; u.rate = 1.08; u.pitch = 1.1; speechSynthesis.speak(u); } catch(e) {}
+  try {
+    if (!voice || voiceLang !== (S.lang === 'en' ? 'en' : 'es')) pickVoice();
+    speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t);
+    u.lang = voice ? voice.lang : (S.lang === 'en' ? 'en-US' : 'es-MX'); if (voice) u.voice = voice;
+    u.rate = S.lang === 'en' ? 1 : 1.08; u.pitch = 1.1; speechSynthesis.speak(u);
+  } catch(e) {}
+}
+function renderLang(){
+  const u = UI[S.lang === 'en' ? 'en' : 'es'];
+  document.documentElement.lang = S.lang === 'en' ? 'en' : 'es';
+  document.querySelectorAll('[data-t]').forEach(el => { el.innerHTML = u[el.dataset.t]; });
+  $('kidName').placeholder = u.namePh;
+  [...$('barrioSize').options].forEach(o => { o.textContent = `${o.value} ${u.edif} (~${o.value/3} min)`; });
+  $('btnMore').textContent = tx().bMore(S.barrios+2);
 }
 function say(tag, txt, voice){ if (tag) $('pieceName').textContent = tag; $('msgTxt').textContent = txt; if (voice) speak(voice === true ? txt : voice); }
 
@@ -334,12 +423,13 @@ const toLot = (lot, sx, sy) => [(sx - W/2)/cam.z + cam.x - lot*LW, (sy - H/2)/ca
 // ---------- flow ----------
 function loadPiece(i){
   clearTimers();
+  if (!inLang(PIECES[i])){ S.level = i; i = nextIndex(); }
   S.level = i; save();
   const p = PIECES[i]; run.piece = p; run.si = 0; run.beams = []; run.phase = 'trace'; run.lot = S.city.length;
   aimAtLot(run.lot); hideMap();
   setupStroke();
   const n = p.strokes.length;
-  say(p.name, p.tip + (n>1 ? ` (${n} trazos)` : ''), p.say);
+  say(p.name, p.tip + (n>1 ? tx().strokes(n) : ''), p.say);
 }
 function setupStroke(){
   run.pts = resample(run.piece.strokes[run.si], STEP);
@@ -347,9 +437,9 @@ function setupStroke(){
   run.demoT0 = performance.now(); run.nextPing = .15;
 }
 function nextIndex(){
-  if (S.level < PIECES.length-1) return S.level+1;
+  for (let i = S.level+1; i < PIECES.length; i++) if (inLang(PIECES[i])) return i;
   // rotate through every letter: always pick one of the least-practiced ones
-  const letters = PIECES.map((p,i)=>p.letter?i:-1).filter(i=>i>=0 && i!==S.level);
+  const letters = PIECES.map((p,i)=>p.letter && inLang(p)?i:-1).filter(i=>i>=0 && i!==S.level);
   const cnt = i => S.done[PIECES[i].id]||0, min = Math.min(...letters.map(cnt));
   const pool = letters.filter(i=>cnt(i)===min);
   return pool[Math.floor(Math.random()*pool.length)];
@@ -373,7 +463,7 @@ function advance(p){
       const f = run.prog/(run.pts.length-1);
       if (f >= run.nextPing){ tone(SCALE[Math.min(7, Math.floor(run.nextPing*8))], .16, 'triangle', .12); run.nextPing += .15; }
     }
-  } else if (++run.off > 28 && !run.offWarned){ run.offWarned = true; say(null, 'Sigue el camino de puntitos. Lo que llevas se guarda.', 'Por el camino'); }
+  } else if (++run.off > 28 && !run.offWarned){ run.offWarned = true; say(null, tx().path, tx().pathV); }
   if (run.prog >= run.pts.length-1-Math.ceil(.035/STEP)) completeStroke();
 }
 stage.addEventListener('pointerdown', e => {
@@ -384,7 +474,7 @@ stage.addEventListener('pointerdown', e => {
   const p = norm(e);
   if (dist(p, run.pts[run.prog]) > TOL*1.7){
     run.demoT0 = performance.now(); run.lastTouch = 0;
-    say(null, run.prog ? 'Sigue desde donde ibas, en el círculo verde.' : 'Empieza en el punto verde.', run.prog ? 'Sigue aquí' : 'Punto verde');
+    say(null, run.prog ? tx().resume : tx().start, run.prog ? tx().resumeV : tx().startV);
     tone(330,.15,'sine',.08);
     return;
   }
@@ -418,7 +508,7 @@ function completeStroke(){
   if (run.si < run.piece.strokes.length){
     setupStroke();
     const pr = PRAISE[Math.floor(Math.random()*PRAISE.length)];
-    say(null, `${pr} Ahora el trazo ${run.si+1}.`);
+    say(null, tx().next(run.si+1));
   } else completePiece();
 }
 function completePiece(){
@@ -427,8 +517,8 @@ function completePiece(){
   $('houseN').textContent = S.city.length; pop('houses');
   for (let i=0;i<6;i++) later(()=>burst(W*(.25+Math.random()*.5), H*(.2+Math.random()*.4), 20, [C.brick,C.sun,C.teal,C.plum,C.go,C.blue][i]), i*90);
   [523,659,784,1047].forEach((f,i)=>tone(f,.35,'triangle',.16,i*.1));
-  if (p.letter){ say(null, `¡Construiste la letra ${p.letter}!`, `¡Construiste la ${LNAME[p.letter]}!`); }
-  else say(null, `¡Listo! ${p.name} ya está en tu ciudad.`, '¡Listo!');
+  if (p.letter){ say(null, tx().built(p.letter), tx().builtV(LN[S.lang === 'en' ? 'en' : 'es'][p.letter])); }
+  else say(null, tx().done(p.name), tx().doneV);
   // build-up, then the camera steps back to show the street, then walks on to the next lot
   // a letter is revealed: the building steps back and its clean letter shape shines for a moment
   const hold = p.letter ? 1500 : 0;
@@ -436,7 +526,7 @@ function completePiece(){
   if (p.letter) later(()=>{ const [x,y] = toScreen(run.lot, [.5,.45]); burst(x, y, 30, C.sun); tone(1319,.25,'sine',.12); }, 450);
   later(()=>{ run.reveal = null; run.phase = 'tour'; aimOverview(); showMap(); mapNewAt = performance.now() + 450; }, 900 + hold);
   const manzana = S.city.length % MANZANA === 0 && S.city.length - S.barrioStart < BARRIO();
-  if (manzana) later(()=>{ /* after the reveal */ for (let i=0;i<6;i++) later(()=>burst(W*(.2+Math.random()*.6), H*(.2+Math.random()*.4), 22, [C.sun,C.go,C.teal][i%3]), i*120); [784,988,1175,1568].forEach((f,i)=>tone(f,.25,'triangle',.14,i*.09)); say(null, '¡Manzana completa! Una cerca dorada en tu mapa.'); }, 1300 + hold);
+  if (manzana) later(()=>{ /* after the reveal */ for (let i=0;i<6;i++) later(()=>burst(W*(.2+Math.random()*.6), H*(.2+Math.random()*.4), 22, [C.sun,C.go,C.teal][i%3]), i*120); [784,988,1175,1568].forEach((f,i)=>tone(f,.25,'triangle',.14,i*.09)); say(null, tx().block); }, 1300 + hold);
   later(goNext, (manzana ? 4600 : 3600) + hold);
 }
 // a finished barrio is a real ending: celebrate, then offer to stop (or start the next one)
@@ -445,19 +535,19 @@ function showBarrio(){
   const letters = [...new Set(ids.map(byId).filter(p=>p && p.letter).map(p=>p.letter))];
   S.barrios++; S.barrioStart = S.city.length; const n = S.barrios; S.level = nextIndex(); run.piece = PIECES[S.level]; run.lot = S.city.length; save();
   run.phase = 'idle'; showMap();
-  $('restLbl').textContent = `Barrio ${n} de tu ciudad`;
-  $('restH').textContent = `¡Barrio ${n} terminado!`;
-  $('restTxt').textContent = `Construiste ${built} edificios` + (letters.length ? ` y ${letters.length} letras: ${letters.join(' ')}.` : '.');
+  $('restLbl').textContent = tx().bLbl(n);
+  $('restH').textContent = tx().bH(n);
+  $('restTxt').textContent = tx().bTxt(built, letters);
   $('restStars').textContent = '★'.repeat(n);
-  $('btnMore').textContent = `Empezar barrio ${n+1}`;
+  $('btnMore').textContent = tx().bMore(n+1);
   $('restOv').hidden = false;
   for (let i=0;i<10;i++) later(()=>burst(W*(.15+Math.random()*.7), H*(.15+Math.random()*.5), 26, [C.brick,C.sun,C.teal,C.plum,C.go,C.blue][i%6]), i*140);
   [523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.3,'triangle',.16,i*.13));
-  speak(`¡Terminaste el barrio ${n}!`);
+  speak(tx().bV(n));
 }
 function barrioLabel(){
   const k = S.city.length - S.barrioStart;
-  return `Barrio ${S.barrios+1} · ${Math.min(k, BARRIO())} de ${BARRIO()}`;
+  return tx().label(S.barrios+1, Math.min(k, BARRIO()), BARRIO());
 }
 function burst(x,y,n,color){ for (let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, v=4+Math.random()*9; particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-3,life:1,color,size:5+Math.random()*7}); } }
 
@@ -646,14 +736,14 @@ function drawMap(now){
     p.art(C[p.c], now/1000); drawTrim(p, p.strokes);
   });
   // title card in the corner, like a board game's box label
-  const nm = S.name ? `Ciudad de ${S.name}` : 'Mi ciudad';
+  const nm = S.name ? tx().cityN(S.name) : tx().city;
   c.font = `800 ${Math.max(16, Math.min(24, W*.04))}px "Baloo 2", sans-serif`; c.textBaseline = 'top';
   const label = `${nm} · ${barrioLabel()}`, lw = c.measureText(label).width;
   c.fillStyle = C.paper; c.fillRect(12, 12, lw+24, Math.max(16, Math.min(24, W*.04))*1.6); c.fillStyle = C.ink; c.fillText(label, 24, 16);
   c.font = `400 ${Math.max(12, Math.min(15, W*.028))}px Andika, sans-serif`;
-  { const hint = run.phase === 'tour' ? 'Toca para la siguiente obra' : 'Toca para volver a la obra', hy = 16 + Math.max(16, Math.min(24, W*.04))*1.6; c.fillStyle = 'rgba(255,248,231,.85)'; c.fillRect(12, hy, c.measureText(hint).width+24, Math.max(12, Math.min(15, W*.028))*1.6); c.fillStyle = C.ink; }
+  { const hint = run.phase === 'tour' ? tx().tapNext : tx().tapBack, hy = 16 + Math.max(16, Math.min(24, W*.04))*1.6; c.fillStyle = 'rgba(255,248,231,.85)'; c.fillRect(12, hy, c.measureText(hint).width+24, Math.max(12, Math.min(15, W*.028))*1.6); c.fillStyle = C.ink; }
   c.globalAlpha = .8;
-  c.fillText(run.phase === 'tour' ? 'Toca para la siguiente obra' : 'Toca para volver a la obra', 14, 18 + Math.max(16, Math.min(24, W*.04))*1.6); c.globalAlpha = 1;
+  c.fillText(hint, 14, 18 + Math.max(16, Math.min(24, W*.04))*1.6); c.globalAlpha = 1;
 }
 
 function frame(now){
@@ -682,7 +772,7 @@ function frame(now){
   drawReveal(now);
   // street sign
   ctx.fillStyle = C.ink; ctx.font = `700 ${Math.max(13, Math.min(17, W*.03))}px Andika, sans-serif`; ctx.textBaseline = 'top';
-  const nm = S.name ? `Ciudad de ${S.name}` : 'Mi ciudad';
+  const nm = S.name ? tx().cityN(S.name) : tx().city;
   ctx.fillText(`${nm} · ${barrioLabel()}`, 14, 12);
   if (mapFade > .015){ drawMap(now); ctx.globalAlpha = mapFade; ctx.drawImage(mapCv, 0, 0, W, H); ctx.globalAlpha = 1; }
   drawParticles();
@@ -721,18 +811,18 @@ function fit(){
 try { new ResizeObserver(fit).observe($('stageWrap')); } catch(e) { addEventListener('resize', fit); }
 
 // ---------- ui ----------
-function renderWho(){ $('who').textContent = S.name ? `Arquitecto: ${S.name}` : 'Mi ciudad'; }
+function renderWho(){ $('who').textContent = S.name ? tx().whoN(S.name) : tx().who; }
 function renderSound(){ $('btnSound').setAttribute('aria-pressed', String(S.sound)); }
 $('brickN').textContent = S.bricks; $('houseN').textContent = S.city.length; renderWho(); renderSound();
 const unlockAudio = () => { try { ac = ac || new (window.AudioContext||window.webkitAudioContext)(); ac.resume(); } catch(e) {} };
 
 $('btnStart').onclick = () => {
   unlockAudio(); $('startOv').hidden = true; run.session = 0;
-  if (S.name) speak(`¡Hola, arquitecto ${S.name}!`);
+  if (S.name) speak(tx().hi(S.name));
   later(()=>loadPiece(S.level || 0), S.name ? 1100 : 0);
 };
 $('btnMore').onclick = () => { $('restOv').hidden = true; run.session = 0; loadPiece(S.level); };
-$('btnDone').onclick = () => { $('restOv').hidden = true; run.phase = 'idle'; say('¡Hasta pronto!', 'Tu ciudad te espera.'); speak('¡Hasta pronto, arquitecto!'); $('startOv').hidden = false; };
+$('btnDone').onclick = () => { $('restOv').hidden = true; run.phase = 'idle'; say(tx().bye, tx().byeT); speak(tx().byeV); $('startOv').hidden = false; };
 $('btnMap').onclick = () => { if (run.phase === 'tour') { goNext(); return; } if (run.view === 'map') hideMap(); else showMap(); };
 $('btnSay').onclick = () => { if (run.piece) speak(run.piece.say); run.demoT0 = performance.now(); run.lastTouch = 0; run.touched = false; };
 $('btnSound').onclick = () => { S.sound = !S.sound; save(); renderSound(); try{ if(!S.sound) speechSynthesis.cancel(); }catch(e){} };
@@ -740,24 +830,33 @@ $('btnSound').onclick = () => { S.sound = !S.sound; save(); renderSound(); try{ 
 function renderAdult(){
   const counts = {}; KINDS.forEach(k=>counts[k]=0);
   S.city.forEach(id => { const p = byId(id); if (p) counts[p.kind] += p.strokes.length; });
-  const label = {vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'};
+  const label = tx().kinds;
   $('skills').innerHTML = KINDS.map(k => `<div class="skill"><b>${counts[k]}</b>${label[k]}</div>`).join('');
-  $('pieces').innerHTML = PIECES.map((p,i) => `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?'letra '+p.letter:p.kind}</span>${p.name}</button>`).join('');
+  $('pieces').innerHTML = PIECES.map((p,i) => inLang(p) ? `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?tx().letter+' '+p.letter:tx().kind[p.kind]}</span>${p.name}</button>` : '').join('');
+  $('lang').value = S.lang === 'en' ? 'en' : 'es';
+  pickVoice(); $('voiceInfo').textContent = voice ? `${voice.name} (${voice.lang})` : (S.lang === 'en' ? 'No English voice installed on this device.' : 'Este dispositivo no tiene voz en español instalada. Instálala en Ajustes → Accesibilidad → Contenido leído → Voces.');
   $('kidName').value = S.name; $('barrioSize').value = String(BARRIO());
-  $('btnReset').textContent = 'Borrar ciudad y progreso'; $('btnReset').dataset.arm = '';
+  $('btnReset').textContent = tx().reset; $('btnReset').dataset.arm = '';
 }
 $('btnAdult').onclick = () => { renderAdult(); $('adultOv').hidden = false; };
 $('btnClose').onclick = () => { $('adultOv').hidden = true; };
 $('pieces').onclick = e => { const b = e.target.closest('.piece'); if (!b) return; $('adultOv').hidden = true; $('restOv').hidden = true; if (!$('startOv').hidden){ $('startOv').hidden = true; unlockAudio(); } loadPiece(+b.dataset.i); };
+$('lang').onchange = e => { S.lang = e.target.value; save(); applyLang(); pickVoice(); renderLang(); renderWho(); renderAdult();
+  if (run.piece && !inLang(run.piece)) S.level = nextIndex();
+  run.piece = PIECES[S.level]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; speak(run.piece.say); };
+const setLang = l => { S.lang = l; save(); applyLang(); pickVoice(); renderLang(); renderWho(); run.piece = PIECES[S.level] || PIECES[0]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === l))); };
+document.querySelectorAll('.langBtn').forEach(b => b.onclick = () => setLang(b.dataset.l));
 $('barrioSize').onchange = e => { S.barrioSize = +e.target.value; save(); };
 $('kidName').oninput = e => { S.name = e.target.value.trim(); save(); renderWho(); };
 $('btnReset').onclick = e => {
   const b = e.currentTarget;
-  if (!b.dataset.arm){ b.dataset.arm = '1'; b.textContent = 'Toca otra vez para borrar todo'; return; }
+  if (!b.dataset.arm){ b.dataset.arm = '1'; b.textContent = tx().reset2; return; }
   clearTimers(); S.city = []; S.bricks = 0; S.done = {}; S.level = 0; save();
   $('brickN').textContent = 0; $('houseN').textContent = 0; run.session = 0; renderAdult(); loadPiece(0);
 };
 
+applyLang(); renderLang(); renderWho();
+document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === (S.lang === 'en' ? 'en' : 'es'))));
 // opening still frame: the next lot with its crane, behind the start card
 run.piece = PIECES[S.level] || PIECES[0]; run.lot = S.city.length; run.phase = 'idle';
 $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip;
