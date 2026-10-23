@@ -122,6 +122,19 @@ async def main():
         await pg.click('#btnAdult'); await pg.wait_for_timeout(100)
         check('un toque corto no abre el menú de adultos', await pg.locator('#adultOv').is_hidden())
 
+        print('Repaso inteligente')
+        await fresh(pg, {'level': 0, 'skill': {'I': {'lv': 3, 'streak': 0}, 'L': {'lv': 3, 'streak': 0}},
+                         'stats': {'days': {}, 'letters': {'I': {'n': 5, 'last': [0, 0]}, 'L': {'n': 5, 'last': [0, 0]},
+                                                           'H': {'n': 3, 'last': [70, 60]}, 'E': {'n': 3, 'last': [50, 40]}}}})
+        mid = await pg.evaluate("(() => { const t = __trazos.test; t.S.level = 3; t.S.cursor = 3; t.S.rev = 3; return t.PIECES[t.nextIndex()].id; })()")
+        check('durante el recorrido vuelve una letra difícil cada 4 edificios', mid in ('H', 'E'), mid)
+        counts = await pg.evaluate("""(() => { const t = __trazos.test, c = {};
+            t.S.cursor = t.PIECES.length - 1; t.S.recent = [];
+            for (let k = 0; k < 3000; k++){ t.S.level = 0; const id = t.PIECES[t.nextIndex()].id; c[id] = (c[id]||0) + 1; } return c; })()""")
+        hard = (counts.get('H', 0) + counts.get('E', 0)) / 2
+        easy = (counts.get('I', 0) + counts.get('L', 0)) / 2
+        check('las letras difíciles salen mucho más que las dominadas', hard > 4 * max(1, easy), f'difíciles {hard:.0f} vs dominadas {easy:.0f}')
+
         check('sin errores de JavaScript', not errors, '; '.join(errors[:3]))
         await b.close()
 

@@ -589,13 +589,27 @@ function setupStroke(){
   run.prog = 0; run.ink = []; run.pid = null; run.touched = false; run.off = 0; run.offWarned = false;
   run.demoT0 = performance.now(); run.nextPing = .15;
 }
+// how a letter is going for this child: 0 mastered, 1 practicing, 2 struggling, 3 not yet (shared with the report)
+function letterState(p){
+  const L = ((S.stats||{}).letters||{})[p.id]; if (!L || !L.n) return 3;
+  const avg = L.last.reduce((a,b)=>a+b,0) / Math.max(1, L.last.length), k = (S.skill||{})[p.id] || {lv:0, streak:0};
+  if (avg > 30 || k.streak <= -1) return 2; if (k.lv >= 2) return 0; return 1;
+}
+// smart review: walk the alphabet in order, but every 4th building bring back a letter that is hard for this child;
+// once every letter has been seen, choose by need (hard and never-seen letters much more often than mastered ones)
 function nextIndex(){
-  for (let i = S.level+1; i < PIECES.length; i++) if (inLang(PIECES[i])) return i;
-  // rotate through every letter: always pick one of the least-practiced ones
-  const letters = PIECES.map((p,i)=>p.letter && inLang(p)?i:-1).filter(i=>i>=0 && i!==S.level);
-  const cnt = i => S.done[PIECES[i].id]||0, min = Math.min(...letters.map(cnt));
-  const pool = letters.filter(i=>cnt(i)===min);
-  return pool[Math.floor(Math.random()*pool.length)];
+  const recent = S.recent || [], cur = S.cursor ?? S.level;
+  const letters = PIECES.map((p,i)=>p.letter && inLang(p)?i:-1).filter(i=>i>=0 && i!==S.level && !recent.includes(PIECES[i].id));
+  const hard = letters.filter(i => letterState(PIECES[i]) === 2);
+  let lin = -1; for (let i = cur+1; i < PIECES.length; i++) if (inLang(PIECES[i])){ lin = i; break; }
+  if (lin >= 0){
+    if (hard.length && (S.rev||0) >= 3){ S.rev = 0; return hard[Math.floor(Math.random()*hard.length)]; }
+    S.rev = (S.rev||0) + 1; S.cursor = lin; return lin;
+  }
+  const W = [0.6, 2, 5, 3], pool = letters.length ? letters : PIECES.map((p,i)=>p.letter && inLang(p)?i:-1).filter(i=>i>=0);
+  let r = Math.random() * pool.reduce((a,i)=>a + W[letterState(PIECES[i])], 0);
+  for (const i of pool){ r -= W[letterState(PIECES[i])]; if (r <= 0) return i; }
+  return pool[pool.length-1];
 }
 // ---------- "build your name": a special street that spells the child's name ----------
 const COLORS = ['brick','sun','teal','plum','blue','go'];
@@ -706,6 +720,7 @@ function completePiece(){
   const p = run.piece; run.phase = 'built'; run.ink = []; run.builtAt = performance.now();
   S.city.push(p.id); S.done[p.id] = (S.done[p.id]||0)+1; run.session++;
   if (run.nameAll){ run.nameI++; renderStrip(); }
+  if (p.letter) S.recent = (S.recent || []).concat(p.id).slice(-3);
   // stats for the adult report: time spent tracing (capped per building) and misses per letter
   { const st = S.stats = S.stats || {days:{}, letters:{}}; const day = new Date().toLocaleDateString('sv');
     const d = st.days[day] = st.days[day] || {ms:0, n:0}; d.ms += Math.min(180000, performance.now() - (run.t0 || performance.now())); d.n++;
@@ -1086,9 +1101,7 @@ function renderReport(){
   const days = [...Array(7)].map((_,k) => { const d = new Date(today); d.setDate(d.getDate() - (6-k)); return {d, v: (st.days[key(d)]||{ms:0}).ms}; });
   const all = Object.values(st.days).reduce((a,d)=>a+d.ms, 0), week = days.reduce((a,d)=>a+d.v, 0);
   const letters = PIECES.filter(p => p.letter && inLang(p));
-  const state = p => { const L = st.letters[p.id]; if (!L || !L.n) return 3;
-    const avg = L.last.reduce((a,b)=>a+b,0) / L.last.length; const k = (S.skill||{})[p.id] || {lv:0, streak:0};
-    if (avg > 30 || k.streak <= -1) return 2; if (k.lv >= 2) return 0; return 1; };
+  const state = letterState;
   const nm = S.name || T.anon(PROF.list.findIndex(k=>k.id===PROF.cur)+1);
   $('repH').textContent = T.repH(nm); $('btnPrint').textContent = T.repPrint; $('btnRepClose').textContent = UI[S.lang==='en'?'en':'es'].btnClose;
   $('repStats').innerHTML = [[min(days[6].v), T.repToday], [min(week), T.rep7], [min(all), T.repAll], [S.city.length, T.repB], [letters.filter(p=>state(p)!==3).length + '/' + letters.length, T.repL]]
@@ -1186,7 +1199,7 @@ run.piece = PIECES[S.level] || PIECES[0]; run.lot = S.city.length; run.phase = '
 $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip;
 window.__trazos = {run, toScreen, cam, camT,
   // hooks for the automated tests in tests/test_app.py
-  test: {PIECES, EN, C, G, drawTrim, nextIndex, inLang, setK: k => { K = k; }, get S(){ return S; }, get PROF(){ return PROF; }}};
+  test: {PIECES, EN, C, G, drawTrim, nextIndex, inLang, letterState, setK: k => { K = k; }, get S(){ return S; }, get PROF(){ return PROF; }}};
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 fit();
 requestAnimationFrame(frame);
