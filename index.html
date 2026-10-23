@@ -59,6 +59,30 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 #nameStrip span{width:30px; height:34px; border-radius:8px; display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:1.2rem; background:var(--table-2); color:#6E87A6; border:2px dashed #4A6585}
 #nameStrip span.done{background:var(--c); color:#fff; border:0; box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
 #nameStrip span.now{border-color:var(--sun); color:var(--sun)}
+.report{width:min(720px,100%)}
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px}
+.stats div{background:#fff; border:2px solid #EADDBB; border-radius:14px; padding:10px 12px}
+.stats b{display:block; font-family:var(--display); font-size:1.8rem; line-height:1}
+.stats span{font-size:.85rem; color:var(--muted)}
+.bars{display:flex; align-items:flex-end; gap:8px; height:110px; margin-top:8px}
+.bars div{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap:4px; font-size:.75rem; color:var(--muted); height:100%}
+.bars i{display:block; width:100%; max-width:44px; background:var(--teal); border-radius:6px 6px 2px 2px; min-height:2px}
+.bars em{font-style:normal; font-weight:700; color:var(--ink)}
+.lgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(46px,1fr)); gap:6px; margin-top:8px}
+.lgrid span{aspect-ratio:1; border-radius:10px; display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:1.3rem; position:relative; color:#fff}
+.lgrid span small{position:absolute; bottom:2px; font-family:var(--body); font-weight:400; font-size:.6rem; opacity:.9}
+.s0{background:var(--go)} .s1{background:var(--sun)} .s2{background:var(--brick)} .s3{background:#E8E1CF; color:var(--muted)!important}
+.lkey{display:flex; flex-wrap:wrap; gap:12px; margin-top:8px; font-size:.85rem}
+.lkey i{display:inline-block; width:12px; height:12px; border-radius:4px; margin-right:4px; vertical-align:-1px}
+.small{font-size:.85rem; color:var(--muted); margin:0}
+@media print{
+  body{background:#fff!important; overflow:visible!important; height:auto}
+  #app > *:not(#reportOv){display:none!important}
+  #reportOv{position:static; background:none; padding:0; display:block}
+  #reportOv .card{box-shadow:none; max-height:none; width:100%}
+  .noprint{display:none!important}
+  .lgrid span, .bars i, .lkey i{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+}
 .nameTiles{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:6px 0}
 .nameTiles span{width:56px; height:64px; border-radius:14px; display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:2.4rem; color:#fff; background:var(--c); box-shadow:inset 0 -6px 0 rgba(0,0,0,.2); animation:tileIn .5s both}
 @keyframes tileIn{from{transform:translateY(30px) scale(.6); opacity:0}}
@@ -131,6 +155,16 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <div class="row"><button class="big-btn" id="btnStart" data-t="btnStart">¡A construir!</button><button class="big-btn alt" id="btnName" hidden>🏗️ Construir mi nombre</button></div>
     </div>
   </div>
+  <div class="overlay" id="reportOv" hidden>
+    <div class="card report">
+      <div class="row" style="justify-content:space-between"><h2 id="repH">Reporte</h2><span class="row noprint"><button class="small-btn" id="btnPrint">Imprimir / PDF</button><button class="small-btn" id="btnRepClose" data-t="btnClose">Cerrar</button></span></div>
+      <div class="stats" id="repStats"></div>
+      <div><span class="label" id="repDaysL"></span><div class="bars" id="repBars"></div></div>
+      <div><span class="label" id="repLettersL"></span><div class="lgrid" id="repGrid"></div><div class="lkey" id="repKey"></div></div>
+      <div><span class="label" id="repHardL"></span> <span id="repHard"></span></div>
+      <p class="small" id="repNote"></p><p class="small" id="repDate"></p>
+    </div>
+  </div>
   <div class="overlay" id="nameOv" hidden>
     <div class="card" style="text-align:center">
       <span class="label" id="nameLbl">Tu calle</span>
@@ -172,7 +206,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="prec"> <span class="label" id="precL">Precisión progresiva</span></label> <span id="precP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="installL">Instalar en el iPad</span> <span data-t="installP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="piecesL">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
-      <div class="row"><button class="small-btn" id="btnSwitch" data-t="switchKid">Cambiar de arquitecto</button><button class="small-btn danger" id="btnDelKid">Borrar este arquitecto</button><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
+      <div class="row"><button class="small-btn" id="btnReport">Ver reporte</button><button class="small-btn" id="btnSwitch" data-t="switchKid">Cambiar de arquitecto</button><button class="small-btn danger" id="btnDelKid">Borrar este arquitecto</button><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
     </div>
   </div>
 </div>
@@ -368,7 +402,8 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.', nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
+    repDays:'Últimos 7 días (minutos)', repLetters:'Letras', repKey:['Dominada','En práctica','Le cuesta','Sin practicar'], repHard:'Le cuestan más', repNone:'Ninguna por ahora.', repPrint:'Imprimir / PDF', repNote:'Dominada: llegó al nivel 3 o 4 de precisión. Le cuesta: en sus últimos intentos se salió seguido del camino.', repDate:d=>`Generado el ${d}`, nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
     tapNext:'Toca para la siguiente obra', tapBack:'Toca para volver a la obra', letter:'letra', reset:'Borrar ciudad y progreso', reset2:'Toca otra vez para borrar todo',
     kinds:{vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'},
     kind:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'círculo', curva:'curva'} },
@@ -380,7 +415,8 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.', nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
+    holdHint:'Adult menu: press and hold for 2 seconds.', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
+    repDays:'Last 7 days (minutes)', repLetters:'Letters', repKey:['Mastered','Practicing','Struggling','Not yet'], repHard:'Hardest letters', repNone:'None for now.', repPrint:'Print / PDF', repNote:'Mastered: reached precision level 3 or 4. Struggling: often left the path in recent tries.', repDate:d=>`Generated on ${d}`, nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
     tapNext:'Tap for the next building', tapBack:'Tap to go back to building', letter:'letter', reset:'Erase city and progress', reset2:'Tap again to erase everything',
     kinds:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circles', curva:'curves', letra:'strokes in letters'},
     kind:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circle', curva:'curve'} },
@@ -499,7 +535,7 @@ function loadPiece(i){
   clearTimers();
   if (!inLang(PIECES[i])){ S.level = i; i = nextIndex(); }
   S.level = i; save();
-  const p = PIECES[i]; const pr = PREC[p.letter ? lvOf(p.id) : 0]; run.tol = pr.tol; run.zf = pr.z; run.miss = 0;
+  const p = PIECES[i]; const pr = PREC[p.letter ? lvOf(p.id) : 0]; run.tol = pr.tol; run.zf = pr.z; run.miss = 0; run.t0 = performance.now();
   run.piece = p; run.si = 0; run.beams = []; run.phase = 'trace'; run.lot = S.city.length;
   aimAtLot(run.lot); hideMap();
   setupStroke();
@@ -626,6 +662,10 @@ function completePiece(){
   const p = run.piece; run.phase = 'built'; run.ink = []; run.builtAt = performance.now();
   S.city.push(p.id); S.done[p.id] = (S.done[p.id]||0)+1; run.session++;
   if (run.nameAll){ run.nameI++; renderStrip(); }
+  // stats for the adult report: time spent tracing (capped per building) and misses per letter
+  { const st = S.stats = S.stats || {days:{}, letters:{}}; const day = new Date().toLocaleDateString('sv');
+    const d = st.days[day] = st.days[day] || {ms:0, n:0}; d.ms += Math.min(180000, performance.now() - (run.t0 || performance.now())); d.n++;
+    if (p.letter){ const L = st.letters[p.id] = st.letters[p.id] || {n:0, last:[]}; L.n++; L.last = L.last.concat(run.miss).slice(-5); } }
   let up = false;
   if (p.letter && S.progressive !== false){
     S.skill = S.skill || {}; const k = S.skill[p.id] = S.skill[p.id] || {lv:0, streak:0};
@@ -961,6 +1001,7 @@ function renderAdult(){
   $('skills').innerHTML = KINDS.map(k => `<div class="skill"><b>${counts[k]}</b>${label[k]}</div>`).join('');
   $('pieces').innerHTML = PIECES.map((p,i) => inLang(p) ? `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?tx().letter+' '+p.letter+' '+'●'.repeat(lvOf(p.id)+1)+'○'.repeat(PREC.length-1-lvOf(p.id)):tx().kind[p.kind]}</span>${p.name}</button>` : '').join('');
   $('lang').value = S.lang === 'en' ? 'en' : 'es';
+  $('btnReport').textContent = tx().rep;
   $('prec').checked = S.progressive !== false; $('precL').textContent = tx().precL; $('precP').textContent = tx().precP;
   pickVoice(); $('voiceInfo').textContent = voice ? `${voice.name} (${voice.lang})` : (S.lang === 'en' ? 'No English voice installed on this device.' : 'Este dispositivo no tiene voz en español instalada. Instálala en Ajustes → Accesibilidad → Contenido leído → Voces.');
   $('kidName').value = S.name; $('barrioSize').value = String(BARRIO());
@@ -987,6 +1028,32 @@ document.querySelectorAll('.langBtn').forEach(b => b.onclick = () => setLang(b.d
 $('prec').onchange = e => { S.progressive = e.target.checked; save(); renderAdult(); };
 $('barrioSize').onchange = e => { S.barrioSize = +e.target.value; save(); };
 $('kidName').oninput = e => { S.name = e.target.value.trim(); save(); renderWho(); renderKids(); renderNameBtn(); };
+function renderReport(){
+  const T = tx(), st = S.stats || {days:{}, letters:{}}, today = new Date();
+  const key = d => d.toLocaleDateString('sv'), min = ms => Math.round(ms/60000);
+  const days = [...Array(7)].map((_,k) => { const d = new Date(today); d.setDate(d.getDate() - (6-k)); return {d, v: (st.days[key(d)]||{ms:0}).ms}; });
+  const all = Object.values(st.days).reduce((a,d)=>a+d.ms, 0), week = days.reduce((a,d)=>a+d.v, 0);
+  const letters = PIECES.filter(p => p.letter && inLang(p));
+  const state = p => { const L = st.letters[p.id]; if (!L || !L.n) return 3;
+    const avg = L.last.reduce((a,b)=>a+b,0) / L.last.length; const k = (S.skill||{})[p.id] || {lv:0, streak:0};
+    if (avg > 30 || k.streak <= -1) return 2; if (k.lv >= 2) return 0; return 1; };
+  const nm = S.name || T.anon(PROF.list.findIndex(k=>k.id===PROF.cur)+1);
+  $('repH').textContent = T.repH(nm); $('btnPrint').textContent = T.repPrint; $('btnRepClose').textContent = UI[S.lang==='en'?'en':'es'].btnClose;
+  $('repStats').innerHTML = [[min(days[6].v), T.repToday], [min(week), T.rep7], [min(all), T.repAll], [S.city.length, T.repB], [letters.filter(p=>state(p)!==3).length + '/' + letters.length, T.repL]]
+    .map(([v,l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
+  const top = Math.max(60000, ...days.map(d=>d.v)), wd = S.lang === 'en' ? 'en-US' : 'es';
+  $('repDaysL').textContent = T.repDays;
+  $('repBars').innerHTML = days.map(d => `<div><em>${min(d.v)}</em><i style="height:${Math.round(80*d.v/top)}%"></i>${d.d.toLocaleDateString(wd,{weekday:'short'})}</div>`).join('');
+  $('repLettersL').textContent = T.repLetters;
+  $('repGrid').innerHTML = letters.map(p => { const L = st.letters[p.id]; return `<span class="s${state(p)}">${p.letter}<small>${L ? '×'+L.n : ''}</small></span>`; }).join('');
+  $('repKey').innerHTML = T.repKey.map((t,i) => `<span><i class="s${i}"></i>${t}</span>`).join('');
+  const hard = letters.filter(p => state(p) === 2).map(p => p.letter);
+  $('repHardL').textContent = T.repHard + ':'; $('repHard').textContent = hard.length ? hard.join(' ') : T.repNone;
+  $('repNote').textContent = T.repNote; $('repDate').textContent = T.repDate(today.toLocaleDateString(wd, {day:'numeric', month:'long', year:'numeric'}));
+}
+$('btnReport').onclick = () => { renderReport(); $('adultOv').hidden = true; $('reportOv').hidden = false; };
+$('btnRepClose').onclick = () => { $('reportOv').hidden = true; $('adultOv').hidden = false; };
+$('btnPrint').onclick = () => { try { window.print(); } catch(e) {} };
 $('btnSwitch').onclick = () => { if (run.nameAll){ S.level = run.savedLevel; run.nameAll = null; renderStrip(); } $('adultOv').hidden = true; $('restOv').hidden = true; clearTimers(); run.phase = 'idle'; renderKids(); $('startOv').hidden = false; };
 $('btnDelKid').onclick = e => {
   const b = e.currentTarget;
