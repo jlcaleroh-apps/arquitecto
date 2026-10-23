@@ -1,0 +1,132 @@
+"""Automated checks for Trazos de Arquitecto.
+
+Run locally:   python3 tests/test_app.py
+Needs:         pip install playwright && python -m playwright install chromium
+GitHub runs this on every push (.github/workflows/tests.yml).
+"""
+import asyncio, json, pathlib, sys, unicodedata
+from playwright.async_api import async_playwright
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+URL = (ROOT / 'index.html').as_uri()
+results = []
+
+def check(name, ok, detail=''):
+    results.append((name, bool(ok), detail))
+    print(('  OK  ' if ok else ' FAIL ') + name + (f'  — {detail}' if detail and not ok else ''))
+
+def first_letter(name):
+    for art in ('El ', 'La ', 'Los ', 'Las ', 'The '):
+        if name.startswith(art): name = name[len(art):]; break
+    ch = name[0].upper()
+    return ch if ch == 'Ñ' else unicodedata.normalize('NFD', ch)[0]
+
+async def fresh(pg, state=None, profiles=None):
+    await pg.goto(URL)
+    profiles = profiles or {'cur': 'p1', 'list': [{'id': 'p1', 'color': 'teal'}]}
+    await pg.evaluate("([p, s]) => { localStorage.clear(); localStorage.setItem('trazos-arquitecto-perfiles', p); if (s) localStorage.setItem('trazos-arquitecto-v2:p1', s); }",
+                      [json.dumps(profiles), json.dumps(state) if state else None])
+    await pg.reload(); await pg.wait_for_timeout(250)
+
+async def trace_current(pg):
+    """Follow the path of every stroke of the current piece with the mouse."""
+    box = await pg.evaluate("(()=>{const r=document.getElementById('stage').getBoundingClientRect();return [r.left,r.top]})()")
+    n = await pg.evaluate("__trazos.run.piece.strokes.length")
+    for _ in range(n):
+        pts = await pg.evaluate("(()=>{const r=__trazos.run; return r.pts.filter((_,i)=>i%3===0).concat([r.pts[r.pts.length-1]]).map(q=>__trazos.toScreen(r.lot,q))})()")
+        await pg.mouse.move(box[0]+pts[0][0], box[1]+pts[0][1]); await pg.mouse.down()
+        for x, y in pts[1:]: await pg.mouse.move(box[0]+x, box[1]+y)
+        await pg.mouse.up(); await pg.wait_for_timeout(60)
+
+async def main():
+    async with async_playwright() as p:
+        b = await p.chromium.launch()
+        pg = await b.new_page(viewport={'width': 1024, 'height': 768})
+        errors = []
+        pg.on('pageerror', lambda e: errors.append(str(e)))
+        await pg.add_init_script("window.__said=[]; speechSynthesis.speak=u=>{__said.push(u.lang+'|'+u.text)};")
+
+        print('Contenido')
+        await fresh(pg)
+        data = await pg.evaluate("""(() => { const t = __trazos.test;
+            return t.PIECES.map(p => ({id:p.id, letter:p.letter||null, es:p.es[0], en:(t.EN[p.id]||[null])[0], n:p.strokes.length})); })()""")
+        letters = [d for d in data if d['letter']]
+        check('27 letras mayúsculas (A–Z y Ñ)', sorted(d['letter'] for d in letters) == sorted('ABCDEFGHIJKLMNOPQRSTUVWXYZÑ'))
+        check('solo mayúsculas', all(d['letter'] == d['letter'].upper() for d in letters))
+        bad = [d['letter'] for d in letters if first_letter(d['es']) != d['letter']]
+        check('cada edificio en español empieza con su letra', not bad, ' '.join(bad))
+        bad = [d['letter'] for d in letters if d['letter'] != 'Ñ' and (not d['en'] or first_letter(d['en']) != d['letter'])]
+        check('cada edificio en inglés empieza con su letra', not bad, ' '.join(bad))
+
+        print('Letras dentro del edificio')
+        fit = await pg.evaluate("""(() => { const t = __trazos.test, out = [];
+          const N = 300, off = 60, cv = document.createElement('canvas'); cv.width = cv.height = N + 2*off; const c = cv.getContext('2d');
+          for (const p of t.PIECES.filter(p => p.letter)) {
+            const M = q => [off + q[0]*N, off + (q[1]+.1)*N*.9];
+            c.clearRect(0,0,cv.width,cv.height); t.setK({ctx:c, z:N, M}); p.art(t.C[p.c], 0);
+            const art = c.getImageData(0,0,cv.width,cv.height).data;
+            c.clearRect(0,0,cv.width,cv.height); t.setK({ctx:c, z:N, M}); t.drawTrim(p, p.strokes);
+            const tr = c.getImageData(0,0,cv.width,cv.height).data;
+            let all=0, outside=0; for (let i=3;i<tr.length;i+=4) if (tr[i]>128){ all++; if (art[i]<128) outside++; }
+            const low = Math.max(...p.strokes.flat().map(q=>q[1]));
+            out.push([p.letter, Math.round(100*outside/all), low]);
+          } return out; })()""")
+        bad = [f'{l}:{pct}%' for l, pct, _ in fit if pct > 2]
+        check('ninguna letra sale de su edificio (≤2%)', not bad, ' '.join(bad))
+        bad = [l for l, _, low in fit if low > 0.86]
+        check('cada letra deja planta baja (no toca el suelo)', not bad, ' '.join(bad))
+
+        print('Orden de trazos')
+        order = await pg.evaluate("""(() => __trazos.test.PIECES.filter(p=>p.letter).map(p => [p.letter, p.strokes.map(st => {
+            const a = st[0], b = st[st.length-1], dx = b[0]-a[0], dy = b[1]-a[1];
+            if (st.length === 2 && Math.abs(dx) < .02) return dy > 0 ? 'V' : 'v';
+            if (st.length === 2 && Math.abs(dy) < .02) return dx > 0 ? 'H' : 'h'; return '-'; }).join('')]))()""")
+        bad = [l for l, k in order if 'v' in k or 'h' in k]
+        check('verticales hacia abajo y horizontales a la derecha', not bad, ' '.join(bad))
+        bad = [l for l, k in order if 'H' in k and 'V' in k and k.rindex('V') > k.index('H')]
+        check('vertical antes que horizontal', not bad, ' '.join(bad))
+
+        print('Se puede trazar cada pieza')
+        failed = []
+        await pg.click('#btnStart')
+        for i, d in enumerate(data):
+            # load the piece the same way the adult list does
+            await pg.evaluate("i => { const btn = document.createElement('button'); btn.className = 'piece'; btn.dataset.i = i; document.getElementById('pieces').appendChild(btn); btn.click(); btn.remove(); }", i)
+            await pg.wait_for_timeout(1300)
+            await trace_current(pg)
+            await pg.wait_for_timeout(150)
+            if await pg.evaluate("__trazos.run.phase") not in ('built', 'tour'): failed.append(d['id'])
+        check(f'las {len(data)} piezas se completan siguiendo el camino', not failed, ' '.join(failed))
+
+        print('Mapa y voz')
+        await fresh(pg, {'city': [d['id'] for d in data][:12], 'level': 0})
+        await pg.click('#btnStart'); await pg.wait_for_timeout(300); await pg.click('#btnMap'); await pg.wait_for_timeout(800)
+        check('el mapa se dibuja sin errores', not errors, '; '.join(errors[:2]))
+        for lang, tag in (('es', 'es-'), ('en', 'en-')):
+            await fresh(pg)
+            await pg.click(f'.langBtn[data-l={lang}]'); await pg.evaluate("__said.length=0")
+            await pg.click('#btnStart'); await pg.wait_for_timeout(600)
+            said = await pg.evaluate("__said")
+            check(f'voz en {lang} usa solo idioma {tag}…', said and all(s.startswith(tag) for s in said), str(said))
+        nxt = await pg.evaluate("(() => { const t = __trazos.test; t.S.level = t.PIECES.findIndex(p=>p.id==='N'); return t.PIECES[t.nextIndex()].id; })()")
+        check('en inglés se omite la Ñ', nxt != 'Ñ', nxt)
+
+        print('Perfiles y copia')
+        await fresh(pg, {'name': 'Ana', 'city': ['torre', 'casa']},
+                    {'cur': 'p1', 'list': [{'id': 'p1', 'color': 'teal'}, {'id': 'p2', 'color': 'brick'}]})
+        await pg.click('.kid[data-id=p2]'); await pg.wait_for_timeout(200)
+        a = await pg.inner_text('#houseN')
+        await pg.click('.kid[data-id=p1]'); await pg.wait_for_timeout(200)
+        check('cada niño tiene su propia ciudad', a == '0' and await pg.inner_text('#houseN') == '2')
+        await pg.click('#btnStart'); await pg.wait_for_timeout(200)
+        await pg.click('#btnAdult'); await pg.wait_for_timeout(100)
+        check('un toque corto no abre el menú de adultos', await pg.locator('#adultOv').is_hidden())
+
+        check('sin errores de JavaScript', not errors, '; '.join(errors[:3]))
+        await b.close()
+
+    failed = [r for r in results if not r[1]]
+    print(f'\n{len(results)-len(failed)}/{len(results)} pruebas pasaron')
+    sys.exit(1 if failed else 0)
+
+asyncio.run(main())

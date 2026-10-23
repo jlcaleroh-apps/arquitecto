@@ -21,3 +21,9 @@ Presentación y principios de diseño: https://jlcaleroh-apps.github.io/arquitec
 ## Instalar en el iPad (sin internet)
 
 En Safari abre https://jlcaleroh-apps.github.io/arquitecto/ → botón Compartir → **Agregar a pantalla de inicio**. Se abre en pantalla completa y funciona sin conexión (`sw.js` guarda la app; cuando hay internet descarga la versión nueva).
+
+## Pruebas automáticas
+
+`tests/test_app.py` revisa en un navegador real: las 27 letras, que cada edificio empiece con su letra (español e inglés), que ninguna letra salga de su edificio, el orden de los trazos, que las 33 piezas se puedan trazar, el mapa, la voz por idioma, los perfiles y el menú protegido. GitHub las corre solo en cada cambio (pestaña **Actions**).
+
+Local: `pip install playwright && python -m playwright install chromium && python3 tests/test_app.py`
