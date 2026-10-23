@@ -131,6 +131,18 @@ async def main():
         spot = await pg.evaluate("(() => { const d = __trazos.test.S.decor[0]; return [d.i % 4, d.j % 4]; })()")
         check('comprar descuenta ladrillos y coloca en una plaza', await pg.inner_text('#brickN') == '23' and spot == [0, 0], str(spot))
 
+        print('Límite diario')
+        await fresh(pg, {'dailyMin': 10, 'city': ['torre'] * 10, 'stats': {'days': {}, 'letters': {}}})
+        await pg.click('#btnStart'); await pg.wait_for_timeout(300)
+        steps = await pg.evaluate("""(() => { const t = __trazos.test, d = new Date().toLocaleDateString('sv');
+            t.S.stats.days[d] = {ms: 11*60000, n: 12}; const out = [];
+            for (let k = 0; k < 5; k++){ t.goNext(); out.push(document.getElementById('timeOv').hidden ? 'sigue' : 'descansa'); }
+            return out; })()""")
+        check('al llegar al límite termina la manzana (máx. 3) y luego descansa', steps[:4] == ['sigue', 'sigue', 'sigue', 'descansa'], str(steps))
+        await fresh(pg, {'dailyMin': 10, 'stats': {'days': {__import__('datetime').date.today().isoformat(): {'ms': 700000, 'n': 20}}, 'letters': {}}})
+        await pg.click('#btnStart'); await pg.wait_for_timeout(300)
+        check('si ya jugó su tiempo, al volver a entrar ve el descanso', await pg.is_visible('#timeOv'))
+
         print('Repaso inteligente')
         await fresh(pg, {'level': 0, 'skill': {'I': {'lv': 3, 'streak': 0}, 'L': {'lv': 3, 'streak': 0}},
                          'stats': {'days': {}, 'letters': {'I': {'n': 5, 'last': [0, 0]}, 'L': {'n': 5, 'last': [0, 0]},
