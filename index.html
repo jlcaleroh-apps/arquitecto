@@ -79,6 +79,7 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 #nameStrip span{width:30px; height:34px; border-radius:8px; display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:1.2rem; background:var(--table-2); color:#6E87A6; border:2px dashed #4A6585}
 #nameStrip span.done{background:var(--c); color:#fff; border:0; box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
 #nameStrip span.now{border-color:var(--sun); color:var(--sun)}
+#nameStrip span.gap{width:10px; background:none; border:0}
 .report{width:min(720px,100%)}
 .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px}
 .stats div{background:#fff; border:2px solid #EADDBB; border-radius:14px; padding:10px 12px}
@@ -232,6 +233,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <span class="label" id="tripLbl">✈️ ¡Un viaje!</span>
       <img id="tripSil" alt="" style="width:220px;height:220px;margin:0 auto">
       <h1 id="tripQ">¿A dónde vamos?</h1>
+      <div id="tripWord" style="font-family:var(--display);font-weight:800;font-size:2.4rem;letter-spacing:.08em;margin:.2em 0 .4em"></div>
       <div class="row" style="justify-content:center"><button class="big-btn" id="btnTripGo">✈️ ¡Vamos!</button></div>
     </div>
   </div>
@@ -739,7 +741,18 @@ function nameLetters(name){
 function renderStrip(){
   const el = $('nameStrip'); if (!run.nameAll){ el.hidden = true; return; }
   el.hidden = false;
-  el.innerHTML = run.nameAll.map((l,i) => `<span class="${i < run.nameI ? 'done' : (i === run.nameI ? 'now' : '')}" style="--c:var(--${COLORS[i%COLORS.length]})">${i < run.nameI ? l.ch : '·'}</span>`).join('');
+  const cls = i => i < run.nameI ? 'done' : (i === run.nameI ? 'now' : '');
+  if (run.trip){
+    // trips: the whole city name is visible from the start (sight word); each letter lights up as it is built
+    let k = 0;
+    el.innerHTML = [...tripWord(run.trip).toUpperCase()].map(ch => {
+      if (ch === ' ') return '<span class="gap"></span>';
+      const l = run.nameAll[k]; if (!l || l.ch !== ch) return '';
+      const i = k++; return `<span class="${cls(i)}" style="--c:var(--${COLORS[i%COLORS.length]})">${ch}</span>`;
+    }).join('');
+    return;
+  }
+  el.innerHTML = run.nameAll.map((l,i) => `<span class="${cls(i)}" style="--c:var(--${COLORS[i%COLORS.length]})">${i < run.nameI ? l.ch : '·'}</span>`).join('');
 }
 function startName(){
   const ls = nameLetters(S.name); if (!ls.length) return;
@@ -784,7 +797,7 @@ function showPostcard(){
   const t = nextTrip(); clearTimers(); run.phase = 'idle'; run.pendingTrip = t;
   S.tripMarks = (S.tripMarks||[]).concat(S.city.length).slice(-20); save();
   $('tripLbl').textContent = tx().tripLbl; $('tripQ').textContent = tx().tripQ; $('btnTripGo').textContent = tx().tripGo;
-  $('tripSil').src = landmarkImg(t.id, 440, true); $('tripOv').hidden = false;
+  $('tripWord').textContent = tripWord(t).toUpperCase(); $('tripSil').src = landmarkImg(t.id, 440, true); $('tripOv').hidden = false;
   [523,784,1047].forEach((f,i)=>tone(f,.25,'sine',.14,i*.1)); speak(tx().tripV);
 }
 function startTrip(){

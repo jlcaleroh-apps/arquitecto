@@ -155,8 +155,11 @@ async def main():
         await pg.click('#btnStart'); await pg.wait_for_timeout(200)
         await pg.evaluate("__trazos.test.goNext()"); await pg.wait_for_timeout(200)
         check('al llegar a la mitad aparece la postal del viaje', await pg.is_visible('#tripOv'))
+        check('la postal muestra la palabra completa (PISA)', await pg.text_content('#tripWord') == 'PISA')
         await pg.click('#btnTripGo'); await pg.wait_for_timeout(1500)
         check('el viaje empieza por la primera letra (PISA → P)', await pg.evaluate("__trazos.run.piece.id") == 'P')
+        strip = await pg.evaluate("[...document.querySelectorAll('#nameStrip span')].map(s => s.textContent).join('')")
+        check('la ciudad se ve completa desde el inicio, no letra por letra', strip == 'PISA', strip)
 
         print('Errores corregidos (no deben volver)')
         await fresh(pg, {'bricks': 2000, 'city': ['torre']})
@@ -176,6 +179,8 @@ async def main():
         await phone.goto(URL); await phone.evaluate("localStorage.clear(); localStorage.setItem('trazos-arquitecto-v2:p1', JSON.stringify({city: Array(18).fill('torre'), trips: 'pisa roma rio leon paris china tokio masaya egipto londres sidney granada managua'.split(' ').map(id => ({id}))}))")
         await phone.reload(); await phone.click('#btnStart'); await phone.wait_for_timeout(200)
         await phone.evaluate("__trazos.test.goNext()"); await phone.wait_for_timeout(200); await phone.click('#btnTripGo'); await phone.wait_for_timeout(1500)
+        ny = await phone.evaluate("[...document.querySelectorAll('#nameStrip span')].map(s => s.className === 'gap' ? ' ' : s.textContent).join('')")
+        check('NUEVA YORK se ve completa, con su espacio', ny == 'NUEVA YORK', ny)
         check('en teléfono, NUEVA YORK cabe sin salirse de la pantalla', not await phone.evaluate("document.documentElement.scrollWidth > innerWidth"))
         await phone.close()
 
