@@ -37,6 +37,11 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 @keyframes pop{40%{transform:scale(1.35)}}
 .iconbtn{width:44px; height:44px; border-radius:12px; border:0; background:var(--table-2); display:grid; place-items:center}
 .iconbtn svg{width:24px; height:24px}
+/* adult button: a ring fills while it is held */
+#btnAdult{position:relative; touch-action:none}
+#btnAdult::after{content:''; position:absolute; inset:-4px; border-radius:15px; pointer-events:none; opacity:0;
+  background:conic-gradient(var(--sun) calc(var(--hold,0)*1turn), transparent 0); -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)); mask:radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px))}
+#btnAdult.holding::after{opacity:1}
 .iconbtn[aria-pressed="false"]{opacity:.55}
 
 .msg{display:flex; align-items:center; gap:10px; min-height:44px}
@@ -93,7 +98,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
     <button class="iconbtn" id="btnSound" aria-pressed="true" aria-label="Sonido">
       <svg viewBox="0 0 24 24" fill="none" stroke="#FFF8E7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>
     </button>
-    <button class="iconbtn" id="btnAdult" aria-label="Para adultos">
+    <button class="iconbtn" id="btnAdult" aria-label="Para adultos (mantén presionado)">
       <svg viewBox="0 0 24 24" fill="none" stroke="#FFF8E7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
     </button>
   </header>
@@ -331,6 +336,7 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.',
     tapNext:'Toca para la siguiente obra', tapBack:'Toca para volver a la obra', letter:'letra', reset:'Borrar ciudad y progreso', reset2:'Toca otra vez para borrar todo',
     kinds:{vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'},
     kind:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'círculo', curva:'curva'} },
@@ -342,6 +348,7 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
+    holdHint:'Adult menu: press and hold for 2 seconds.',
     tapNext:'Tap for the next building', tapBack:'Tap to go back to building', letter:'letter', reset:'Erase city and progress', reset2:'Tap again to erase everything',
     kinds:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circles', curva:'curves', letra:'strokes in letters'},
     kind:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circle', curva:'curve'} },
@@ -872,7 +879,17 @@ function renderAdult(){
   $('kidName').value = S.name; $('barrioSize').value = String(BARRIO());
   $('btnReset').textContent = tx().reset; $('btnDelKid').textContent = tx().delKid; $('btnDelKid').dataset.arm = ''; $('btnDelKid').hidden = PROF.list.length < 2; $('btnReset').dataset.arm = '';
 }
-$('btnAdult').onclick = () => { renderAdult(); $('adultOv').hidden = false; };
+// the adult menu opens only after a 2-second press, so children cannot erase a city by accident
+const openAdult = () => { renderAdult(); $('adultOv').hidden = false; };
+{ const b = $('btnAdult'), HOLD = 2000; let t0 = 0, raf = 0;
+  const stop = () => { cancelAnimationFrame(raf); t0 = 0; b.classList.remove('holding'); b.style.setProperty('--hold', 0); };
+  const tick = now => { const k = Math.min(1, (now - t0)/HOLD); b.style.setProperty('--hold', k);
+    if (k >= 1){ stop(); tone(988,.15,'sine',.12); openAdult(); } else raf = requestAnimationFrame(tick); };
+  b.addEventListener('pointerdown', e => { e.preventDefault(); t0 = performance.now(); b.classList.add('holding'); raf = requestAnimationFrame(tick); });
+  ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, () => { if (t0 && performance.now() - t0 < HOLD) $('msgTxt').textContent = tx().holdHint; stop(); }));
+  b.addEventListener('contextmenu', e => e.preventDefault());
+  b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openAdult(); } }); // keyboard users (adults) open directly
+}
 $('btnClose').onclick = () => { $('adultOv').hidden = true; };
 $('pieces').onclick = e => { const b = e.target.closest('.piece'); if (!b) return; $('adultOv').hidden = true; $('restOv').hidden = true; if (!$('startOv').hidden){ $('startOv').hidden = true; unlockAudio(); } loadPiece(+b.dataset.i); };
 $('lang').onchange = e => { S.lang = e.target.value; save(); applyLang(); pickVoice(); renderLang(); renderWho(); renderAdult(); renderKids();
