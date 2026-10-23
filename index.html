@@ -214,6 +214,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       </div>
       <div><span class="label" data-t="voiceL">Voz</span> <span id="voiceInfo" style="font-size:.9rem"></span>
       </div>
+      <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="pen"> <span class="label" id="penL">Solo Apple Pencil</span></label> <span id="penP" style="font-size:.9rem"></span></div>
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="calm"> <span class="label" id="calmL">Modo calma</span></label> <span id="calmP" style="font-size:.9rem"></span></div>
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="prec"> <span class="label" id="precL">Precisión progresiva</span></label> <span id="precP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="installL">Instalar en el iPad</span> <span data-t="installP" style="font-size:.9rem"></span></div>
@@ -414,7 +415,7 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.', calmL:'Modo calma', calmP:'Mientras traza, se detienen las nubes, los carros y las animaciones. Útil si se distrae.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', penL:'Solo Apple Pencil', penP:'Ignora los dedos y la palma; camino más fino y letra más pequeña, como puente al lápiz. Al usar el lápiz esto se activa solo por un rato.', calmL:'Modo calma', calmP:'Mientras traza, se detienen las nubes, los carros y las animaciones. Útil si se distrae.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
     repDays:'Últimos 7 días (minutos)', repLetters:'Letras', repKey:['Dominada','En práctica','Le cuesta','Sin practicar'], repHard:'Le cuestan más', repNone:'Ninguna por ahora.', repPrint:'Imprimir / PDF', repNote:'Dominada: llegó al nivel 3 o 4 de precisión. Le cuesta: en sus últimos intentos se salió seguido del camino.', repDate:d=>`Generado el ${d}`, nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
     tapNext:'Toca para la siguiente obra', tapBack:'Toca para volver a la obra', letter:'letra', reset:'Borrar ciudad y progreso', reset2:'Toca otra vez para borrar todo',
     kinds:{vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'},
@@ -427,7 +428,7 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.', calmL:'Calm mode', calmP:'While tracing, clouds, cars and animations stop. Useful if the child gets distracted.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
+    holdHint:'Adult menu: press and hold for 2 seconds.', penL:'Apple Pencil only', penP:'Ignores fingers and palm; narrower path and smaller letter, as a bridge to the pencil. Using the pencil turns this on for a while.', calmL:'Calm mode', calmP:'While tracing, clouds, cars and animations stop. Useful if the child gets distracted.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
     repDays:'Last 7 days (minutes)', repLetters:'Letters', repKey:['Mastered','Practicing','Struggling','Not yet'], repHard:'Hardest letters', repNone:'None for now.', repPrint:'Print / PDF', repNote:'Mastered: reached precision level 3 or 4. Struggling: often left the path in recent tries.', repDate:d=>`Generated on ${d}`, nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
     tapNext:'Tap for the next building', tapBack:'Tap to go back to building', letter:'letter', reset:'Erase city and progress', reset2:'Tap again to erase everything',
     kinds:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circles', curva:'curves', letra:'strokes in letters'},
@@ -531,7 +532,10 @@ function say(tag, txt, voice){ if (tag) $('pieceName').textContent = tag; $('msg
 
 // ---------- run state ----------
 const run = {piece:null, si:0, pts:[], prog:0, ink:[], beams:[], pid:null, touched:false, lastTouch:0, demoT0:0, off:0, offWarned:false, phase:'idle', nextPing:0, builtAt:0, lot:0, timers:[], session:0};
-run.tol = PREC[0].tol; run.zf = 1; run.miss = 0;
+run.tol = PREC[0].tol; run.zf = 1; run.miss = 0; run.penSeen = 0;
+// Apple Pencil: when a pen is in use the path is narrower, the letter smaller and the palm is ignored
+const penOn = () => S.penOnly || (run.penSeen && performance.now() - run.penSeen < 120000);
+const tolNow = () => run.tol * (penOn() ? .72 : 1);
 const particles = [];
 const cam = {x:.6, y:.55, z:300}, camT = {x:.6, y:.55, z:300};
 const later = (fn, ms) => run.timers.push(setTimeout(fn, ms));
@@ -569,7 +573,7 @@ function loadPiece(i){
   clearTimers();
   if (!inLang(PIECES[i])){ S.level = i; i = nextIndex(); }
   S.level = i; save();
-  const p = PIECES[i]; const pr = PREC[p.letter ? lvOf(p.id) : 0]; run.tol = pr.tol; run.zf = pr.z; run.miss = 0; run.t0 = performance.now();
+  const p = PIECES[i]; const pr = PREC[p.letter ? lvOf(p.id) : 0]; run.tol = pr.tol; run.zf = pr.z * (penOn() ? .85 : 1); run.miss = 0; run.t0 = performance.now();
   run.piece = p; run.si = 0; run.beams = []; run.phase = 'trace'; run.lot = S.city.length;
   aimAtLot(run.lot); hideMap();
   setupStroke();
@@ -637,7 +641,7 @@ function advance(p){
   const Wn = Math.ceil(.14/STEP); let best=-1, bd=1e9;
   const end = Math.min(run.pts.length, run.prog+Wn);
   for (let j=run.prog;j<end;j++){ const d = dist(p, run.pts[j]); if (d<bd){bd=d; best=j;} }
-  if (bd < run.tol){
+  if (bd < tolNow()){
     run.off = 0;
     if (best > run.prog){
       run.prog = best;
@@ -652,8 +656,10 @@ stage.addEventListener('pointerdown', e => {
   if (run.phase === 'tour'){ goNext(); return; }
   if (run.view === 'map'){ hideMap(); return; }
   if (run.phase !== 'trace' || run.pid !== null) return;
+  if (e.pointerType === 'pen'){ if (!run.penSeen && !S.penOnly){ run.penSeen = performance.now(); run.zf *= .85; aimAtLot(run.lot); } run.penSeen = performance.now(); }
+  else if (e.pointerType === 'touch' && penOn()) return; // palm resting on the screen
   const p = norm(e);
-  if (dist(p, run.pts[run.prog]) > run.tol*1.7){
+  if (dist(p, run.pts[run.prog]) > tolNow()*1.7){
     run.miss += 10;
     run.demoT0 = performance.now(); run.lastTouch = 0;
     say(null, run.prog ? tx().resume : tx().start); hint();
@@ -817,7 +823,7 @@ function drawGuide(now){
   p.strokes.slice(run.si+1).forEach(st => { ctx.save(); ctx.setLineDash([z*.012, z*.03]); LINE(st, .012, 'rgba(31,46,68,.35)'); ctx.restore(); });
   const st = p.strokes[run.si];
   ctx.save();
-  ctx.globalAlpha = .85; LINE(st, run.tol*1.5, C.lane); ctx.globalAlpha = 1;
+  ctx.globalAlpha = .85; LINE(st, tolNow()*1.5, C.lane); ctx.globalAlpha = 1;
   if (run.prog > 0) { ctx.globalAlpha = .75; LINE(run.pts.slice(0, run.prog+1), .055, shade(C[p.c], .55)); ctx.globalAlpha = 1; }
   // the path itself is a trail of small arrows: each "dot" points where to go
   const N = run.pts.length; ctx.globalAlpha = .75;
@@ -833,7 +839,7 @@ function drawGuide(now){
   CIRC(s0[0], s0[1], .045*(run.prog?1:pulse), C.go);
   const [sx,sy] = K.M(s0); ctx.fillStyle = '#fff'; ctx.font = `800 ${z*.05}px "Baloo 2", sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(run.si+1), sx, sy+z*.004); ctx.textAlign='start';
   if (run.prog > 0 && run.pid === null){ const [rx,ry] = K.M(run.pts[run.prog]); ctx.strokeStyle = C.go; ctx.lineWidth = z*.012; ctx.beginPath(); ctx.arc(rx, ry, z*.04*pulse, 0, 7); ctx.stroke(); }
-  run.ink.forEach(seg => { ctx.globalAlpha = .8; LINE(seg, .028, C.ink); ctx.globalAlpha = 1; });
+  run.ink.forEach(seg => { ctx.globalAlpha = .8; LINE(seg, penOn() ? .016 : .028, C.ink); ctx.globalAlpha = 1; });
   const idle = run.pid === null && (!run.touched || now - run.lastTouch > 3500);
   if (idle && run.prog === 0){
     const T = 2400, k = (Math.max(0, now - run.demoT0) % (T+700)) / T;
@@ -1040,6 +1046,7 @@ function renderAdult(){
   $('pieces').innerHTML = PIECES.map((p,i) => inLang(p) ? `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?tx().letter+' '+p.letter+' '+'●'.repeat(lvOf(p.id)+1)+'○'.repeat(PREC.length-1-lvOf(p.id)):tx().kind[p.kind]}</span>${p.name}</button>` : '').join('');
   $('lang').value = S.lang === 'en' ? 'en' : 'es';
   $('btnReport').textContent = tx().rep; $('btnAvatar').textContent = tx().avBtn;
+  $('pen').checked = !!S.penOnly; $('penL').textContent = tx().penL; $('penP').textContent = tx().penP;
   $('calm').checked = !!S.calm; $('calmL').textContent = tx().calmL; $('calmP').textContent = tx().calmP;
   $('prec').checked = S.progressive !== false; $('precL').textContent = tx().precL; $('precP').textContent = tx().precP;
   pickVoice(); $('voiceInfo').textContent = voice ? `${voice.name} (${voice.lang})` : (S.lang === 'en' ? 'No English voice installed on this device.' : 'Este dispositivo no tiene voz en español instalada. Instálala en Ajustes → Accesibilidad → Contenido leído → Voces.');
@@ -1064,6 +1071,7 @@ $('lang').onchange = e => { S.lang = e.target.value; save(); applyLang(); pickVo
   run.piece = PIECES[S.level]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; speak(run.piece.say); };
 const setLang = l => { S.lang = l; save(); applyLang(); pickVoice(); renderLang(); renderWho(); renderKids(); renderNameBtn(); run.piece = PIECES[S.level] || PIECES[0]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === l))); };
 document.querySelectorAll('.langBtn').forEach(b => b.onclick = () => setLang(b.dataset.l));
+$('pen').onchange = e => { S.penOnly = e.target.checked; save(); };
 $('calm').onchange = e => { S.calm = e.target.checked; save(); };
 $('prec').onchange = e => { S.progressive = e.target.checked; save(); renderAdult(); };
 $('barrioSize').onchange = e => { S.barrioSize = +e.target.value; save(); };
