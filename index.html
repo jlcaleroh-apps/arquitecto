@@ -106,7 +106,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <span class="label" id="restLbl">Barrio terminado</span>
       <h1 id="restH">¡Barrio terminado!</h1>
       <div id="restStars" style="font-size:2.4rem;letter-spacing:.15em;color:var(--sun);line-height:1"></div>
-      <p id="restTxt">Construiste 9 edificios.</p>
+      <p id="restTxt">Construiste muchos edificios.</p>
       <p>Buen momento para terminar por hoy. Tu ciudad se guarda.</p>
       <div class="row">
         <button class="big-btn" id="btnDone">Terminar por hoy</button>
@@ -117,10 +117,12 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
   <div class="overlay" id="adultOv" hidden>
     <div class="card">
       <div class="row" style="justify-content:space-between"><h2>Para adultos</h2><button class="small-btn" id="btnClose">Cerrar</button></div>
-      <p>Cada edificio lleva trazos de escritura: verticales, horizontales, diagonales, círculos y curvas, y después letras completas dentro de la arquitectura (la torre de agua es una T, la fábrica una M, la estación una n). Solo avanza si sigue el camino desde el punto verde, así practica también la dirección. No hay castigo. La ciudad crece por barrios de 9 edificios: al terminar cada barrio hay una celebración y un punto natural para parar, así el juego tiene un final claro cada vez.</p>
+      <p>Cada edificio lleva trazos de escritura: verticales, horizontales, diagonales, círculos y curvas, y después letras completas dentro de la arquitectura (la torre de agua es una T, la fábrica una M, la estación una n). Solo avanza si sigue el camino desde el punto verde, así practica también la dirección. No hay castigo. La voz dice el nombre del edificio al empezar y el nombre de la letra al terminarla (aprendizaje indirecto). La ciudad crece por manzanas de 9 edificios (pequeña celebración, sin parar) y por barrios (36 por defecto): al terminar un barrio hay una gran celebración y un punto natural para parar.</p>
       <div><span class="label">Trazos practicados</span><div class="skills" id="skills"></div></div>
       <div class="row">
         <label for="kidName" class="label">Nombre</label><input type="text" id="kidName" placeholder="Nombre del arquitecto" maxlength="20">
+        <label for="barrioSize" class="label">Tamaño del barrio</label>
+        <select id="barrioSize"><option value="18">18 edificios (~6 min)</option><option value="36">36 edificios (~12 min)</option><option value="54">54 edificios (~18 min)</option><option value="72">72 edificios (~24 min)</option></select>
       </div>
       <div><span class="label">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
       <div class="row"><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
@@ -153,22 +155,22 @@ const DOOR = (cx,w,h,color) => { R(cx-w/2,G-h,cx+w/2,G,color); CIRC(cx+w*.28,G-h
 // ---------- the build list: every letter lives inside a building ----------
 // art(c, t): c = main colour, t = 0..1 time for small animations
 const PIECES = [
-  {id:'torre', name:'La torre', kind:'vertical', c:'brick', tip:'Baja por las paredes y haz el techo.', say:'La torre. Baja.', uses:'l · i · t · H',
+  {id:'torre', name:'La torre', kind:'vertical', c:'brick', tip:'Baja por las paredes y haz el techo.', say:'', uses:'l · i · t · H',
    strokes:[L(.3,.14,.3,G),L(.7,.14,.7,G),L(.3,.14,.7,.14)],
    art:(c)=>{ R(.3,.14,.7,G,c); WINS(.34,.2,.66,.78,3,6); DOOR(.5,.12,.12,shade(c,.6)); LINE([[.5,.14],[.5,.03]],.012,C.ink); CIRC(.5,.03,.018,C.brick); }},
-  {id:'casa', name:'La casa', kind:'diagonal', c:'teal', tip:'El techo y luego las paredes.', say:'La casa.', uses:'A · v · w · M',
+  {id:'casa', name:'La casa', kind:'diagonal', c:'teal', tip:'El techo y luego las paredes.', say:'', uses:'A · v · w · M',
    strokes:[L(.5,.16,.16,.5),L(.5,.16,.84,.5),L(.24,.5,.24,G),L(.76,.5,.76,G)],
    art:(c)=>{ R(.68,.18,.76,.4,shade(C.brick,.75)); R(.24,.5,.76,G,c); POLY([[.5,.16],[.12,.52],[.88,.52]],C.brick); DOOR(.36,.13,.24,shade(c,.55)); R(.5,.6,.68,.74,C.win); LINE([[.59,.6],[.59,.74]],.01,shade(c,.6)); }},
-  {id:'pisos', name:'Edificio de pisos', kind:'horizontal', c:'plum', tip:'Cada piso hacia el lado.', say:'Los pisos.', uses:'E · F · t · z',
+  {id:'pisos', name:'Edificio de pisos', kind:'horizontal', c:'plum', tip:'Cada piso hacia el lado.', say:'', uses:'E · F · t · z',
    strokes:[L(.2,.3,.8,.3),L(.2,.52,.8,.52),L(.2,.74,.8,.74)],
    art:(c)=>{ R(.2,.1,.8,G,c); R(.17,.08,.83,.12,shade(c,.7)); WINS(.22,.13,.78,.29,4,1); WINS(.22,.33,.78,.51,4,1); WINS(.22,.55,.78,.73,4,1); DOOR(.5,.14,.15,shade(c,.55)); }},
-  {id:'parque', name:'El tobogán del parque', kind:'diagonal', c:'sun', tip:'La escalera y el tobogán.', say:'El tobogán.', uses:'x · k · N · z',
+  {id:'parque', name:'El tobogán del parque', kind:'diagonal', c:'sun', tip:'La escalera y el tobogán.', say:'', uses:'x · k · N · z',
    strokes:[L(.3,.3,.3,G),L(.3,.3,.84,G)],
    art:(c)=>{ R(.06,.55,.1,G,'#8a5a3b'); CIRC(.08,.5,.1,shade(C.grass,.8)); CIRC(.13,.42,.08,C.grass); R(.22,.27,.34,.31,C.teal); for(let y=.38;y<G;y+=.09) LINE([[.3,y],[.38,y]],.01,C.ink); LINE([[.38,.31],[.38,G]],.012,C.ink); }},
-  {id:'ventana', name:'Ventana redonda', kind:'círculo', c:'teal', tip:'Gira hasta cerrar.', say:'Da la vuelta.', uses:'o · a · d · g · q',
+  {id:'ventana', name:'Ventana redonda', kind:'círculo', c:'teal', tip:'Gira hasta cerrar.', say:'', uses:'o · a · d · g · q',
    strokes:[arc(.5,.4,.2,-60,-420)],
    art:(c)=>{ R(.16,.1,.84,G,c); CIRC(.5,.4,.2,C.win); LINE([[.5,.2],[.5,.6]],.012,shade(c,.6)); LINE([[.3,.4],[.7,.4]],.012,shade(c,.6)); WINS(.2,.66,.8,.8,4,1); DOOR(.5,.12,.1,shade(c,.55)); }},
-  {id:'observatorio', name:'El observatorio', kind:'curva', c:'blue', tip:'Sube, pasa arriba y baja.', say:'La cúpula.', uses:'n · m · h · c',
+  {id:'observatorio', name:'El observatorio', kind:'curva', c:'blue', tip:'Sube, pasa arriba y baja.', say:'', uses:'n · m · h · c',
    strokes:[arc(.5,.55,.26,180,360)],
    art:(c,t)=>{ R(.22,.55,.78,G,c); POLY(arc(.5,.55,.26,180,360),'#E7EEF6'); R(.47,.3,.55,.55,shade(c,.5)); LINE([[.51,.38],[.68,.2]],.03,C.ink,'butt'); WINS(.26,.6,.74,.76,4,1); DOOR(.5,.12,.13,shade(c,.55)); for(let i=0;i<3;i++){ const a=t*6+i*2; CIRC(.82+.04*Math.cos(a),.12+.03*Math.sin(a),.006,C.sun); } }},
   {id:'L', letter:'L', name:'Torre con patio', kind:'letra', c:'teal', tip:'Baja y hacia el lado.', say:'',
@@ -257,17 +259,18 @@ const PIECES = [
    art:(c)=>{ R(.14,.06,.86,G,shade(C.blue,1.1)); WINS(.2,.18,.8,.84,3,5); }},
 ];
 const LNAME = {A:'a',B:'be',C:'ce',D:'de',E:'e',F:'efe',G:'ge',H:'hache',I:'i',J:'jota',K:'ka',L:'ele',M:'eme',N:'ene',n:'ene','Ñ':'eñe',O:'o',P:'pe',Q:'cu',R:'erre',S:'ese',T:'te',U:'u',V:'uve',W:'doble uve',X:'equis',Y:'ye',Z:'zeta'};
-PIECES.forEach(p=>{ if (p.letter && !p.say) p.say = 'Letra ' + LNAME[p.letter] + '.'; });
+PIECES.forEach(p=>{ p.say = p.name + '.'; }); // presented by its building name; the letter is named only when it is finished
 const KINDS = ['vertical','horizontal','diagonal','círculo','curva','letra'];
 const PRAISE = ['¡Muy bien!','¡Genial!','¡Eso es!','¡Qué buen trazo!','¡Bien hecho!'];
-const STEP = .006, TOL = .09, BARRIO = 9;
+const STEP = .006, TOL = .09, MANZANA = 9;
 const byId = id => PIECES.find(p=>p.id===id);
 
 // ---------- saved progress (per-device convenience) ----------
 const KEY = 'trazos-arquitecto-v2';
-let S = {level:0, city:[], bricks:0, done:{}, sound:true, name:'', barrioSeen:0};
+let S = {level:0, city:[], bricks:0, done:{}, sound:true, name:'', barrioSize:36, barrioStart:0, barrios:0};
 try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch(e) {}
 S.city = S.city.filter(byId);
+const BARRIO = () => S.barrioSize || 36;
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
 
 const $ = id => document.getElementById(id);
@@ -352,7 +355,7 @@ function nextIndex(){
 }
 function goNext(){
   clearTimers();
-  if (S.city.length && S.city.length % BARRIO === 0 && S.barrioSeen < S.city.length){ showBarrio(); return; }
+  if (S.city.length - S.barrioStart >= BARRIO()){ showBarrio(); return; }
   loadPiece(nextIndex());
 }
 
@@ -414,7 +417,7 @@ function completeStroke(){
   if (run.si < run.piece.strokes.length){
     setupStroke();
     const pr = PRAISE[Math.floor(Math.random()*PRAISE.length)];
-    say(null, `${pr} Ahora el trazo ${run.si+1}.`, pr);
+    say(null, `${pr} Ahora el trazo ${run.si+1}.`);
   } else completePiece();
 }
 function completePiece(){
@@ -427,17 +430,19 @@ function completePiece(){
   else say(null, `¡Listo! ${p.name} ya está en tu ciudad.`, '¡Listo!');
   // build-up, then the camera steps back to show the street, then walks on to the next lot
   later(()=>{ run.phase = 'tour'; aimOverview(); showMap(); mapNewAt = performance.now() + 450; }, 900);
-  later(goNext, 3600);
+  const manzana = S.city.length % MANZANA === 0 && S.city.length - S.barrioStart < BARRIO();
+  if (manzana) later(()=>{ for (let i=0;i<6;i++) later(()=>burst(W*(.2+Math.random()*.6), H*(.2+Math.random()*.4), 22, [C.sun,C.go,C.teal][i%3]), i*120); [784,988,1175,1568].forEach((f,i)=>tone(f,.25,'triangle',.14,i*.09)); say(null, '¡Manzana completa! Una cerca dorada en tu mapa.'); }, 1300);
+  later(goNext, manzana ? 4600 : 3600);
 }
 // a finished barrio is a real ending: celebrate, then offer to stop (or start the next one)
 function showBarrio(){
-  const n = S.city.length / BARRIO, ids = S.city.slice(-BARRIO);
-  const letters = ids.map(byId).filter(p=>p && p.letter).map(p=>p.letter);
-  S.barrioSeen = S.city.length; S.level = nextIndex(); run.piece = PIECES[S.level]; run.lot = S.city.length; save();
+  const ids = S.city.slice(S.barrioStart), built = ids.length;
+  const letters = [...new Set(ids.map(byId).filter(p=>p && p.letter).map(p=>p.letter))];
+  S.barrios++; S.barrioStart = S.city.length; const n = S.barrios; S.level = nextIndex(); run.piece = PIECES[S.level]; run.lot = S.city.length; save();
   run.phase = 'idle'; showMap();
   $('restLbl').textContent = `Barrio ${n} de tu ciudad`;
   $('restH').textContent = `¡Barrio ${n} terminado!`;
-  $('restTxt').textContent = `Construiste ${BARRIO} edificios` + (letters.length ? ` y las letras ${letters.join(', ')}.` : '.');
+  $('restTxt').textContent = `Construiste ${built} edificios` + (letters.length ? ` y ${letters.length} letras: ${letters.join(' ')}.` : '.');
   $('restStars').textContent = '★'.repeat(n);
   $('btnMore').textContent = `Empezar barrio ${n+1}`;
   $('restOv').hidden = false;
@@ -446,8 +451,8 @@ function showBarrio(){
   speak(`¡Terminaste el barrio ${n}!`);
 }
 function barrioLabel(){
-  const n = S.city.length, full = n && n % BARRIO === 0 && run.phase !== 'trace';
-  return full ? `Barrio ${n/BARRIO} terminado` : `Barrio ${Math.floor(n/BARRIO)+1} · ${n % BARRIO} de ${BARRIO}`;
+  const k = S.city.length - S.barrioStart;
+  return `Barrio ${S.barrios+1} · ${Math.min(k, BARRIO())} de ${BARRIO()}`;
 }
 function burst(x,y,n,color){ for (let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, v=4+Math.random()*9; particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-3,life:1,color,size:5+Math.random()*7}); } }
 
@@ -597,8 +602,8 @@ function drawMap(now){
     if (isWater(i,j) && hash(i,j)%3===0){ const [x,y] = T(i+.5,j+.5); c.strokeStyle='rgba(255,255,255,.7)'; c.lineWidth=Math.max(1,tw*.02); c.beginPath(); c.arc(x, y, tw*.08, Math.PI*.1, Math.PI*.9); c.stroke(); }
   }
   // finished barrios: a golden fence around the block
-  for (let b=0; b<Math.floor(S.city.length/BARRIO); b++){
-    const q = LOTS[b*BARRIO]; if (!q) break; const bi = Math.floor(q[0]/4)*4+1, bj = Math.floor(q[1]/4)*4+1;
+  for (let b=0; b<Math.floor(S.city.length/MANZANA); b++){
+    const q = LOTS[b*MANZANA]; if (!q) break; const bi = Math.floor(q[0]/4)*4+1, bj = Math.floor(q[1]/4)*4+1;
     diamond(bi+.06, bj+.06, 2.88, 2.88); c.fillStyle = 'rgba(255,200,60,.22)'; c.fill();
     c.lineWidth = Math.max(2, tw*.06); c.strokeStyle = C.sun; c.stroke();
     const [sx,sy] = T(bi+.1, bj+.1); c.fillStyle = C.sun; c.font = `800 ${tw*.4}px "Baloo 2", sans-serif`; c.textAlign='center'; c.textBaseline='middle'; c.fillText('★', sx, sy); c.textAlign='start';
@@ -713,12 +718,13 @@ function renderAdult(){
   const label = {vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'};
   $('skills').innerHTML = KINDS.map(k => `<div class="skill"><b>${counts[k]}</b>${label[k]}</div>`).join('');
   $('pieces').innerHTML = PIECES.map((p,i) => `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?'letra '+p.letter:p.kind}</span>${p.name}</button>`).join('');
-  $('kidName').value = S.name;
+  $('kidName').value = S.name; $('barrioSize').value = String(BARRIO());
   $('btnReset').textContent = 'Borrar ciudad y progreso'; $('btnReset').dataset.arm = '';
 }
 $('btnAdult').onclick = () => { renderAdult(); $('adultOv').hidden = false; };
 $('btnClose').onclick = () => { $('adultOv').hidden = true; };
 $('pieces').onclick = e => { const b = e.target.closest('.piece'); if (!b) return; $('adultOv').hidden = true; $('restOv').hidden = true; if (!$('startOv').hidden){ $('startOv').hidden = true; unlockAudio(); } loadPiece(+b.dataset.i); };
+$('barrioSize').onchange = e => { S.barrioSize = +e.target.value; save(); };
 $('kidName').oninput = e => { S.name = e.target.value.trim(); save(); renderWho(); };
 $('btnReset').onclick = e => {
   const b = e.currentTarget;
