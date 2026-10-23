@@ -214,6 +214,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       </div>
       <div><span class="label" data-t="voiceL">Voz</span> <span id="voiceInfo" style="font-size:.9rem"></span>
       </div>
+      <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="calm"> <span class="label" id="calmL">Modo calma</span></label> <span id="calmP" style="font-size:.9rem"></span></div>
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="prec"> <span class="label" id="precL">Precisión progresiva</span></label> <span id="precP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="installL">Instalar en el iPad</span> <span data-t="installP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="piecesL">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
@@ -413,7 +414,7 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', calmL:'Modo calma', calmP:'Mientras traza, se detienen las nubes, los carros y las animaciones. Útil si se distrae.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
     repDays:'Últimos 7 días (minutos)', repLetters:'Letras', repKey:['Dominada','En práctica','Le cuesta','Sin practicar'], repHard:'Le cuestan más', repNone:'Ninguna por ahora.', repPrint:'Imprimir / PDF', repNote:'Dominada: llegó al nivel 3 o 4 de precisión. Le cuesta: en sus últimos intentos se salió seguido del camino.', repDate:d=>`Generado el ${d}`, nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
     tapNext:'Toca para la siguiente obra', tapBack:'Toca para volver a la obra', letter:'letra', reset:'Borrar ciudad y progreso', reset2:'Toca otra vez para borrar todo',
     kinds:{vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'},
@@ -426,7 +427,7 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
+    holdHint:'Adult menu: press and hold for 2 seconds.', calmL:'Calm mode', calmP:'While tracing, clouds, cars and animations stop. Useful if the child gets distracted.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
     repDays:'Last 7 days (minutes)', repLetters:'Letters', repKey:['Mastered','Practicing','Struggling','Not yet'], repHard:'Hardest letters', repNone:'None for now.', repPrint:'Print / PDF', repNote:'Mastered: reached precision level 3 or 4. Struggling: often left the path in recent tries.', repDate:d=>`Generated on ${d}`, nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
     tapNext:'Tap for the next building', tapBack:'Tap to go back to building', letter:'letter', reset:'Erase city and progress', reset2:'Tap again to erase everything',
     kinds:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circles', curva:'curves', letra:'strokes in letters'},
@@ -952,7 +953,11 @@ function frame(now){
   mcam.x += (mcamT.x-mcam.x)*k; mcam.y += (mcamT.y-mcam.y)*k; mcam.tw += (mcamT.tw-mcam.tw)*k;
   mapFade += ((run.view === 'map' ? 1 : 0) - mapFade)*.14;
   if (mapFade > .985){ drawMap(now); ctx.drawImage(mapCv, 0, 0, W, H); drawParticles(); requestAnimationFrame(frame); return; }
-  drawSky(now); drawGround();
+  // calm mode: while tracing, the world holds still (clouds, cars, animated buildings) so only the path moves
+  const calm = S.calm && run.phase === 'trace';
+  if (!calm) run.calmT = 0; else if (!run.calmT) run.calmT = now;
+  const tw = calm ? run.calmT : now;
+  drawSky(tw); drawGround();
   // visible lots only
   const first = Math.max(0, Math.floor((cam.x - W/(2*cam.z))/LW) - 1), last = Math.ceil((cam.x + W/(2*cam.z))/LW) + 1;
   const building = run.piece && run.phase !== 'idle' ? run.lot : -1;
@@ -963,12 +968,12 @@ function frame(now){
     if (id){
       let grow = 1;
       if (lot === building){ const t = Math.min(1, (now - run.builtAt)/650); grow = Math.max(.02, easeBack(t)); }
-      drawBuilding(lot, byId(id), now, grow);
+      drawBuilding(lot, byId(id), tw, grow);
     }
   }
   if (building >= 0 && run.phase === 'trace'){ drawGuide(now); drawCrane(building); }
   else if (run.phase === 'idle' && run.piece){ K = {ctx, z:cam.z, M:q=>toScreen(run.lot,q)}; ctx.globalAlpha=.2; run.piece.art(C[run.piece.c],0); ctx.globalAlpha=1; drawCrane(run.lot); }
-  drawCars(now);
+  if (!calm) drawCars(now);
   drawReveal(now);
   // street sign
   ctx.fillStyle = C.ink; ctx.font = `700 ${Math.max(13, Math.min(17, W*.03))}px Andika, sans-serif`; ctx.textBaseline = 'top';
@@ -1035,6 +1040,7 @@ function renderAdult(){
   $('pieces').innerHTML = PIECES.map((p,i) => inLang(p) ? `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?tx().letter+' '+p.letter+' '+'●'.repeat(lvOf(p.id)+1)+'○'.repeat(PREC.length-1-lvOf(p.id)):tx().kind[p.kind]}</span>${p.name}</button>` : '').join('');
   $('lang').value = S.lang === 'en' ? 'en' : 'es';
   $('btnReport').textContent = tx().rep; $('btnAvatar').textContent = tx().avBtn;
+  $('calm').checked = !!S.calm; $('calmL').textContent = tx().calmL; $('calmP').textContent = tx().calmP;
   $('prec').checked = S.progressive !== false; $('precL').textContent = tx().precL; $('precP').textContent = tx().precP;
   pickVoice(); $('voiceInfo').textContent = voice ? `${voice.name} (${voice.lang})` : (S.lang === 'en' ? 'No English voice installed on this device.' : 'Este dispositivo no tiene voz en español instalada. Instálala en Ajustes → Accesibilidad → Contenido leído → Voces.');
   $('kidName').value = S.name; $('barrioSize').value = String(BARRIO());
@@ -1058,6 +1064,7 @@ $('lang').onchange = e => { S.lang = e.target.value; save(); applyLang(); pickVo
   run.piece = PIECES[S.level]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; speak(run.piece.say); };
 const setLang = l => { S.lang = l; save(); applyLang(); pickVoice(); renderLang(); renderWho(); renderKids(); renderNameBtn(); run.piece = PIECES[S.level] || PIECES[0]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === l))); };
 document.querySelectorAll('.langBtn').forEach(b => b.onclick = () => setLang(b.dataset.l));
+$('calm').onchange = e => { S.calm = e.target.checked; save(); };
 $('prec').onchange = e => { S.progressive = e.target.checked; save(); renderAdult(); };
 $('barrioSize').onchange = e => { S.barrioSize = +e.target.value; save(); };
 $('kidName').oninput = e => { S.name = e.target.value.trim(); save(); renderWho(); renderKids(); renderNameBtn(); };
