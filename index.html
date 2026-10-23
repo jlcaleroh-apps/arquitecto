@@ -33,7 +33,20 @@ body{
 [hidden]{display:none!important}
 button{font:inherit; color:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent}
 button:focus-visible{outline:3px solid var(--sun); outline-offset:2px}
-#app{height:100%; display:grid; grid-template-rows:auto auto 1fr; gap:8px; position:relative}
+#app{height:100%; display:grid; grid-template-rows:auto auto auto 1fr; gap:8px; position:relative}
+/* barrio progress without reading: one brick per building, grouped in blocks of 9 */
+#barrioBar{display:flex; gap:10px; align-items:center}
+#barrioBar .blk{flex:1; display:flex; gap:2px; padding:3px; border-radius:7px; background:var(--table-2)}
+#barrioBar .blk.full{background:var(--sun); box-shadow:0 0 0 2px var(--sun)}
+#barrioBar i{flex:1; height:12px; border-radius:3px; background:#3A5878}
+#barrioBar i.on{background:var(--brick); box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
+#barrioBar .blk.full i.on{background:#C9772A}
+#barrioBar i.now{background:transparent; box-shadow:inset 0 0 0 2px var(--sun); animation:nowB 1.2s ease-in-out infinite}
+#barrioBar i.pop{animation:popB .5s ease-out}
+#barrioBar .goal{font-size:1.3rem; line-height:1; filter:grayscale(1) opacity(.5)}
+#barrioBar .goal.on{filter:none}
+@keyframes nowB{50%{box-shadow:inset 0 0 0 2px var(--sun), 0 0 8px var(--sun)}}
+@keyframes popB{0%{transform:scale(2.2); background:var(--sun)}}
 
 header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .brand{font-family:var(--display); font-weight:800; font-size:1.35rem; line-height:1; letter-spacing:.01em; margin-right:auto}
@@ -148,6 +161,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
     </button>
   </header>
   <div class="msg"><span class="tag" id="pieceName">La torre</span><span class="txt" id="msgTxt">Empieza en el punto verde.</span><span id="nameStrip" hidden></span></div>
+  <div id="barrioBar" aria-hidden="true"></div>
   <div class="stageWrap" id="stageWrap"><canvas id="stage"></canvas></div>
 
   <div class="overlay" id="startOv">
@@ -526,7 +540,7 @@ function useProfile(id){
   if (id === PROF.cur) return;
   save(); clearTimers(); PROF.cur = id; saveIndex(); S = readProfile(id);
   $('brickN').textContent = S.bricks; $('houseN').textContent = S.city.length;
-  applyLang(); pickVoice(); renderLang(); renderWho(); renderSound(); renderKids(); renderNameBtn(); run.nameAll = null; renderStrip();
+  applyLang(); pickVoice(); renderLang(); renderWho(); renderSound(); renderKids(); renderNameBtn(); renderBar(); run.nameAll = null; renderStrip();
   document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === (S.lang === 'en' ? 'en' : 'es'))));
   run.piece = PIECES[S.level] || PIECES[0]; run.lot = S.city.length; run.phase = 'idle'; run.beams = []; run.ink = []; run.reveal = null; run.session = 0;
   hideMap(); aimAtLot(run.lot); cam.x = camT.x; cam.y = camT.y; cam.z = camT.z;
@@ -735,7 +749,7 @@ function completePiece(){
   }
   save();
   if (up) later(()=>{ tone(1568,.2,'sine',.12); tone(2093,.3,'sine',.12,.12); $('msgTxt').textContent += '  ' + tx().finer(S.skill[p.id].lv + 1); }, 700);
-  $('houseN').textContent = S.city.length; pop('houses');
+  $('houseN').textContent = S.city.length; pop('houses'); renderBar(true);
   for (let i=0;i<6;i++) later(()=>burst(W*(.25+Math.random()*.5), H*(.2+Math.random()*.4), 20, [C.brick,C.sun,C.teal,C.plum,C.go,C.blue][i]), i*90);
   [523,659,784,1047].forEach((f,i)=>tone(f,.35,'triangle',.16,i*.1));
   if (p.letter){ say(null, tx().built(p.letter), tx().builtV(LN[S.lang === 'en' ? 'en' : 'es'][p.letter])); }
@@ -754,7 +768,7 @@ function completePiece(){
 function showBarrio(){
   const ids = S.city.slice(S.barrioStart), built = ids.length;
   const letters = [...new Set(ids.map(byId).filter(p=>p && p.letter).map(p=>p.letter))];
-  S.barrios++; S.barrioStart = S.city.length; const n = S.barrios; S.level = nextIndex(); run.piece = PIECES[S.level]; run.lot = S.city.length; save();
+  S.barrios++; S.barrioStart = S.city.length; const n = S.barrios; later(renderBar, 2500); S.level = nextIndex(); run.piece = PIECES[S.level]; run.lot = S.city.length; save();
   run.phase = 'idle'; showMap();
   $('restLbl').textContent = tx().bLbl(n);
   $('restH').textContent = tx().bH(n);
@@ -765,6 +779,17 @@ function showBarrio(){
   for (let i=0;i<10;i++) later(()=>burst(W*(.15+Math.random()*.7), H*(.15+Math.random()*.5), 26, [C.brick,C.sun,C.teal,C.plum,C.go,C.blue][i%6]), i*140);
   [523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.3,'triangle',.16,i*.13));
   speak(tx().bV(n));
+}
+function renderBar(fresh){
+  const total = BARRIO(), k = Math.min(total, S.city.length - S.barrioStart), blocks = Math.ceil(total / MANZANA);
+  let h = '';
+  for (let b = 0; b < blocks; b++){
+    const n = Math.min(MANZANA, total - b*MANZANA), done = Math.max(0, Math.min(n, k - b*MANZANA));
+    h += `<div class="blk${done === n ? ' full' : ''}">`;
+    for (let j = 0; j < n; j++){ const i = b*MANZANA + j; h += `<i class="${i < k ? 'on' : (i === k ? 'now' : '')}${fresh && i === k-1 ? ' pop' : ''}"></i>`; }
+    h += '</div>';
+  }
+  $('barrioBar').innerHTML = h + `<span class="goal${k >= total ? ' on' : ''}">⭐</span>`;
 }
 function barrioLabel(){
   const k = S.city.length - S.barrioStart;
@@ -1093,7 +1118,7 @@ document.querySelectorAll('.langBtn').forEach(b => b.onclick = () => setLang(b.d
 $('pen').onchange = e => { S.penOnly = e.target.checked; save(); };
 $('calm').onchange = e => { S.calm = e.target.checked; save(); };
 $('prec').onchange = e => { S.progressive = e.target.checked; save(); renderAdult(); };
-$('barrioSize').onchange = e => { S.barrioSize = +e.target.value; save(); };
+$('barrioSize').onchange = e => { S.barrioSize = +e.target.value; save(); renderBar(); };
 $('kidName').oninput = e => { S.name = e.target.value.trim(); save(); renderWho(); renderKids(); renderNameBtn(); };
 function renderReport(){
   const T = tx(), st = S.stats || {days:{}, letters:{}}, today = new Date();
@@ -1170,13 +1195,13 @@ $('btnDelKid').onclick = e => {
 $('btnReset').onclick = e => {
   const b = e.currentTarget;
   if (!b.dataset.arm){ b.dataset.arm = '1'; b.textContent = tx().reset2; return; }
-  clearTimers(); S.city = []; S.bricks = 0; S.done = {}; S.level = 0; save();
+  clearTimers(); S.city = []; S.bricks = 0; S.done = {}; S.level = 0; S.barrioStart = 0; S.barrios = 0; S.cursor = undefined; save(); renderBar();
   $('brickN').textContent = 0; $('houseN').textContent = 0; run.session = 0; renderAdult(); loadPiece(0);
 };
 
 applyLang(); renderLang(); renderWho();
 document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === (S.lang === 'en' ? 'en' : 'es'))));
-renderKids(); renderNameBtn();
+renderKids(); renderNameBtn(); renderBar();
 $('btnName').onclick = startName;
 $('btnNameMore').onclick = () => { $('nameOv').hidden = true; run.session = 0; goNext(); };
 $('btnNameDone').onclick = () => { $('nameOv').hidden = true; $('btnDone').onclick(); };
