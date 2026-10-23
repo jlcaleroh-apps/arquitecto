@@ -55,6 +55,13 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .msg{display:flex; align-items:center; gap:10px; min-height:44px}
 .msg .tag{font-family:var(--display); font-weight:800; font-size:1.25rem; color:var(--sun); white-space:nowrap}
 .msg .txt{font-size:1.05rem; color:#E7EEF6; min-width:0}
+#nameStrip{display:flex; gap:4px; margin-left:auto}
+#nameStrip span{width:30px; height:34px; border-radius:8px; display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:1.2rem; background:var(--table-2); color:#6E87A6; border:2px dashed #4A6585}
+#nameStrip span.done{background:var(--c); color:#fff; border:0; box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
+#nameStrip span.now{border-color:var(--sun); color:var(--sun)}
+.nameTiles{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:6px 0}
+.nameTiles span{width:56px; height:64px; border-radius:14px; display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:2.4rem; color:#fff; background:var(--c); box-shadow:inset 0 -6px 0 rgba(0,0,0,.2); animation:tileIn .5s both}
+@keyframes tileIn{from{transform:translateY(30px) scale(.6); opacity:0}}
 
 .stageWrap{position:relative; min-height:0; border-radius:22px; overflow:hidden; box-shadow:0 10px 0 rgba(0,0,0,.18); background:var(--sky)}
 #stage{display:block; width:100%; height:100%; touch-action:none}
@@ -111,7 +118,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <svg viewBox="0 0 24 24" fill="none" stroke="#FFF8E7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
     </button>
   </header>
-  <div class="msg"><span class="tag" id="pieceName">La torre</span><span class="txt" id="msgTxt">Empieza en el punto verde.</span></div>
+  <div class="msg"><span class="tag" id="pieceName">La torre</span><span class="txt" id="msgTxt">Empieza en el punto verde.</span><span id="nameStrip" hidden></span></div>
   <div class="stageWrap" id="stageWrap"><canvas id="stage"></canvas></div>
 
   <div class="overlay" id="startOv">
@@ -121,7 +128,18 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <p data-t="startP"></p>
       <div><span class="label" id="whoL">¿Quién construye hoy?</span><div class="kids" id="kids"></div></div>
       <div class="row langRow"><button class="small-btn langBtn" data-l="es" aria-pressed="true">Español</button><button class="small-btn langBtn" data-l="en" aria-pressed="false">English</button></div>
-      <button class="big-btn" id="btnStart" data-t="btnStart">¡A construir!</button>
+      <div class="row"><button class="big-btn" id="btnStart" data-t="btnStart">¡A construir!</button><button class="big-btn alt" id="btnName" hidden>🏗️ Construir mi nombre</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="nameOv" hidden>
+    <div class="card" style="text-align:center">
+      <span class="label" id="nameLbl">Tu calle</span>
+      <h1 id="nameH">¡Construiste tu nombre!</h1>
+      <div class="nameTiles" id="nameTiles"></div>
+      <div class="row" style="justify-content:center">
+        <button class="big-btn" id="btnNameDone" data-t="btnDone">Terminar por hoy</button>
+        <button class="big-btn alt" id="btnNameMore">Seguir construyendo</button>
+      </div>
     </div>
   </div>
   <div class="overlay" id="restOv" hidden>
@@ -350,7 +368,7 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
     tapNext:'Toca para la siguiente obra', tapBack:'Toca para volver a la obra', letter:'letra', reset:'Borrar ciudad y progreso', reset2:'Toca otra vez para borrar todo',
     kinds:{vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'},
     kind:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'círculo', curva:'curva'} },
@@ -362,7 +380,7 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
+    holdHint:'Adult menu: press and hold for 2 seconds.', nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
     tapNext:'Tap for the next building', tapBack:'Tap to go back to building', letter:'letter', reset:'Erase city and progress', reset2:'Tap again to erase everything',
     kinds:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circles', curva:'curves', letra:'strokes in letters'},
     kind:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circle', curva:'curve'} },
@@ -433,7 +451,7 @@ function useProfile(id){
   if (id === PROF.cur) return;
   save(); clearTimers(); PROF.cur = id; saveIndex(); S = readProfile(id);
   $('brickN').textContent = S.bricks; $('houseN').textContent = S.city.length;
-  applyLang(); pickVoice(); renderLang(); renderWho(); renderSound(); renderKids();
+  applyLang(); pickVoice(); renderLang(); renderWho(); renderSound(); renderKids(); renderNameBtn(); run.nameAll = null; renderStrip();
   document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === (S.lang === 'en' ? 'en' : 'es'))));
   run.piece = PIECES[S.level] || PIECES[0]; run.lot = S.city.length; run.phase = 'idle'; run.beams = []; run.ink = []; run.reveal = null; run.session = 0;
   hideMap(); aimAtLot(run.lot); cam.x = camT.x; cam.y = camT.y; cam.z = camT.z;
@@ -501,8 +519,42 @@ function nextIndex(){
   const pool = letters.filter(i=>cnt(i)===min);
   return pool[Math.floor(Math.random()*pool.length)];
 }
+// ---------- "build your name": a special street that spells the child's name ----------
+const COLORS = ['brick','sun','teal','plum','blue','go'];
+function nameLetters(name){
+  const out = [];
+  for (const ch of (name||'').toUpperCase()){
+    if (ch === 'Ñ'){ out.push({ch, id: S.lang === 'en' ? 'N' : 'Ñ'}); continue; }
+    const base = ch.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    if (/^[A-Z]$/.test(base) && byId(base)) out.push({ch, id: base});
+  }
+  return out;
+}
+function renderStrip(){
+  const el = $('nameStrip'); if (!run.nameAll){ el.hidden = true; return; }
+  el.hidden = false;
+  el.innerHTML = run.nameAll.map((l,i) => `<span class="${i < run.nameI ? 'done' : (i === run.nameI ? 'now' : '')}" style="--c:var(--${COLORS[i%COLORS.length]})">${i < run.nameI ? l.ch : '·'}</span>`).join('');
+}
+function startName(){
+  const ls = nameLetters(S.name); if (!ls.length) return;
+  clearTimers(); run.nameAll = ls; run.nameI = 0; run.savedLevel = S.level;
+  unlockAudio(); $('startOv').hidden = true; renderStrip(); speak(tx().nameStart(S.name));
+  later(()=>loadPiece(PIECES.findIndex(p=>p.id===ls[0].id)), 1300);
+}
+function showNameDone(){
+  const ls = run.nameAll; run.nameAll = null; S.level = run.savedLevel; save(); renderStrip();
+  run.phase = 'idle'; showMap();
+  $('nameLbl').textContent = tx().nameLbl(S.name); $('nameH').textContent = tx().nameDone; $('btnNameMore').textContent = tx().nameMore;
+  $('nameTiles').innerHTML = ls.map((l,i) => `<span style="--c:var(--${COLORS[i%COLORS.length]}); animation-delay:${i*.18}s">${l.ch}</span>`).join('');
+  $('nameOv').hidden = false;
+  for (let i=0;i<12;i++) later(()=>burst(W*(.1+Math.random()*.8), H*(.1+Math.random()*.5), 26, C[COLORS[i%6]]), i*130);
+  [523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,.3,'triangle',.16,i*.12));
+  later(()=>speak('¡' + S.name + '!'), 400);
+}
+function renderNameBtn(){ const b = $('btnName'); b.hidden = !nameLetters(S.name).length; b.textContent = tx().nameBtn; }
 function goNext(){
   clearTimers();
+  if (run.nameAll){ if (run.nameI < run.nameAll.length) loadPiece(PIECES.findIndex(p=>p.id===run.nameAll[run.nameI].id)); else showNameDone(); return; }
   if (S.city.length - S.barrioStart >= BARRIO()){ showBarrio(); return; }
   loadPiece(nextIndex());
 }
@@ -572,6 +624,7 @@ function completeStroke(){
 function completePiece(){
   const p = run.piece; run.phase = 'built'; run.ink = []; run.builtAt = performance.now();
   S.city.push(p.id); S.done[p.id] = (S.done[p.id]||0)+1; run.session++;
+  if (run.nameAll){ run.nameI++; renderStrip(); }
   let up = false;
   if (p.letter && S.progressive !== false){
     S.skill = S.skill || {}; const k = S.skill[p.id] = S.skill[p.id] || {lv:0, streak:0};
@@ -924,12 +977,12 @@ $('pieces').onclick = e => { const b = e.target.closest('.piece'); if (!b) retur
 $('lang').onchange = e => { S.lang = e.target.value; save(); applyLang(); pickVoice(); renderLang(); renderWho(); renderAdult(); renderKids();
   if (run.piece && !inLang(run.piece)) S.level = nextIndex();
   run.piece = PIECES[S.level]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; speak(run.piece.say); };
-const setLang = l => { S.lang = l; save(); applyLang(); pickVoice(); renderLang(); renderWho(); renderKids(); run.piece = PIECES[S.level] || PIECES[0]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === l))); };
+const setLang = l => { S.lang = l; save(); applyLang(); pickVoice(); renderLang(); renderWho(); renderKids(); renderNameBtn(); run.piece = PIECES[S.level] || PIECES[0]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === l))); };
 document.querySelectorAll('.langBtn').forEach(b => b.onclick = () => setLang(b.dataset.l));
 $('prec').onchange = e => { S.progressive = e.target.checked; save(); renderAdult(); };
 $('barrioSize').onchange = e => { S.barrioSize = +e.target.value; save(); };
-$('kidName').oninput = e => { S.name = e.target.value.trim(); save(); renderWho(); renderKids(); };
-$('btnSwitch').onclick = () => { $('adultOv').hidden = true; $('restOv').hidden = true; clearTimers(); run.phase = 'idle'; renderKids(); $('startOv').hidden = false; };
+$('kidName').oninput = e => { S.name = e.target.value.trim(); save(); renderWho(); renderKids(); renderNameBtn(); };
+$('btnSwitch').onclick = () => { if (run.nameAll){ S.level = run.savedLevel; run.nameAll = null; renderStrip(); } $('adultOv').hidden = true; $('restOv').hidden = true; clearTimers(); run.phase = 'idle'; renderKids(); $('startOv').hidden = false; };
 $('btnDelKid').onclick = e => {
   const b = e.currentTarget;
   if (!b.dataset.arm){ b.dataset.arm = '1'; b.textContent = tx().delKid2; return; }
@@ -946,7 +999,10 @@ $('btnReset').onclick = e => {
 
 applyLang(); renderLang(); renderWho();
 document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === (S.lang === 'en' ? 'en' : 'es'))));
-renderKids();
+renderKids(); renderNameBtn();
+$('btnName').onclick = startName;
+$('btnNameMore').onclick = () => { $('nameOv').hidden = true; run.session = 0; goNext(); };
+$('btnNameDone').onclick = () => { $('nameOv').hidden = true; $('btnDone').onclick(); };
 $('kids').onclick = e => {
   const b = e.target.closest('.kid'); if (!b) return;
   if (b.id === 'kidAdd'){
