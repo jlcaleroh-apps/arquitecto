@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Trazos de Arquitecto · Sobre la app</title>
+<meta name="description" content="Un juego de construir ciudades donde cada edificio esconde un trazo o una letra. Diseñado para niños con TDAH.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Baloo+2:wght@600;800&display=swap">
+<style>
+:root{
+  --table:#2C4766; --table-2:#233a55; --paper:#FFF8E7; --ink:#1F2E44; --muted:#5D7089;
+  --go:#2E9E62; --brick:#E0603E; --sun:#F5B22A; --teal:#2A9D9B; --plum:#8C5BB0; --blue:#4A84C4;
+  --win:#FFE9A6; --sky:#A9D8EE; --grass:#7CC47F; --line:rgba(255,248,231,.08);
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Andika","Comic Sans MS",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; font-family:var(--body); font-size:17px; line-height:1.55; color:var(--paper);
+  background-color:var(--table);
+  background-image:linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size:28px 28px;
+}
+.wrap{width:min(1040px, 100%); margin:0 auto; padding:0 16px}
+h1,h2,h3{font-family:var(--display); line-height:1.1; margin:0}
+a{color:inherit}
+
+/* hero */
+.hero{padding:48px 0 0}
+.hero .tag{font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; color:#B9C7D8}
+.hero h1{font-size:clamp(2.4rem, 7vw, 4.4rem); font-weight:800; margin-top:6px}
+.hero p.lead{font-size:clamp(1.05rem, 2.4vw, 1.3rem); max-width:38ch; margin:14px 0 24px; color:#E8EEF5}
+.cta{display:inline-block; text-decoration:none; font-family:var(--display); font-weight:800; font-size:1.35rem;
+  background:var(--go); color:#fff; padding:14px 28px; border-radius:18px; box-shadow:0 6px 0 #1f7246}
+.cta:active{transform:translateY(4px); box-shadow:0 2px 0 #1f7246}
+.cta.alt{background:transparent; box-shadow:none; border:2px solid #6E87A6; font-size:1.1rem; padding:12px 20px; margin-left:8px}
+.skyline{display:block; width:100%; height:auto; margin-top:36px}
+
+/* sections */
+section{padding:56px 0}
+.kicker{font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; color:var(--sun); margin-bottom:8px}
+section > .wrap > h2{font-size:clamp(1.8rem, 4.5vw, 2.6rem); font-weight:800; max-width:24ch}
+.intro{max-width:60ch; color:#DCE5EF; margin:12px 0 0}
+
+.steps{display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-top:28px}
+.step{background:var(--table-2); border-radius:20px; padding:20px; border:1px solid rgba(255,255,255,.06)}
+.step b{font-family:var(--display); font-size:2rem; color:var(--sun); line-height:1}
+.step h3{font-size:1.25rem; margin:6px 0 4px}
+.step p{margin:0; color:#CFDAE6}
+
+/* principles: paper cards, like blueprints pinned to the table */
+.paper{background:var(--paper); color:var(--ink); border-radius:28px; padding:clamp(20px, 4vw, 40px); box-shadow:0 12px 0 rgba(0,0,0,.18)}
+.paper .kicker{color:var(--brick)}
+.paper .intro{color:var(--muted)}
+.principles{display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-top:28px}
+.pr{border:2px solid #EADDBB; border-radius:20px; padding:18px 18px 16px; position:relative; background:#fff}
+.pr .n{position:absolute; top:-14px; left:16px; font-family:var(--display); font-weight:800; font-size:.95rem;
+  background:var(--c, var(--teal)); color:#fff; border-radius:10px; padding:2px 10px}
+.pr h3{font-size:1.2rem; margin:6px 0 6px}
+.pr p{margin:0 0 8px}
+.pr .app{font-size:.93rem; color:var(--muted); margin:0; padding-top:8px; border-top:1px dashed #E2D4B0}
+.pr .app strong{color:var(--ink)}
+
+/* letter order */
+.order{display:grid; gap:12px; margin-top:24px}
+.row{display:flex; flex-wrap:wrap; align-items:center; gap:8px}
+.row .lbl{font-family:var(--display); font-weight:800; min-width:7.5em; color:#E8EEF5}
+.chip{font-family:var(--display); font-weight:800; font-size:1.4rem; width:44px; height:44px; display:grid; place-items:center;
+  border-radius:12px; background:var(--c); color:#fff; box-shadow:inset 0 -4px 0 rgba(0,0,0,.18)}
+.chip.basic{width:auto; padding:0 12px; font-size:1rem}
+
+/* adults */
+.tips{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-top:24px}
+.tip{border-left:4px solid var(--sun); padding:4px 0 4px 14px; color:#DCE5EF}
+.tip h3{font-size:1.1rem; color:var(--paper); margin-bottom:2px}
+.note{margin-top:28px; background:rgba(245,178,42,.12); border:1px solid rgba(245,178,42,.35); border-radius:16px; padding:14px 18px; color:#F3E6C6}
+
+.sources{margin-top:24px; padding-left:1.1em; color:#CFDAE6}
+.sources li{margin-bottom:6px}
+footer{padding:32px 0 48px; color:#9FB2C8; font-size:.9rem; border-top:1px solid rgba(255,255,255,.08)}
+
+@media (max-width:520px){ .cta.alt{margin:12px 0 0} .row .lbl{min-width:100%} }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="tag">Juego de trazos para niños · iPad y navegador</div>
+    <h1>Trazos de Arquitecto</h1>
+    <p class="lead">Un juego de construir ciudades. Cada edificio esconde un trazo o una letra mayúscula. El niño juega a construir; el alfabeto llega por el camino.</p>
+    <a class="cta" href="./">¡A construir!</a><a class="cta alt" href="#principios">Principios TDAH</a>
+
+    <svg class="skyline" viewBox="0 0 1000 220" role="img" aria-label="Una calle con edificios que forman las letras L, T, H, A y O">
+      <rect x="0" y="196" width="1000" height="24" fill="#56606E"/>
+      <rect x="0" y="188" width="1000" height="8" fill="#C9CDD3"/>
+      <g stroke-dasharray="26 22" stroke="#FFE9A6" stroke-width="3"><line x1="0" y1="209" x2="1000" y2="209"/></g>
+      <!-- L -->
+      <rect x="40" y="40" width="44" height="148" fill="#2A9D9B"/><rect x="40" y="140" width="130" height="48" fill="#3FB0AE"/>
+      <path d="M62 52V170H160" fill="none" stroke="#17605F" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- T -->
+      <path d="M232 110L222 188M298 110L308 188" stroke="#1F2E44" stroke-width="5"/>
+      <rect x="214" y="58" width="102" height="52" rx="4" fill="#4A84C4"/>
+      <path d="M265 72V188M218 72H312" fill="none" stroke="#2B4F78" stroke-width="10" stroke-linecap="round"/>
+      <!-- H -->
+      <rect x="370" y="30" width="44" height="158" fill="#E0603E"/><rect x="456" y="30" width="44" height="158" fill="#E0603E"/>
+      <rect x="414" y="98" width="42" height="16" fill="#A8442B"/>
+      <path d="M392 40V184M478 40V184M392 106H478" fill="none" stroke="#8A3520" stroke-width="10" stroke-linecap="round"/>
+      <!-- A -->
+      <polygon points="610,36 548,188 672,188" fill="#8C5BB0"/><polygon points="610,36 590,188 630,188" fill="#FFF8E7" opacity=".55"/>
+      <path d="M610 44L556 184M610 44L664 184M578 130H642" fill="none" stroke="#56346F" stroke-width="10" stroke-linecap="round"/>
+      <!-- O -->
+      <path d="M800 100L770 188M800 100L830 188" stroke="#1F2E44" stroke-width="5"/>
+      <circle cx="800" cy="100" r="58" fill="none" stroke="#F5B22A" stroke-width="12"/>
+      <g fill="#E0603E"><circle cx="800" cy="38" r="9"/><circle cx="858" cy="104" r="9" fill="#2A9D9B"/><circle cx="800" cy="162" r="9" fill="#8C5BB0"/><circle cx="742" cy="104" r="9" fill="#4A84C4"/></g>
+      <!-- trees -->
+      <rect x="926" y="150" width="8" height="38" fill="#8a5a3b"/><circle cx="930" cy="140" r="22" fill="#7CC47F"/>
+      <rect x="696" y="160" width="6" height="28" fill="#8a5a3b"/><circle cx="699" cy="150" r="15" fill="#6aae6d"/>
+    </svg>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">Cómo se juega</div>
+    <h2>Traza con el dedo y la ciudad crece</h2>
+    <div class="steps">
+      <div class="step"><b>1</b><h3>Un edificio nuevo</h3><p>La voz dice solo su nombre: “La torre de agua.” Aparece el plano y un punto verde.</p></div>
+      <div class="step"><b>2</b><h3>Sigue las flechitas</h3><p>Desde el punto verde hasta la bandera. Cada trazo suena y levanta una parte del edificio.</p></div>
+      <div class="step"><b>3</b><h3>¡Construido!</h3><p>Al terminar, la voz nombra la letra: “¡Construiste la te!” El edificio queda en su calle.</p></div>
+      <div class="step"><b>4</b><h3>Manzanas y barrios</h3><p>Cada 9 edificios se completa una manzana. Al terminar un barrio hay gran celebración y un buen momento para parar.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="principios">
+  <div class="wrap">
+    <div class="paper">
+      <div class="kicker">Diseño para TDAH</div>
+      <h2>Los principios detrás del juego</h2>
+      <p class="intro">Cada decisión de diseño responde a cómo aprende y se mantiene enfocado un niño con TDAH. Debajo de cada principio está lo que la app hace para cumplirlo.</p>
+
+      <div class="principles">
+        <article class="pr" style="--c:var(--teal)"><span class="n">01</span>
+          <h3>El interés primero, lo académico de lado</h3>
+          <p>Muchos niños se resisten a “hacer tareas”, pero disfrutan dibujar casas y ciudades. El aprendizaje entra por ahí, de forma indirecta.</p>
+          <p class="app"><strong>En la app:</strong> nunca se pide “escribe la letra”. Se pide construir un edificio. La letra se nombra solo al final, como premio.</p></article>
+
+        <article class="pr" style="--c:var(--brick)"><span class="n">02</span>
+          <h3>Aprovechar el hiperfoco</h3>
+          <p>Cuando algo le atrapa, un niño con TDAH puede sostener la atención mucho tiempo. Sesiones demasiado cortas desperdician ese momento.</p>
+          <p class="app"><strong>En la app:</strong> un barrio tiene 36 edificios (unos 12 minutos), ajustable de 18 a 72. Las manzanas celebran sin interrumpir el juego.</p></article>
+
+        <article class="pr" style="--c:var(--plum)"><span class="n">03</span>
+          <h3>Un final claro para poder parar</h3>
+          <p>Un juego infinito genera ansiedad por completar y hace difícil cambiar de actividad.</p>
+          <p class="app"><strong>En la app:</strong> cada barrio termina con una estrella, una cerca dorada en el mapa y el botón principal <em>“Terminar por hoy”</em>. Seguir es la opción secundaria.</p></article>
+
+        <article class="pr" style="--c:var(--blue)"><span class="n">04</span>
+          <h3>Silencio mientras traza</h3>
+          <p>En niños con TDAH, la escritura se vuelve más lenta y menos legible cuando deben procesar palabras al mismo tiempo (carga verbal).</p>
+          <p class="app"><strong>En la app:</strong> la voz habla solo al presentar el edificio y al terminar la letra. Entre trazos solo suena un tono corto.</p></article>
+
+        <article class="pr" style="--c:var(--sun)"><span class="n">05</span>
+          <h3>Refuerzo inmediato y frecuente</h3>
+          <p>El refuerzo funciona mejor cuando llega en el momento, no al final de una tarea larga.</p>
+          <p class="app"><strong>En la app:</strong> notas musicales que suben mientras avanza el dedo, un ladrillo por trazo y el edificio que crece en cuanto se completa.</p></article>
+
+        <article class="pr" style="--c:var(--go)"><span class="n">06</span>
+          <h3>Un paso a la vez, guía visual clara</h3>
+          <p>Menos decisiones y menos texto liberan memoria de trabajo para lo importante: el movimiento.</p>
+          <p class="app"><strong>En la app:</strong> punto verde para empezar, mini flechas que marcan la dirección, una bandera al final y una demostración si el niño se queda quieto.</p></article>
+
+        <article class="pr" style="--c:var(--teal)"><span class="n">07</span>
+          <h3>Sin castigo, sin “error”</h3>
+          <p>La frustración corta el juego. Equivocarse no debe costar lo ya logrado.</p>
+          <p class="app"><strong>En la app:</strong> si el dedo se sale, lo avanzado se guarda y solo se invita a seguir el camino. No hay puntajes negativos ni tiempo límite.</p></article>
+
+        <article class="pr" style="--c:var(--brick)"><span class="n">08</span>
+          <h3>De lo fácil a lo difícil</h3>
+          <p>Agrupar letras por tipo de trazo y avanzar en dificultad facilita aprender la forma.</p>
+          <p class="app"><strong>En la app:</strong> solo mayúsculas, en orden: trazos básicos, luego líneas rectas, curvas y al final diagonales.</p></article>
+
+        <article class="pr" style="--c:var(--plum)"><span class="n">09</span>
+          <h3>Dirección del trazo, puente al lápiz</h3>
+          <p>Practicar el movimiento correcto con el dedo construye el patrón motor que luego se usa con el lápiz.</p>
+          <p class="app"><strong>En la app:</strong> solo avanza si el trazo sigue el camino y la dirección correcta, desde el punto verde.</p></article>
+
+        <article class="pr" style="--c:var(--blue)"><span class="n">10</span>
+          <h3>Progreso visible y acumulado</h3>
+          <p>Ver lo construido da sentido de logro y ganas de volver mañana.</p>
+          <p class="app"><strong>En la app:</strong> la ciudad se guarda en el dispositivo y se puede ver como mapa de juego de mesa, con cada manzana y barrio terminados.</p></article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">El recorrido</div>
+    <h2>Orden de las letras</h2>
+    <p class="intro">Después de recorrer todas, el juego elige siempre las letras menos practicadas, para que ninguna se quede atrás.</p>
+    <div class="order">
+      <div class="row"><span class="lbl">Trazos básicos</span>
+        <span class="chip basic" style="--c:var(--muted)">vertical</span><span class="chip basic" style="--c:var(--muted)">diagonal</span><span class="chip basic" style="--c:var(--muted)">horizontal</span><span class="chip basic" style="--c:var(--muted)">círculo</span><span class="chip basic" style="--c:var(--muted)">curva</span></div>
+      <div class="row"><span class="lbl">Rectas</span>
+        <span class="chip" style="--c:var(--teal)">I</span><span class="chip" style="--c:var(--teal)">L</span><span class="chip" style="--c:var(--teal)">T</span><span class="chip" style="--c:var(--teal)">H</span><span class="chip" style="--c:var(--teal)">E</span><span class="chip" style="--c:var(--teal)">F</span></div>
+      <div class="row"><span class="lbl">Curvas</span>
+        <span class="chip" style="--c:var(--blue)">O</span><span class="chip" style="--c:var(--blue)">C</span><span class="chip" style="--c:var(--blue)">U</span><span class="chip" style="--c:var(--blue)">D</span><span class="chip" style="--c:var(--blue)">P</span><span class="chip" style="--c:var(--blue)">B</span><span class="chip" style="--c:var(--blue)">R</span><span class="chip" style="--c:var(--blue)">J</span><span class="chip" style="--c:var(--blue)">G</span><span class="chip" style="--c:var(--blue)">S</span><span class="chip" style="--c:var(--blue)">Q</span></div>
+      <div class="row"><span class="lbl">Diagonales</span>
+        <span class="chip" style="--c:var(--plum)">V</span><span class="chip" style="--c:var(--plum)">A</span><span class="chip" style="--c:var(--plum)">X</span><span class="chip" style="--c:var(--plum)">Y</span><span class="chip" style="--c:var(--plum)">K</span><span class="chip" style="--c:var(--plum)">N</span><span class="chip" style="--c:var(--plum)">Ñ</span><span class="chip" style="--c:var(--plum)">M</span><span class="chip" style="--c:var(--plum)">W</span><span class="chip" style="--c:var(--plum)">Z</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="kicker">Para familias y docentes</div>
+    <h2>Cómo acompañar</h2>
+    <div class="tips">
+      <div class="tip"><h3>No lo conviertas en tarea</h3>Preséntalo como “construir una ciudad”, no como “practicar letras”. Evita preguntar “¿qué letra es?” mientras juega.</div>
+      <div class="tip"><h3>Deja que termine el barrio</h3>Avisa antes de empezar: “Hoy construimos un barrio”. El final ya está pactado.</div>
+      <div class="tip"><h3>Celebra la ciudad</h3>Al terminar, mira el mapa con el niño. Señala sus edificios favoritos, no las letras.</div>
+      <div class="tip"><h3>Ajusta en el menú de adultos</h3>En el botón ⚙️ puedes poner su nombre, cambiar el tamaño del barrio y elegir cualquier obra.</div>
+    </div>
+    <p class="note">Esta app es un apoyo lúdico para la motricidad y el reconocimiento de letras. No reemplaza la evaluación ni la intervención de terapeutas ocupacionales, psicopedagogos o médicos.</p>
+
+    <div class="kicker" style="margin-top:40px">Fuentes consultadas</div>
+    <ul class="sources">
+      <li><a href="https://behavioristbookclub.com/aba-research/school-classroom/handwriting-difficulties-in-children-with-attention-deficit-hyperactiv/">Dificultades de escritura en niños con TDAH y carga verbal (resumen de Capodieci et al., 2018)</a></li>
+      <li><a href="https://reachallreaders.com/whats-the-best-order-to-teach-letters/">Reach All Readers: orden para enseñar letras y agrupación por trazos</a></li>
+      <li><a href="https://destellohomeschooling.substack.com/p/ensenanza-de-la-escritura-mayusculas">Destello: enseñanza de la escritura, mayúsculas primero</a></li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Trazos de Arquitecto · <a href="https://github.com/jlcaleroh-apps/arquitecto">código en GitHub</a> · <a href="./">abrir el juego</a></div>
+</footer>
+</body>
+</html>
