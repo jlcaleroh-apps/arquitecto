@@ -105,9 +105,14 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .kids{display:flex; flex-wrap:wrap; gap:10px; margin-top:8px}
 .kid{display:flex; align-items:center; gap:10px; border:3px solid #E5D7B3; background:#fff; color:var(--ink); border-radius:18px; padding:8px 14px 8px 8px; font-family:var(--display); font-weight:800; font-size:1.15rem}
 .kid[aria-pressed="true"]{border-color:var(--go); box-shadow:0 0 0 3px rgba(46,158,98,.25)}
+.kid img{width:64px; height:64px; border-radius:14px; background:linear-gradient(#E3F3FA,#A9D8EE)}
 .kid .av{width:40px; height:40px; border-radius:12px; display:grid; place-items:center; color:#fff; font-size:1.4rem; box-shadow:inset 0 -4px 0 rgba(0,0,0,.18)}
 .kid small{display:block; font-family:var(--body); font-weight:400; font-size:.8rem; color:var(--muted)}
-.kid.add{border-style:dashed; padding:8px 16px; color:var(--muted)}
+.kid.add{border-style:dashed; padding:8px 16px; color:var(--muted); font-size:2rem; min-width:80px; justify-content:center}
+.avgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); gap:10px}
+.avgrid button{border:3px solid #E5D7B3; border-radius:18px; background:linear-gradient(#E3F3FA,#A9D8EE); padding:6px; aspect-ratio:1}
+.avgrid button[aria-pressed="true"]{border-color:var(--go)}
+.avgrid img{width:100%; height:100%}
 .small-btn{border:2px solid #D8CBA8; background:transparent; color:var(--ink); border-radius:12px; padding:8px 14px; font-size:.95rem}
 .small-btn.danger{border-color:var(--brick); color:#B23E22}
 .label{font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
@@ -153,6 +158,12 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <div><span class="label" id="whoL">¿Quién construye hoy?</span><div class="kids" id="kids"></div></div>
       <div class="row langRow"><button class="small-btn langBtn" data-l="es" aria-pressed="true">Español</button><button class="small-btn langBtn" data-l="en" aria-pressed="false">English</button></div>
       <div class="row"><button class="big-btn" id="btnStart" data-t="btnStart">¡A construir!</button><button class="big-btn alt" id="btnName" hidden>🏗️ Construir mi nombre</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="avatarOv" hidden>
+    <div class="card">
+      <h2 id="avH">Elige tu edificio</h2>
+      <div class="avgrid" id="avGrid"></div>
     </div>
   </div>
   <div class="overlay" id="reportOv" hidden>
@@ -206,7 +217,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="prec"> <span class="label" id="precL">Precisión progresiva</span></label> <span id="precP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="installL">Instalar en el iPad</span> <span data-t="installP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="piecesL">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
-      <div class="row"><button class="small-btn" id="btnReport">Ver reporte</button><button class="small-btn" id="btnSwitch" data-t="switchKid">Cambiar de arquitecto</button><button class="small-btn danger" id="btnDelKid">Borrar este arquitecto</button><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
+      <div class="row"><button class="small-btn" id="btnReport">Ver reporte</button><button class="small-btn" id="btnAvatar">Cambiar avatar</button><button class="small-btn" id="btnSwitch" data-t="switchKid">Cambiar de arquitecto</button><button class="small-btn danger" id="btnDelKid">Borrar este arquitecto</button><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
     </div>
   </div>
 </div>
@@ -402,7 +413,7 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
     repDays:'Últimos 7 días (minutos)', repLetters:'Letras', repKey:['Dominada','En práctica','Le cuesta','Sin practicar'], repHard:'Le cuestan más', repNone:'Ninguna por ahora.', repPrint:'Imprimir / PDF', repNote:'Dominada: llegó al nivel 3 o 4 de precisión. Le cuesta: en sus últimos intentos se salió seguido del camino.', repDate:d=>`Generado el ${d}`, nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
     tapNext:'Toca para la siguiente obra', tapBack:'Toca para volver a la obra', letter:'letra', reset:'Borrar ciudad y progreso', reset2:'Toca otra vez para borrar todo',
     kinds:{vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'},
@@ -415,7 +426,7 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
+    holdHint:'Adult menu: press and hold for 2 seconds.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
     repDays:'Last 7 days (minutes)', repLetters:'Letters', repKey:['Mastered','Practicing','Struggling','Not yet'], repHard:'Hardest letters', repNone:'None for now.', repPrint:'Print / PDF', repNote:'Mastered: reached precision level 3 or 4. Struggling: often left the path in recent tries.', repDate:d=>`Generated on ${d}`, nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
     tapNext:'Tap for the next building', tapBack:'Tap to go back to building', letter:'letter', reset:'Erase city and progress', reset2:'Tap again to erase everything',
     kinds:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circles', curva:'curves', letra:'strokes in letters'},
@@ -477,11 +488,33 @@ function renderLang(){
   [...$('barrioSize').options].forEach(o => { o.textContent = `${o.value} ${u.edif} (~${o.value/3} min)`; });
   $('btnMore').textContent = tx().bMore(S.barrios+2);
 }
+// ---------- avatars: a child recognizes their profile by a building, no reading needed ----------
+const AVATARS = ['casa','C','O','Q','X','Z','J','S','N','A','V','parque'];
+const thumbs = {};
+function thumb(id){
+  if (thumbs[id]) return thumbs[id];
+  const p = byId(id); if (!p) return '';
+  const n = 160, cv = document.createElement('canvas'); cv.width = cv.height = n; const c = cv.getContext('2d');
+  const sc = n*.74, ox = n*.13, oy = n*.12, keep = K;
+  K = {ctx:c, z:sc, M: q => [ox + q[0]*sc, oy + (q[1]+.06)*sc*.95]};
+  try { p.art(C[p.c], 0); drawTrim(p, p.strokes); } catch(e) {}
+  K = keep; c.fillStyle = C.walk; c.fillRect(0, oy + (G+.06)*sc*.95, n, n);
+  return thumbs[id] = cv.toDataURL();
+}
+const avatarOf = (k, i) => k.avatar || AVATARS[i % AVATARS.length];
+function chooseAvatar(cur){
+  return new Promise(done => {
+    $('avH').textContent = tx().avH; speak(tx().avV);
+    $('avGrid').innerHTML = AVATARS.map(a => `<button data-a="${a}" aria-pressed="${a===cur}"><img src="${thumb(a)}" alt=""></button>`).join('');
+    $('avGrid').onclick = e => { const b = e.target.closest('button'); if (!b) return; tone(784,.15,'triangle',.14); $('avatarOv').hidden = true; done(b.dataset.a); };
+    $('avatarOv').hidden = false;
+  });
+}
 function renderKids(){
   $('whoL').textContent = tx().who2;
   $('kids').innerHTML = PROF.list.map((k,i) => { const st = k.id === PROF.cur ? S : readProfile(k.id), nm = st.name || tx().anon(i+1);
-    return `<button class="kid" data-id="${k.id}" aria-pressed="${k.id===PROF.cur}"><span class="av" style="background:var(--${k.color})">${nm[0].toUpperCase()}</span><span>${nm}<small>🏢 ${st.city.length}</small></span></button>`; }).join('')
-    + `<button class="kid add" id="kidAdd">${tx().newKid}</button>`;
+    return `<button class="kid" data-id="${k.id}" aria-pressed="${k.id===PROF.cur}" aria-label="${nm}"><img src="${thumb(avatarOf(k,i))}" alt=""><span>${nm}<small>🏢 ${st.city.length}</small></span></button>`; }).join('')
+    + `<button class="kid add" id="kidAdd" aria-label="${tx().newKid}">+</button>`;
 }
 function useProfile(id){
   if (id === PROF.cur) return;
@@ -1001,7 +1034,7 @@ function renderAdult(){
   $('skills').innerHTML = KINDS.map(k => `<div class="skill"><b>${counts[k]}</b>${label[k]}</div>`).join('');
   $('pieces').innerHTML = PIECES.map((p,i) => inLang(p) ? `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?tx().letter+' '+p.letter+' '+'●'.repeat(lvOf(p.id)+1)+'○'.repeat(PREC.length-1-lvOf(p.id)):tx().kind[p.kind]}</span>${p.name}</button>` : '').join('');
   $('lang').value = S.lang === 'en' ? 'en' : 'es';
-  $('btnReport').textContent = tx().rep;
+  $('btnReport').textContent = tx().rep; $('btnAvatar').textContent = tx().avBtn;
   $('prec').checked = S.progressive !== false; $('precL').textContent = tx().precL; $('precP').textContent = tx().precP;
   pickVoice(); $('voiceInfo').textContent = voice ? `${voice.name} (${voice.lang})` : (S.lang === 'en' ? 'No English voice installed on this device.' : 'Este dispositivo no tiene voz en español instalada. Instálala en Ajustes → Accesibilidad → Contenido leído → Voces.');
   $('kidName').value = S.name; $('barrioSize').value = String(BARRIO());
@@ -1051,6 +1084,8 @@ function renderReport(){
   $('repHardL').textContent = T.repHard + ':'; $('repHard').textContent = hard.length ? hard.join(' ') : T.repNone;
   $('repNote').textContent = T.repNote; $('repDate').textContent = T.repDate(today.toLocaleDateString(wd, {day:'numeric', month:'long', year:'numeric'}));
 }
+$('btnAvatar').onclick = () => { const k = PROF.list.find(k=>k.id===PROF.cur), i = PROF.list.indexOf(k); $('adultOv').hidden = true;
+  chooseAvatar(avatarOf(k,i)).then(a => { k.avatar = a; saveIndex(); renderKids(); $('adultOv').hidden = false; }); };
 $('btnReport').onclick = () => { renderReport(); $('adultOv').hidden = true; $('reportOv').hidden = false; };
 $('btnRepClose').onclick = () => { $('reportOv').hidden = true; $('adultOv').hidden = false; };
 $('btnPrint').onclick = () => { try { window.print(); } catch(e) {} };
@@ -1078,11 +1113,14 @@ $('btnNameDone').onclick = () => { $('nameOv').hidden = true; $('btnDone').oncli
 $('kids').onclick = e => {
   const b = e.target.closest('.kid'); if (!b) return;
   if (b.id === 'kidAdd'){
+    unlockAudio();
+    chooseAvatar(null).then(avatar => {
     let nm = ''; try { nm = (prompt(tx().newName) || '').trim().slice(0,20); } catch(_) {}
     const colors = ['teal','brick','plum','blue','sun','go'], id = 'p' + Date.now().toString(36);
-    PROF.list.push({id, color: colors[PROF.list.length % colors.length]}); saveIndex();
+    PROF.list.push({id, color: colors[PROF.list.length % colors.length], avatar}); saveIndex();
     const st = Object.assign(DEFAULTS(), {name: nm, lang: S.lang}); try { localStorage.setItem(KEY+':'+id, JSON.stringify(st)); } catch(_) {}
-    useProfile(id); return;
+    useProfile(id); });
+    return;
   }
   useProfile(b.dataset.id);
 };
