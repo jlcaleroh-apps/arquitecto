@@ -153,52 +153,111 @@ const DOOR = (cx,w,h,color) => { R(cx-w/2,G-h,cx+w/2,G,color); CIRC(cx+w*.28,G-h
 // ---------- the build list: every letter lives inside a building ----------
 // art(c, t): c = main colour, t = 0..1 time for small animations
 const PIECES = [
-  {id:'torre', name:'La torre', kind:'vertical', c:'brick', tip:'Dos paredes de arriba hacia abajo, y el techo.', say:'Construye la torre. Empieza en el punto verde y baja.', uses:'l · i · t · H',
+  {id:'torre', name:'La torre', kind:'vertical', c:'brick', tip:'Baja por las paredes y haz el techo.', say:'La torre. Baja.', uses:'l · i · t · H',
    strokes:[L(.3,.14,.3,G),L(.7,.14,.7,G),L(.3,.14,.7,.14)],
    art:(c)=>{ R(.3,.14,.7,G,c); WINS(.34,.2,.66,.78,3,6); DOOR(.5,.12,.12,shade(c,.6)); LINE([[.5,.14],[.5,.03]],.012,C.ink); CIRC(.5,.03,.018,C.brick); }},
-  {id:'casa', name:'La casa', kind:'diagonal', c:'teal', tip:'El techo baja por los dos lados. Luego las paredes.', say:'Ahora una casa. El techo baja por un lado y por el otro. Después las paredes.', uses:'A · v · w · M',
+  {id:'casa', name:'La casa', kind:'diagonal', c:'teal', tip:'El techo y luego las paredes.', say:'La casa.', uses:'A · v · w · M',
    strokes:[L(.5,.16,.16,.5),L(.5,.16,.84,.5),L(.24,.5,.24,G),L(.76,.5,.76,G)],
    art:(c)=>{ R(.68,.18,.76,.4,shade(C.brick,.75)); R(.24,.5,.76,G,c); POLY([[.5,.16],[.12,.52],[.88,.52]],C.brick); DOOR(.36,.13,.24,shade(c,.55)); R(.5,.6,.68,.74,C.win); LINE([[.59,.6],[.59,.74]],.01,shade(c,.6)); }},
-  {id:'pisos', name:'Edificio de pisos', kind:'horizontal', c:'plum', tip:'Cada piso de izquierda a derecha.', say:'Un edificio de pisos. Traza cada piso, de este lado hacia el otro.', uses:'E · F · t · z',
+  {id:'pisos', name:'Edificio de pisos', kind:'horizontal', c:'plum', tip:'Cada piso hacia el lado.', say:'Los pisos.', uses:'E · F · t · z',
    strokes:[L(.2,.3,.8,.3),L(.2,.52,.8,.52),L(.2,.74,.8,.74)],
    art:(c)=>{ R(.2,.1,.8,G,c); R(.17,.08,.83,.12,shade(c,.7)); WINS(.22,.13,.78,.29,4,1); WINS(.22,.33,.78,.51,4,1); WINS(.22,.55,.78,.73,4,1); DOOR(.5,.14,.15,shade(c,.55)); }},
-  {id:'parque', name:'El tobogán del parque', kind:'diagonal', c:'sun', tip:'Sube la escalera bajando el dedo, y luego el tobogán en diagonal.', say:'¡El parque! Primero la escalera, de arriba hacia abajo. Luego el tobogán, en diagonal.', uses:'x · k · N · z',
+  {id:'parque', name:'El tobogán del parque', kind:'diagonal', c:'sun', tip:'La escalera y el tobogán.', say:'El tobogán.', uses:'x · k · N · z',
    strokes:[L(.3,.3,.3,G),L(.3,.3,.84,G)],
    art:(c)=>{ R(.06,.55,.1,G,'#8a5a3b'); CIRC(.08,.5,.1,shade(C.grass,.8)); CIRC(.13,.42,.08,C.grass); R(.22,.27,.34,.31,C.teal); for(let y=.38;y<G;y+=.09) LINE([[.3,y],[.38,y]],.01,C.ink); LINE([[.38,.31],[.38,G]],.012,C.ink); }},
-  {id:'ventana', name:'Ventana redonda', kind:'círculo', c:'teal', tip:'Empieza arriba y gira hacia la izquierda hasta cerrar.', say:'Este edificio tiene una ventana redonda. Gira hacia este lado hasta cerrar el círculo.', uses:'o · a · d · g · q',
+  {id:'ventana', name:'Ventana redonda', kind:'círculo', c:'teal', tip:'Gira hasta cerrar.', say:'Da la vuelta.', uses:'o · a · d · g · q',
    strokes:[arc(.5,.4,.2,-60,-420)],
    art:(c)=>{ R(.16,.1,.84,G,c); CIRC(.5,.4,.2,C.win); LINE([[.5,.2],[.5,.6]],.012,shade(c,.6)); LINE([[.3,.4],[.7,.4]],.012,shade(c,.6)); WINS(.2,.66,.8,.8,4,1); DOOR(.5,.12,.1,shade(c,.55)); }},
-  {id:'observatorio', name:'El observatorio', kind:'curva', c:'blue', tip:'La cúpula: sube, pasa por arriba y baja.', say:'El observatorio. Haz la cúpula: sube, pasa por arriba y baja del otro lado.', uses:'n · m · h · c',
+  {id:'observatorio', name:'El observatorio', kind:'curva', c:'blue', tip:'Sube, pasa arriba y baja.', say:'La cúpula.', uses:'n · m · h · c',
    strokes:[arc(.5,.55,.26,180,360)],
    art:(c,t)=>{ R(.22,.55,.78,G,c); POLY(arc(.5,.55,.26,180,360),'#E7EEF6'); R(.47,.3,.55,.55,shade(c,.5)); LINE([[.51,.38],[.68,.2]],.03,C.ink,'butt'); WINS(.26,.6,.74,.76,4,1); DOOR(.5,.12,.13,shade(c,.55)); for(let i=0;i<3;i++){ const a=t*6+i*2; CIRC(.82+.04*Math.cos(a),.12+.03*Math.sin(a),.006,C.sun); } }},
-  {id:'L', letter:'L', name:'Torre con patio', kind:'letra', c:'teal', tip:'Baja por la torre y sigue por el patio.', say:'Torre con patio. Baja por la torre, y luego hacia el lado.',
+  {id:'L', letter:'L', name:'Torre con patio', kind:'letra', c:'teal', tip:'Baja y hacia el lado.', say:'',
    strokes:[L(.28,.12,.28,.84),L(.28,.84,.82,.84)],
    art:(c)=>{ R(.18,.1,.4,G,c); R(.18,.62,.86,G,shade(c,1.12)); WINS(.2,.14,.38,.6,2,5); WINS(.44,.66,.84,.8,4,1); DOOR(.64,.1,.08,shade(c,.55)); }},
-  {id:'T', letter:'T', name:'La torre de agua', kind:'letra', c:'blue', tip:'Baja por el poste, luego el borde del tanque.', say:'La torre de agua. Primero baja por el poste, después la línea de arriba.',
+  {id:'T', letter:'T', name:'La torre de agua', kind:'letra', c:'blue', tip:'El poste y la línea de arriba.', say:'',
    strokes:[L(.5,.32,.5,G),L(.2,.32,.8,.32)],
    art:(c)=>{ LINE([[.3,.32],[.24,G]],.02,C.ink); LINE([[.7,.32],[.76,G]],.02,C.ink); LINE([[.27,.6],[.73,.6]],.012,C.ink); LINE([[.27,.6],[.5,.8],[.73,.6]],.01,C.ink); R(.22,.1,.78,.32,c); POLY(arc(.5,.1,.28,180,360),shade(c,.8)); R(.28,.18,.72,.24,C.water); }},
-  {id:'H', letter:'H', name:'Rascacielos gemelos', kind:'letra', c:'brick', tip:'Dos torres y el puente en medio.', say:'Rascacielos gemelos. Dos torres y un puente en medio.',
+  {id:'H', letter:'H', name:'Rascacielos gemelos', kind:'letra', c:'brick', tip:'Dos torres y el puente.', say:'',
    strokes:[L(.26,.1,.26,G),L(.74,.1,.74,G),L(.26,.48,.74,.48)],
    art:(c)=>{ R(.14,.1,.38,G,c); R(.62,.1,.86,G,c); R(.38,.43,.62,.53,shade(c,.75)); WINS(.16,.14,.36,.84,2,8); WINS(.64,.14,.84,.84,2,8); R(.4,.46,.6,.5,C.win); }},
-  {id:'A', letter:'A', name:'La carpa del circo', kind:'letra', c:'plum', tip:'Baja por un lado, por el otro, y cruza en medio.', say:'La carpa del circo. Baja por un lado, por el otro, y cruza en medio.',
+  {id:'A', letter:'A', name:'La carpa del circo', kind:'letra', c:'plum', tip:'Un lado, el otro, y cruza.', say:'',
    strokes:[L(.5,.12,.18,G),L(.5,.12,.82,G),L(.33,.6,.67,.6)],
    art:(c)=>{ const n=6; for(let i=0;i<n;i++){ const x0=.14+i*.72/n, x1=x0+.72/n; POLY([[.5,.12],[x0,G],[x1,G]], i%2?C.paper:c); } POLY([[.5,.6],[.38,G],[.62,G]],shade(c,.45)); LINE([[.5,.12],[.5,.02]],.01,C.ink); POLY([[.5,.02],[.6,.045],[.5,.07]],C.sun); }},
-  {id:'E', letter:'E', name:'El hotel', kind:'letra', c:'sun', tip:'Una pared y tres pisos.', say:'El hotel. Una pared, y tres pisos.',
+  {id:'E', letter:'E', name:'El hotel', kind:'letra', c:'sun', tip:'Una pared y tres pisos.', say:'',
    strokes:[L(.28,.12,.28,.9),L(.28,.12,.74,.12),L(.28,.5,.68,.5),L(.28,.9,.74,.9)],
    art:(c)=>{ R(.2,.08,.8,G,c); WINS(.34,.16,.76,.46,3,3); WINS(.34,.54,.76,.78,3,2); R(.12,.2,.2,.6,C.brick); DOOR(.55,.14,.12,shade(c,.55)); }},
-  {id:'n', letter:'n', name:'La estación', kind:'letra', c:'brick', tip:'Baja por la columna, luego el arco del túnel.', say:'La estación del tren. Baja por la columna, y luego haz el arco.',
+  {id:'n', letter:'n', name:'La estación', kind:'letra', c:'brick', tip:'Baja y haz el arco.', say:'',
    strokes:[L(.3,.4,.3,G),cat(arc(.5,.55,.2,180,360),L(.7,.55,.7,G))],
    art:(c)=>{ R(.12,.22,.88,G,c); POLY(cat(arc(.5,.55,.2,180,360),[[.7,G],[.3,G]]),'#2a2f38'); R(.38,.66,.62,G,C.brick); R(.42,.7,.58,.78,C.win); CIRC(.43,.85,.02,C.sun); CIRC(.57,.85,.02,C.sun); CIRC(.5,.3,.06,C.paper); LINE([[.5,.3],[.5,.26],[.5,.3],[.53,.3]],.008,C.ink); }},
-  {id:'U', letter:'U', name:'La fuente', kind:'letra', c:'teal', tip:'Baja, haz la curva y sube.', say:'La fuente de la plaza. Baja, haz la curva, y sube.',
+  {id:'U', letter:'U', name:'La fuente', kind:'letra', c:'teal', tip:'Baja, curva y sube.', say:'',
    strokes:[cat(L(.28,.42,.28,.66),arc(.5,.66,.22,180,0),L(.72,.66,.72,.42))],
    art:(c,t)=>{ R(.18,.86,.82,G,C.walk); POLY(cat(L(.28,.5,.28,.66),arc(.5,.66,.22,180,0),L(.72,.66,.72,.5)),C.water); R(.48,.3,.52,.6,shade(c,.7)); for(let i=0;i<7;i++){ const k=((t*.8+i/7)%1); CIRC(.5+(i%2?1:-1)*k*.18, .3-Math.sin(k*Math.PI)*.16+k*.18, .014, C.water);} }},
-  {id:'O', letter:'O', name:'La rueda de la fortuna', kind:'letra', c:'sun', tip:'Una vuelta completa hacia la izquierda.', say:'La rueda de la fortuna. Da toda la vuelta.',
+  {id:'O', letter:'O', name:'La rueda de la fortuna', kind:'letra', c:'sun', tip:'Una vuelta completa.', say:'',
    strokes:[arc(.5,.42,.3,-70,-430)],
    art:(c,t)=>{ LINE([[.5,.42],[.3,G]],.02,C.ink); LINE([[.5,.42],[.7,G]],.02,C.ink); for(let i=0;i<8;i++){ const a=t*.6+i*Math.PI/4; LINE([[.5,.42],[.5+.3*Math.cos(a),.42+.3*Math.sin(a)]],.008,C.muted); CIRC(.5+.3*Math.cos(a),.42+.3*Math.sin(a)+.04,.035,[C.brick,C.teal,C.plum,C.blue][i%4]); } CIRC(.5,.42,.03,C.ink); R(.24,.88,.76,G,C.walk); }},
-  {id:'M', letter:'M', name:'La fábrica', kind:'letra', c:'plum', tip:'Baja por la pared, luego el techo en zigzag.', say:'La fábrica. Baja por la pared, y luego el techo en zigzag hasta abajo.',
+  {id:'M', letter:'M', name:'La fábrica', kind:'letra', c:'plum', tip:'La pared y el zigzag.', say:'',
    strokes:[L(.18,.3,.18,G),P([.18,.3],[.5,.58],[.82,.3],[.82,G])],
    art:(c,t)=>{ R(.66,.04,.74,.4,shade(C.brick,.8)); for(let i=0;i<3;i++){ const k=(t*.4+i/3)%1; CIRC(.7+k*.1,.02-k*.12,.03+k*.03,'rgba(255,255,255,'+(.8-k*.7)+')'); } POLY([[.18,.3],[.5,.58],[.82,.3],[.82,G],[.18,G]],c); POLY([[.18,.3],[.5,.58],[.2,.58]],C.win); POLY([[.82,.3],[.5,.58],[.8,.58]],C.win); WINS(.22,.64,.78,.78,4,1); DOOR(.5,.16,.12,shade(c,.55)); }},
+  {id:'B', letter:'B', name:'El banco', kind:'letra', c:'blue', tip:'Baja y haz dos pancitas.', say:'',
+   strokes:[L(.3,.1,.3,G),cat(L(.3,.1,.5,.1),arc(.5,.3,.2,-90,90),L(.5,.5,.3,.5)),cat(L(.3,.5,.52,.5),arc(.52,.71,.21,-90,90),L(.52,.92,.3,.92))],
+   art:(c)=>{ POLY([[.16,.1],[.51,.01],[.86,.1]],shade(c,.75)); R(.2,.1,.82,G,c); for(let x=.4;x<.8;x+=.12) R(x,.2,x+.04,.82,shade(c,1.15)); DOOR(.62,.12,.12,shade(c,.55)); }},
+  {id:'C', letter:'C', name:'El planetario', kind:'letra', c:'brick', tip:'Gira y deja abierto.', say:'',
+   strokes:[arc(.54,.5,.34,-45,-315)],
+   art:(c,t)=>{ CIRC(.54,.5,.42,c); CIRC(.54,.5,.2,'#2a2f38'); for(let i=0;i<5;i++){ const a=t+i*1.26; CIRC(.54+.14*Math.cos(a),.5+.14*Math.sin(a),.012,C.sun);} R(.44,.84,.64,G,shade(c,.6)); }},
+  {id:'D', letter:'D', name:'El hangar', kind:'letra', c:'teal', tip:'Baja y haz la panza grande.', say:'',
+   strokes:[L(.28,.12,.28,G),cat(L(.28,.12,.42,.12),arc(.42,.52,.4,-90,90),L(.42,.92,.28,.92))],
+   art:(c)=>{ POLY(cat([[.28,.12]],arc(.42,.52,.4,-90,90),[[.28,G]]),c); R(.42,.6,.7,G,shade(c,.6)); WINS(.34,.2,.7,.5,3,2); }},
+  {id:'F', letter:'F', name:'La farmacia', kind:'letra', c:'plum', tip:'Baja, arriba y en medio.', say:'',
+   strokes:[L(.3,.1,.3,G),L(.3,.1,.76,.1),L(.3,.48,.68,.48)],
+   art:(c)=>{ R(.22,.08,.8,G,c); WINS(.38,.16,.76,.42,3,2); R(.62,.58,.7,.74,C.go); R(.58,.62,.74,.7,C.go); DOOR(.45,.12,.16,shade(c,.55)); }},
+  {id:'G', letter:'G', name:'El garaje', kind:'letra', c:'sun', tip:'Gira y entra al centro.', say:'',
+   strokes:[cat(arc(.5,.52,.34,-40,-360),L(.84,.52,.62,.52))],
+   art:(c)=>{ CIRC(.5,.52,.4,c); R(.36,.7,.64,G,shade(c,.5)); for(let y=.74;y<G;y+=.04) LINE([[.37,y],[.63,y]],.006,shade(c,.35)); WINS(.32,.26,.68,.4,3,1); }},
+  {id:'I', letter:'I', name:'El faro', kind:'letra', c:'brick', tip:'Una línea hacia abajo.', say:'',
+   strokes:[L(.5,.1,.5,G)],
+   art:(c,t)=>{ POLY([[.4,.18],[.6,.18],[.66,G],[.34,G]],C.paper); POLY([[.39,.34],[.61,.34],[.63,.5],[.37,.5]],c); POLY([[.36,.66],[.64,.66],[.66,.8],[.34,.8]],c); R(.42,.06,.58,.18,C.win); POLY([[.4,.06],[.5,-.02],[.6,.06]],c); const a=t*1.5; LINE([[.5,.12],[.5+.35*Math.cos(a),.12+.08*Math.sin(a)]],.02,'rgba(255,214,90,.6)'); }},
+  {id:'J', letter:'J', name:'El puerto', kind:'letra', c:'blue', tip:'Baja y haz el gancho.', say:'',
+   strokes:[cat(L(.62,.1,.62,.66),arc(.42,.66,.2,0,180))],
+   art:(c)=>{ R(0,.8,1.1,G,C.water); R(.66,.1,.8,.8,c); R(.3,.08,.8,.13,shade(c,.7)); WINS(.68,.2,.78,.7,1,4); POLY([[.1,.78],[.42,.78],[.38,.88],[.14,.88]],C.brick); R(.2,.7,.3,.78,C.paper); }},
+  {id:'K', letter:'K', name:'El kiosco', kind:'letra', c:'teal', tip:'Baja, luego la flecha.', say:'',
+   strokes:[L(.3,.1,.3,G),P([.76,.1],[.3,.54],[.78,G])],
+   art:(c)=>{ R(.2,.32,.84,G,c); POLY([[.14,.34],[.52,.08],[.9,.34]],C.brick); R(.34,.42,.7,.6,C.win); DOOR(.6,.12,.14,shade(c,.55)); }},
+  {id:'N', letter:'N', name:'El almacén', kind:'letra', c:'plum', tip:'Baja, diagonal y sube.', say:'',
+   strokes:[L(.24,.12,.24,G),P([.24,.12],[.76,G],[.76,.12])],
+   art:(c)=>{ R(.16,.12,.84,G,c); R(.14,.08,.86,.12,shade(c,.7)); WINS(.3,.18,.7,.4,2,2); DOOR(.5,.16,.16,shade(c,.55)); }},
+  {id:'Ñ', letter:'Ñ', name:'El castillo', kind:'letra', c:'sun', tip:'Como la N, y la bandera arriba.', say:'',
+   strokes:[L(.24,.3,.24,G),P([.24,.3],[.76,G],[.76,.3]),Array.from({length:31},(_,i)=>[.3+.4*i/30,.15-.05*Math.sin(i/30*2*Math.PI)])],
+   art:(c)=>{ R(.16,.3,.84,G,c); for(let i=0;i<5;i++) R(.16+i*.15,.24,.24+i*.15,.3,c); WINS(.36,.38,.64,.52,2,1); POLY(cat(arc(.5,G,.1,180,360)),'#2a2f38'); }},
+  {id:'P', letter:'P', name:'La pizzería', kind:'letra', c:'brick', tip:'Baja y haz una pancita arriba.', say:'',
+   strokes:[L(.3,.1,.3,G),cat(L(.3,.1,.48,.1),arc(.48,.32,.22,-90,90),L(.48,.54,.3,.54))],
+   art:(c)=>{ R(.22,.08,.78,G,c); CIRC(.6,.72,.09,C.sun); CIRC(.57,.7,.015,C.brick); CIRC(.63,.75,.015,C.brick); WINS(.34,.62,.46,.8,1,1); }},
+  {id:'Q', letter:'Q', name:'La torre del reloj', kind:'letra', c:'teal', tip:'Una vuelta y la colita.', say:'',
+   strokes:[arc(.5,.42,.3,-70,-430),L(.6,.62,.84,.88)],
+   art:(c,t)=>{ R(.26,.1,.74,G,c); CIRC(.5,.42,.3,C.paper); LINE([[.5,.42],[.5+.18*Math.cos(t*.5),.42+.18*Math.sin(t*.5)]],.012,C.ink); LINE([[.5,.42],[.5,.3]],.016,C.ink); }},
+  {id:'R', letter:'R', name:'El rancho', kind:'letra', c:'plum', tip:'Como la P, y la patita.', say:'',
+   strokes:[L(.3,.1,.3,G),cat(L(.3,.1,.48,.1),arc(.48,.32,.22,-90,90),L(.48,.54,.3,.54)),L(.44,.54,.78,G)],
+   art:(c)=>{ R(.22,.1,.76,G,c); POLY([[.18,.12],[.49,.02],[.8,.12]],C.brick); WINS(.5,.6,.72,.72,2,1); }},
+  {id:'S', letter:'S', name:'El tobogán de agua', kind:'letra', c:'blue', tip:'Curva arriba, curva abajo.', say:'',
+   strokes:[cat(arc(.5,.31,.19,-15,-270),arc(.5,.71,.21,-90,160))],
+   art:(c,t)=>{ R(.06,.86,.94,G,C.water); R(.72,.08,.78,.86,shade(c,.6)); for(let y=.14;y<.86;y+=.08) LINE([[.72,y],[.8,y]],.008,C.ink); for(let i=0;i<4;i++){ const k=(t*.6+i/4)%1; CIRC(.12+k*.7,.88,.012,C.paper);} }},
+  {id:'V', letter:'V', name:'La heladería', kind:'letra', c:'brick', tip:'Baja y sube.', say:'',
+   strokes:[P([.2,.12],[.5,G],[.8,.12])],
+   art:(c)=>{ POLY([[.2,.12],[.8,.12],[.5,G]],C.sun); for(let i=0;i<4;i++) LINE([[.28+i*.12,.14],[.5,.8]],.006,shade(C.sun,.75)); CIRC(.36,.1,.12,C.plum); CIRC(.64,.1,.12,C.teal); CIRC(.5,.02,.1,C.paper); }},
+  {id:'W', letter:'W', name:'El teatro', kind:'letra', c:'sun', tip:'Baja, sube, baja, sube.', say:'',
+   strokes:[P([.12,.12],[.3,G],[.5,.4],[.7,G],[.88,.12])],
+   art:(c)=>{ R(.08,.1,.92,G,shade(C.plum,1)); POLY([[.08,.1],[.36,.1],[.12,.6]],C.brick); POLY([[.92,.1],[.64,.1],[.88,.6]],C.brick); R(.08,.06,.92,.1,c); }},
+  {id:'X', letter:'X', name:'El puente', kind:'letra', c:'teal', tip:'Una diagonal y la otra.', say:'',
+   strokes:[L(.2,.12,.8,G),L(.8,.12,.2,G)],
+   art:(c)=>{ R(-.1,.78,1.2,G,C.water); R(.12,.06,.24,G,c); R(.76,.06,.88,G,c); R(-.05,.52,1.15,.58,shade(c,.7)); LINE([[.18,.06],[.5,.52],[.82,.06]],.008,C.ink); }},
+  {id:'Y', letter:'Y', name:'El farol doble', kind:'letra', c:'blue', tip:'Dos brazos y el poste.', say:'',
+   strokes:[L(.2,.12,.5,.48),L(.8,.12,.5,.48),L(.5,.48,.5,G)],
+   art:(c,t)=>{ CIRC(.2,.1,.07,C.sun); CIRC(.8,.1,.07,C.sun); CIRC(.2,.1,.11+.01*Math.sin(t*3),'rgba(255,214,90,.25)'); CIRC(.8,.1,.11+.01*Math.sin(t*3),'rgba(255,214,90,.25)'); R(.4,.84,.6,G,C.ink); }},
+  {id:'Z', letter:'Z', name:'La escalera', kind:'letra', c:'brick', tip:'Lado, diagonal, lado.', say:'',
+   strokes:[P([.2,.12],[.8,.12],[.2,G],[.8,G])],
+   art:(c)=>{ R(.14,.06,.86,G,shade(C.blue,1.1)); WINS(.2,.18,.8,.84,3,5); }},
 ];
+const LNAME = {A:'a',B:'be',C:'ce',D:'de',E:'e',F:'efe',G:'ge',H:'hache',I:'i',J:'jota',K:'ka',L:'ele',M:'eme',N:'ene',n:'ene','Ñ':'eñe',O:'o',P:'pe',Q:'cu',R:'erre',S:'ese',T:'te',U:'u',V:'uve',W:'doble uve',X:'equis',Y:'ye',Z:'zeta'};
+PIECES.forEach(p=>{ if (p.letter && !p.say) p.say = 'Letra ' + LNAME[p.letter] + '.'; });
 const KINDS = ['vertical','horizontal','diagonal','círculo','curva','letra'];
 const PRAISE = ['¡Muy bien!','¡Genial!','¡Eso es!','¡Qué buen trazo!','¡Bien hecho!'];
 const STEP = .006, TOL = .09;
@@ -230,7 +289,7 @@ function pickVoice(){ try { const vs = speechSynthesis.getVoices(); esVoice = vs
 try { speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); } catch(e) {}
 function speak(t){
   if (!S.sound) return;
-  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = esVoice ? esVoice.lang : 'es-ES'; if (esVoice) u.voice = esVoice; u.rate = .98; u.pitch = 1.1; speechSynthesis.speak(u); } catch(e) {}
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = esVoice ? esVoice.lang : 'es-ES'; if (esVoice) u.voice = esVoice; u.rate = 1.08; u.pitch = 1.1; speechSynthesis.speak(u); } catch(e) {}
 }
 function say(tag, txt, voice){ if (tag) $('pieceName').textContent = tag; $('msgTxt').textContent = txt; if (voice) speak(voice === true ? txt : voice); }
 
@@ -285,8 +344,11 @@ function setupStroke(){
 }
 function nextIndex(){
   if (S.level < PIECES.length-1) return S.level+1;
+  // rotate through every letter: always pick one of the least-practiced ones
   const letters = PIECES.map((p,i)=>p.letter?i:-1).filter(i=>i>=0 && i!==S.level);
-  return letters[Math.floor(Math.random()*letters.length)];
+  const cnt = i => S.done[PIECES[i].id]||0, min = Math.min(...letters.map(cnt));
+  const pool = letters.filter(i=>cnt(i)===min);
+  return pool[Math.floor(Math.random()*pool.length)];
 }
 function goNext(){
   clearTimers();
@@ -313,7 +375,7 @@ function advance(p){
       const f = run.prog/(run.pts.length-1);
       if (f >= run.nextPing){ tone(SCALE[Math.min(7, Math.floor(run.nextPing*8))], .16, 'triangle', .12); run.nextPing += .15; }
     }
-  } else if (++run.off > 28 && !run.offWarned){ run.offWarned = true; say(null, 'Sigue el camino de puntitos. Lo que llevas se guarda.', 'Sigue el camino'); }
+  } else if (++run.off > 28 && !run.offWarned){ run.offWarned = true; say(null, 'Sigue el camino de puntitos. Lo que llevas se guarda.', 'Por el camino'); }
   if (run.prog >= run.pts.length-1-Math.ceil(.035/STEP)) completeStroke();
 }
 stage.addEventListener('pointerdown', e => {
@@ -324,7 +386,7 @@ stage.addEventListener('pointerdown', e => {
   const p = norm(e);
   if (dist(p, run.pts[run.prog]) > TOL*1.7){
     run.demoT0 = performance.now(); run.lastTouch = 0;
-    say(null, run.prog ? 'Sigue desde donde ibas, en el círculo verde.' : 'Empieza en el punto verde.', run.prog ? 'Sigue desde el círculo verde' : 'Empieza en el punto verde');
+    say(null, run.prog ? 'Sigue desde donde ibas, en el círculo verde.' : 'Empieza en el punto verde.', run.prog ? 'Sigue aquí' : 'Punto verde');
     tone(330,.15,'sine',.08);
     return;
   }
@@ -367,8 +429,8 @@ function completePiece(){
   $('houseN').textContent = S.city.length; pop('houses');
   for (let i=0;i<6;i++) later(()=>burst(W*(.25+Math.random()*.5), H*(.2+Math.random()*.4), 20, [C.brick,C.sun,C.teal,C.plum,C.go,C.blue][i]), i*90);
   [523,659,784,1047].forEach((f,i)=>tone(f,.35,'triangle',.16,i*.1));
-  if (p.letter){ say(null, `¡Escondiste la letra ${p.letter} en ${p.name.toLowerCase()}!`, `¡${p.name}! Escondiste la letra ${p.letter}`); }
-  else say(null, `¡Listo! ${p.name} ya está en tu ciudad.`, `¡Listo! ${p.name}`);
+  if (p.letter){ say(null, `¡Escondiste la letra ${p.letter} en ${p.name.toLowerCase()}!`, '¡Muy bien!'); }
+  else say(null, `¡Listo! ${p.name} ya está en tu ciudad.`, '¡Listo!');
   // build-up, then the camera steps back to show the street, then walks on to the next lot
   later(()=>{ run.phase = 'tour'; aimOverview(); showMap(); mapNewAt = performance.now() + 450; }, 900);
   later(goNext, 3600);
