@@ -1,0 +1,656 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Trazos de Arquitecto</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Baloo+2:wght@600;800&display=swap">
+<style>
+/* Layout: one-screen app. A drafting-table frame around one living street; the child builds each lot in place while the camera walks the city. */
+:root{
+  --table:#2C4766; --table-2:#233a55; --paper:#FFF8E7; --ink:#1F2E44; --muted:#6B7F96;
+  --lane:#FFF3D6; --go:#2E9E62; --brick:#E0603E; --sun:#F5B22A; --teal:#2A9D9B; --plum:#8C5BB0; --blue:#4A84C4;
+  --win:#FFE9A6; --sky:#A9D8EE; --sky-2:#E3F3FA; --grass:#7CC47F; --road:#56606E; --walk:#C9CDD3; --water:#5EC3E8;
+  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --body:"Andika","Comic Sans MS",system-ui,sans-serif;
+  color-scheme:light;
+}
+html,body{height:100%}
+body{
+  background:var(--table); color:var(--paper); font-family:var(--body); font-size:16px;
+  overflow:hidden; box-sizing:border-box; padding-block:10px;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+button{font:inherit; color:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:3px solid var(--sun); outline-offset:2px}
+#app{height:100%; display:grid; grid-template-rows:auto auto 1fr; gap:8px; position:relative}
+
+header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.brand{font-family:var(--display); font-weight:800; font-size:1.35rem; line-height:1; letter-spacing:.01em; margin-right:auto}
+.brand small{display:block; font-family:var(--body); font-weight:400; font-size:.75rem; color:#B9C7D8; letter-spacing:.08em; text-transform:uppercase; margin-top:3px}
+.count{display:flex; align-items:center; gap:6px; font-family:var(--display); font-weight:800; font-size:1.2rem; font-variant-numeric:tabular-nums; min-width:3em}
+.count i{width:22px; height:14px; border-radius:3px; background:var(--brick); box-shadow:inset 0 -3px 0 rgba(0,0,0,.18); display:inline-block}
+.count svg{width:24px; height:24px}
+.count.pop{animation:pop .45s}
+@keyframes pop{40%{transform:scale(1.35)}}
+.iconbtn{width:44px; height:44px; border-radius:12px; border:0; background:var(--table-2); display:grid; place-items:center}
+.iconbtn svg{width:24px; height:24px}
+.iconbtn[aria-pressed="false"]{opacity:.55}
+
+.msg{display:flex; align-items:center; gap:10px; min-height:44px}
+.msg .tag{font-family:var(--display); font-weight:800; font-size:1.25rem; color:var(--sun); white-space:nowrap}
+.msg .txt{font-size:1.05rem; color:#E7EEF6; min-width:0}
+
+.stageWrap{position:relative; min-height:0; border-radius:22px; overflow:hidden; box-shadow:0 10px 0 rgba(0,0,0,.18); background:var(--sky)}
+#stage{display:block; width:100%; height:100%; touch-action:none}
+
+.overlay{position:absolute; inset:0; z-index:20; display:grid; place-items:center; background:rgba(28,44,64,.72); padding:16px; animation:fadein .25s}
+@keyframes fadein{from{opacity:0}}
+.card{background:var(--paper); color:var(--ink); border-radius:24px; padding:24px; width:min(560px,100%); max-height:100%; overflow:auto; display:grid; gap:14px; box-shadow:0 12px 0 rgba(0,0,0,.2)}
+.card h1,.card h2{font-family:var(--display); font-weight:800; margin:0; line-height:1.05; text-wrap:balance}
+.card h1{font-size:clamp(2rem,7vmin,3rem)}
+.card h2{font-size:1.6rem}
+.card p{margin:0; line-height:1.5; max-width:62ch}
+.big-btn{border:0; border-radius:18px; padding:16px 28px; font-family:var(--display); font-weight:800; font-size:1.5rem; background:var(--go); color:#fff; box-shadow:0 6px 0 #1f7246; justify-self:start}
+.big-btn:active{transform:translateY(4px); box-shadow:0 2px 0 #1f7246}
+.big-btn.alt{background:var(--table); box-shadow:0 6px 0 #18293d}
+.row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+.small-btn{border:2px solid #D8CBA8; background:transparent; color:var(--ink); border-radius:12px; padding:8px 14px; font-size:.95rem}
+.small-btn.danger{border-color:var(--brick); color:#B23E22}
+.label{font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.skills{display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px}
+.skill{border-radius:12px; background:#F3E9CF; padding:10px 12px}
+.skill b{display:block; font-family:var(--display); font-size:1.4rem; font-variant-numeric:tabular-nums}
+.pieces{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:6px}
+.piece{text-align:left; border:0; background:#F3E9CF; border-radius:10px; padding:8px 10px; font-size:.9rem; color:var(--ink)}
+.piece .k{color:var(--muted); font-size:.75rem; display:block}
+.piece.done{background:#DCEFD9}
+.piece.cur{outline:3px solid var(--sun)}
+input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; border:2px solid #D8CBA8; background:#fff; color:var(--ink); min-width:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<div id="app">
+  <header>
+    <div class="brand">Trazos de Arquitecto<small id="who">Mi ciudad</small></div>
+    <div class="count" id="houses" aria-label="Edificios"><svg viewBox="0 0 24 24"><path d="M3 21V10l6-4v4l6-4v15z" fill="#F5B22A"/><rect x="16" y="3" width="5" height="18" fill="#E0603E"/></svg><span id="houseN">0</span></div>
+    <div class="count" id="bricks" aria-label="Ladrillos"><i></i><span id="brickN">0</span></div>
+    <button class="iconbtn" id="btnMap" aria-pressed="false" aria-label="Ver mapa de la ciudad">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#FFF8E7" stroke-width="2.2" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5" opacity=".6"/><rect x="10" y="5" width="4" height="4" fill="#F5B22A" stroke="none"/></svg>
+    </button>
+    <button class="iconbtn" id="btnSay" aria-label="Repetir instrucción">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#FFF8E7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4h4l5 4V6L8 10z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>
+    </button>
+    <button class="iconbtn" id="btnSound" aria-pressed="true" aria-label="Sonido">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#FFF8E7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg>
+    </button>
+    <button class="iconbtn" id="btnAdult" aria-label="Para adultos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#FFF8E7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+    </button>
+  </header>
+  <div class="msg"><span class="tag" id="pieceName">La torre</span><span class="txt" id="msgTxt">Empieza en el punto verde.</span></div>
+  <div class="stageWrap" id="stageWrap"><canvas id="stage"></canvas></div>
+
+  <div class="overlay" id="startOv">
+    <div class="card">
+      <span class="label">Obra en construcción</span>
+      <h1>Trazos de Arquitecto</h1>
+      <p>Traza el camino con el dedo, empezando en el <b style="color:var(--go)">punto verde</b>. Cada trazo levanta una parte del edificio, y cada edificio se queda en tu calle.</p>
+      <button class="big-btn" id="btnStart">¡A construir!</button>
+    </div>
+  </div>
+  <div class="overlay" id="restOv" hidden>
+    <div class="card">
+      <span class="label">Pausa sugerida</span>
+      <h1>¡Qué ciudad!</h1>
+      <p id="restTxt">Ya construiste muchos edificios.</p>
+      <div class="row">
+        <button class="big-btn" id="btnMore">Seguir construyendo</button>
+        <button class="big-btn alt" id="btnDone">Descansar</button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="adultOv" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h2>Para adultos</h2><button class="small-btn" id="btnClose">Cerrar</button></div>
+      <p>Cada edificio esconde trazos de escritura: verticales, horizontales, diagonales, círculos y curvas, y después letras completas dentro de la arquitectura (la torre de agua es una T, la fábrica una M, la estación una n). Solo avanza si sigue el camino desde el punto verde, así practica también la dirección. No hay castigo ni límite: el juego no se detiene solo, salvo que elijas una pausa abajo.</p>
+      <div><span class="label">Trazos practicados</span><div class="skills" id="skills"></div></div>
+      <div class="row">
+        <label for="kidName" class="label">Nombre</label><input type="text" id="kidName" placeholder="Nombre del arquitecto" maxlength="20">
+        <label for="pauseEvery" class="label">Pausa sugerida</label>
+        <select id="pauseEvery"><option value="0">Nunca</option><option value="10">Cada 10 edificios</option><option value="20">Cada 20 edificios</option></select>
+      </div>
+      <div><span class="label">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
+      <div class="row"><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+// ---------- geometry (lot coordinates: building box 0..1, y down, ground at G) ----------
+const G = .92, LW = 1.25;
+const L = (x1,y1,x2,y2) => [[x1,y1],[x2,y2]];
+const P = (...pts) => pts;
+function arc(cx,cy,r,a0,a1,n=56){const o=[];for(let i=0;i<=n;i++){const a=(a0+(a1-a0)*i/n)*Math.PI/180;o.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}return o;}
+const cat = (...parts) => parts.flat().filter((p,i,a)=>i===0||Math.abs(p[0]-a[i-1][0])+Math.abs(p[1]-a[i-1][1])>1e-6);
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const C = {}; ['paper','ink','muted','lane','go','brick','sun','teal','plum','blue','win','sky','sky-2','grass','road','walk','water'].forEach(k=>C[k]=css('--'+k));
+function shade(hex, f){ const n = parseInt(hex.slice(1),16); const ch = s => Math.max(0,Math.min(255,Math.round(((n>>s)&255)*f))); return `rgb(${ch(16)},${ch(8)},${ch(0)})`; }
+
+// ---------- drawing helpers in lot space ----------
+let K = null; // {ctx, M, z}
+const R = (x0,y0,x1,y1,fill) => { const [a,b]=K.M([x0,y0]), [c,d]=K.M([x1,y1]); K.ctx.fillStyle=fill; K.ctx.fillRect(a,b,c-a,d-b); };
+const POLY = (pts,fill) => { const c=K.ctx; c.beginPath(); pts.forEach((p,i)=>{const [x,y]=K.M(p); i?c.lineTo(x,y):c.moveTo(x,y);}); c.closePath(); c.fillStyle=fill; c.fill(); };
+const CIRC = (cx,cy,r,fill) => { const [x,y]=K.M([cx,cy]); K.ctx.beginPath(); K.ctx.arc(x,y,r*K.z,0,7); K.ctx.fillStyle=fill; K.ctx.fill(); };
+const LINE = (pts,w,color,cap='round') => { const c=K.ctx; c.beginPath(); pts.forEach((p,i)=>{const [x,y]=K.M(p); i?c.lineTo(x,y):c.moveTo(x,y);}); c.lineWidth=w*K.z; c.strokeStyle=color; c.lineCap=cap; c.lineJoin='round'; c.stroke(); };
+function WINS(x0,y0,x1,y1,cols,rows,color=C.win){ const cw=(x1-x0)/cols, rh=(y1-y0)/rows; for(let i=0;i<cols;i++)for(let j=0;j<rows;j++) R(x0+i*cw+cw*.22, y0+j*rh+rh*.2, x0+(i+1)*cw-cw*.22, y0+(j+1)*rh-rh*.25, color); }
+const DOOR = (cx,w,h,color) => { R(cx-w/2,G-h,cx+w/2,G,color); CIRC(cx+w*.28,G-h*.45,.008,C.win); };
+
+// ---------- the build list: every letter lives inside a building ----------
+// art(c, t): c = main colour, t = 0..1 time for small animations
+const PIECES = [
+  {id:'torre', name:'La torre', kind:'vertical', c:'brick', tip:'Dos paredes de arriba hacia abajo, y el techo.', say:'Construye la torre. Empieza en el punto verde y baja.', uses:'l · i · t · H',
+   strokes:[L(.3,.14,.3,G),L(.7,.14,.7,G),L(.3,.14,.7,.14)],
+   art:(c)=>{ R(.3,.14,.7,G,c); WINS(.34,.2,.66,.78,3,6); DOOR(.5,.12,.12,shade(c,.6)); LINE([[.5,.14],[.5,.03]],.012,C.ink); CIRC(.5,.03,.018,C.brick); }},
+  {id:'casa', name:'La casa', kind:'diagonal', c:'teal', tip:'El techo baja por los dos lados. Luego las paredes.', say:'Ahora una casa. El techo baja por un lado y por el otro. Después las paredes.', uses:'A · v · w · M',
+   strokes:[L(.5,.16,.16,.5),L(.5,.16,.84,.5),L(.24,.5,.24,G),L(.76,.5,.76,G)],
+   art:(c)=>{ R(.68,.18,.76,.4,shade(C.brick,.75)); R(.24,.5,.76,G,c); POLY([[.5,.16],[.12,.52],[.88,.52]],C.brick); DOOR(.36,.13,.24,shade(c,.55)); R(.5,.6,.68,.74,C.win); LINE([[.59,.6],[.59,.74]],.01,shade(c,.6)); }},
+  {id:'pisos', name:'Edificio de pisos', kind:'horizontal', c:'plum', tip:'Cada piso de izquierda a derecha.', say:'Un edificio de pisos. Traza cada piso, de este lado hacia el otro.', uses:'E · F · t · z',
+   strokes:[L(.2,.3,.8,.3),L(.2,.52,.8,.52),L(.2,.74,.8,.74)],
+   art:(c)=>{ R(.2,.1,.8,G,c); R(.17,.08,.83,.12,shade(c,.7)); WINS(.22,.13,.78,.29,4,1); WINS(.22,.33,.78,.51,4,1); WINS(.22,.55,.78,.73,4,1); DOOR(.5,.14,.15,shade(c,.55)); }},
+  {id:'parque', name:'El tobogán del parque', kind:'diagonal', c:'sun', tip:'Sube la escalera bajando el dedo, y luego el tobogán en diagonal.', say:'¡El parque! Primero la escalera, de arriba hacia abajo. Luego el tobogán, en diagonal.', uses:'x · k · N · z',
+   strokes:[L(.3,.3,.3,G),L(.3,.3,.84,G)],
+   art:(c)=>{ R(.06,.55,.1,G,'#8a5a3b'); CIRC(.08,.5,.1,shade(C.grass,.8)); CIRC(.13,.42,.08,C.grass); R(.22,.27,.34,.31,C.teal); for(let y=.38;y<G;y+=.09) LINE([[.3,y],[.38,y]],.01,C.ink); LINE([[.38,.31],[.38,G]],.012,C.ink); }},
+  {id:'ventana', name:'Ventana redonda', kind:'círculo', c:'teal', tip:'Empieza arriba y gira hacia la izquierda hasta cerrar.', say:'Este edificio tiene una ventana redonda. Gira hacia este lado hasta cerrar el círculo.', uses:'o · a · d · g · q',
+   strokes:[arc(.5,.4,.2,-60,-420)],
+   art:(c)=>{ R(.16,.1,.84,G,c); CIRC(.5,.4,.2,C.win); LINE([[.5,.2],[.5,.6]],.012,shade(c,.6)); LINE([[.3,.4],[.7,.4]],.012,shade(c,.6)); WINS(.2,.66,.8,.8,4,1); DOOR(.5,.12,.1,shade(c,.55)); }},
+  {id:'observatorio', name:'El observatorio', kind:'curva', c:'blue', tip:'La cúpula: sube, pasa por arriba y baja.', say:'El observatorio. Haz la cúpula: sube, pasa por arriba y baja del otro lado.', uses:'n · m · h · c',
+   strokes:[arc(.5,.55,.26,180,360)],
+   art:(c,t)=>{ R(.22,.55,.78,G,c); POLY(arc(.5,.55,.26,180,360),'#E7EEF6'); R(.47,.3,.55,.55,shade(c,.5)); LINE([[.51,.38],[.68,.2]],.03,C.ink,'butt'); WINS(.26,.6,.74,.76,4,1); DOOR(.5,.12,.13,shade(c,.55)); for(let i=0;i<3;i++){ const a=t*6+i*2; CIRC(.82+.04*Math.cos(a),.12+.03*Math.sin(a),.006,C.sun); } }},
+  {id:'L', letter:'L', name:'Torre con patio', kind:'letra', c:'teal', tip:'Baja por la torre y sigue por el patio.', say:'Torre con patio. Baja por la torre, y luego hacia el lado.',
+   strokes:[L(.28,.12,.28,.84),L(.28,.84,.82,.84)],
+   art:(c)=>{ R(.18,.1,.4,G,c); R(.18,.62,.86,G,shade(c,1.12)); WINS(.2,.14,.38,.6,2,5); WINS(.44,.66,.84,.8,4,1); DOOR(.64,.1,.08,shade(c,.55)); }},
+  {id:'T', letter:'T', name:'La torre de agua', kind:'letra', c:'blue', tip:'Baja por el poste, luego el borde del tanque.', say:'La torre de agua. Primero baja por el poste, después la línea de arriba.',
+   strokes:[L(.5,.32,.5,G),L(.2,.32,.8,.32)],
+   art:(c)=>{ LINE([[.3,.32],[.24,G]],.02,C.ink); LINE([[.7,.32],[.76,G]],.02,C.ink); LINE([[.27,.6],[.73,.6]],.012,C.ink); LINE([[.27,.6],[.5,.8],[.73,.6]],.01,C.ink); R(.22,.1,.78,.32,c); POLY(arc(.5,.1,.28,180,360),shade(c,.8)); R(.28,.18,.72,.24,C.water); }},
+  {id:'H', letter:'H', name:'Rascacielos gemelos', kind:'letra', c:'brick', tip:'Dos torres y el puente en medio.', say:'Rascacielos gemelos. Dos torres y un puente en medio.',
+   strokes:[L(.26,.1,.26,G),L(.74,.1,.74,G),L(.26,.48,.74,.48)],
+   art:(c)=>{ R(.14,.1,.38,G,c); R(.62,.1,.86,G,c); R(.38,.43,.62,.53,shade(c,.75)); WINS(.16,.14,.36,.84,2,8); WINS(.64,.14,.84,.84,2,8); R(.4,.46,.6,.5,C.win); }},
+  {id:'A', letter:'A', name:'La carpa del circo', kind:'letra', c:'plum', tip:'Baja por un lado, por el otro, y cruza en medio.', say:'La carpa del circo. Baja por un lado, por el otro, y cruza en medio.',
+   strokes:[L(.5,.12,.18,G),L(.5,.12,.82,G),L(.33,.6,.67,.6)],
+   art:(c)=>{ const n=6; for(let i=0;i<n;i++){ const x0=.14+i*.72/n, x1=x0+.72/n; POLY([[.5,.12],[x0,G],[x1,G]], i%2?C.paper:c); } POLY([[.5,.6],[.38,G],[.62,G]],shade(c,.45)); LINE([[.5,.12],[.5,.02]],.01,C.ink); POLY([[.5,.02],[.6,.045],[.5,.07]],C.sun); }},
+  {id:'E', letter:'E', name:'El hotel', kind:'letra', c:'sun', tip:'Una pared y tres pisos.', say:'El hotel. Una pared, y tres pisos.',
+   strokes:[L(.28,.12,.28,.9),L(.28,.12,.74,.12),L(.28,.5,.68,.5),L(.28,.9,.74,.9)],
+   art:(c)=>{ R(.2,.08,.8,G,c); WINS(.34,.16,.76,.46,3,3); WINS(.34,.54,.76,.78,3,2); R(.12,.2,.2,.6,C.brick); DOOR(.55,.14,.12,shade(c,.55)); }},
+  {id:'n', letter:'n', name:'La estación', kind:'letra', c:'brick', tip:'Baja por la columna, luego el arco del túnel.', say:'La estación del tren. Baja por la columna, y luego haz el arco.',
+   strokes:[L(.3,.4,.3,G),cat(arc(.5,.55,.2,180,360),L(.7,.55,.7,G))],
+   art:(c)=>{ R(.12,.22,.88,G,c); POLY(cat(arc(.5,.55,.2,180,360),[[.7,G],[.3,G]]),'#2a2f38'); R(.38,.66,.62,G,C.brick); R(.42,.7,.58,.78,C.win); CIRC(.43,.85,.02,C.sun); CIRC(.57,.85,.02,C.sun); CIRC(.5,.3,.06,C.paper); LINE([[.5,.3],[.5,.26],[.5,.3],[.53,.3]],.008,C.ink); }},
+  {id:'U', letter:'U', name:'La fuente', kind:'letra', c:'teal', tip:'Baja, haz la curva y sube.', say:'La fuente de la plaza. Baja, haz la curva, y sube.',
+   strokes:[cat(L(.28,.42,.28,.66),arc(.5,.66,.22,180,0),L(.72,.66,.72,.42))],
+   art:(c,t)=>{ R(.18,.86,.82,G,C.walk); POLY(cat(L(.28,.5,.28,.66),arc(.5,.66,.22,180,0),L(.72,.66,.72,.5)),C.water); R(.48,.3,.52,.6,shade(c,.7)); for(let i=0;i<7;i++){ const k=((t*.8+i/7)%1); CIRC(.5+(i%2?1:-1)*k*.18, .3-Math.sin(k*Math.PI)*.16+k*.18, .014, C.water);} }},
+  {id:'O', letter:'O', name:'La rueda de la fortuna', kind:'letra', c:'sun', tip:'Una vuelta completa hacia la izquierda.', say:'La rueda de la fortuna. Da toda la vuelta.',
+   strokes:[arc(.5,.42,.3,-70,-430)],
+   art:(c,t)=>{ LINE([[.5,.42],[.3,G]],.02,C.ink); LINE([[.5,.42],[.7,G]],.02,C.ink); for(let i=0;i<8;i++){ const a=t*.6+i*Math.PI/4; LINE([[.5,.42],[.5+.3*Math.cos(a),.42+.3*Math.sin(a)]],.008,C.muted); CIRC(.5+.3*Math.cos(a),.42+.3*Math.sin(a)+.04,.035,[C.brick,C.teal,C.plum,C.blue][i%4]); } CIRC(.5,.42,.03,C.ink); R(.24,.88,.76,G,C.walk); }},
+  {id:'M', letter:'M', name:'La fábrica', kind:'letra', c:'plum', tip:'Baja por la pared, luego el techo en zigzag.', say:'La fábrica. Baja por la pared, y luego el techo en zigzag hasta abajo.',
+   strokes:[L(.18,.3,.18,G),P([.18,.3],[.5,.58],[.82,.3],[.82,G])],
+   art:(c,t)=>{ R(.66,.04,.74,.4,shade(C.brick,.8)); for(let i=0;i<3;i++){ const k=(t*.4+i/3)%1; CIRC(.7+k*.1,.02-k*.12,.03+k*.03,'rgba(255,255,255,'+(.8-k*.7)+')'); } POLY([[.18,.3],[.5,.58],[.82,.3],[.82,G],[.18,G]],c); POLY([[.18,.3],[.5,.58],[.2,.58]],C.win); POLY([[.82,.3],[.5,.58],[.8,.58]],C.win); WINS(.22,.64,.78,.78,4,1); DOOR(.5,.16,.12,shade(c,.55)); }},
+];
+const KINDS = ['vertical','horizontal','diagonal','círculo','curva','letra'];
+const PRAISE = ['¡Muy bien!','¡Genial!','¡Eso es!','¡Qué buen trazo!','¡Bien hecho!'];
+const STEP = .006, TOL = .09;
+const byId = id => PIECES.find(p=>p.id===id);
+
+// ---------- saved progress (per-device convenience) ----------
+const KEY = 'trazos-arquitecto-v2';
+let S = {level:0, city:[], bricks:0, done:{}, pauseEvery:0, sound:true, name:''};
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch(e) {}
+S.city = S.city.filter(byId);
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
+
+const $ = id => document.getElementById(id);
+const stage = $('stage'), ctx = stage.getContext('2d');
+let dpr = 1, W = 300, H = 300;
+
+// ---------- audio + voice ----------
+let ac = null;
+function tone(f, d=.18, type='triangle', g=.18, delay=0){
+  if (!S.sound || !ac) return;
+  const t = ac.currentTime + delay, o = ac.createOscillator(), v = ac.createGain();
+  o.type = type; o.frequency.value = f; v.gain.setValueAtTime(0, t);
+  v.gain.linearRampToValueAtTime(g, t+.015); v.gain.exponentialRampToValueAtTime(.001, t+d);
+  o.connect(v).connect(ac.destination); o.start(t); o.stop(t+d+.05);
+}
+const SCALE = [523,587,659,784,880,1047,1175,1319];
+let esVoice = null;
+function pickVoice(){ try { const vs = speechSynthesis.getVoices(); esVoice = vs.find(v=>/^es[-_](MX|US|419)/i.test(v.lang)) || vs.find(v=>/^es/i.test(v.lang)) || null; } catch(e) {} }
+try { speechSynthesis.onvoiceschanged = pickVoice; pickVoice(); } catch(e) {}
+function speak(t){
+  if (!S.sound) return;
+  try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = esVoice ? esVoice.lang : 'es-ES'; if (esVoice) u.voice = esVoice; u.rate = .98; u.pitch = 1.1; speechSynthesis.speak(u); } catch(e) {}
+}
+function say(tag, txt, voice){ if (tag) $('pieceName').textContent = tag; $('msgTxt').textContent = txt; if (voice) speak(voice === true ? txt : voice); }
+
+// ---------- run state ----------
+const run = {piece:null, si:0, pts:[], prog:0, ink:[], beams:[], pid:null, touched:false, lastTouch:0, demoT0:0, off:0, offWarned:false, phase:'idle', nextPing:0, builtAt:0, lot:0, timers:[], session:0};
+const particles = [];
+const cam = {x:.6, y:.55, z:300}, camT = {x:.6, y:.55, z:300};
+const later = (fn, ms) => run.timers.push(setTimeout(fn, ms));
+const clearTimers = () => { run.timers.forEach(clearTimeout); run.timers = []; };
+
+function resample(poly, step){
+  const out = [poly[0].slice()];
+  for (let i=1;i<poly.length;i++){
+    const b = poly[i]; let a = out[out.length-1]; let d = Math.hypot(b[0]-a[0], b[1]-a[1]);
+    while (d >= step){ const t = step/d; a = [a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t]; out.push(a); d = Math.hypot(b[0]-a[0], b[1]-a[1]); }
+  }
+  out.push(poly[poly.length-1].slice());
+  return out;
+}
+const dist = (a,b) => Math.hypot(a[0]-b[0], a[1]-b[1]);
+
+// ---------- camera ----------
+function traceZoom(){ return Math.min(H/1.18, W/1.3); }
+function aimAtLot(lot){
+  const z = traceZoom();
+  camT.z = z; camT.x = lot*LW + .5 + .08; camT.y = Math.min(.55, G + .26 - H/(2*z));
+}
+function aimOverview(){
+  const n = S.city.length + 1, span = n*LW + .3;
+  const z = Math.min(W/span, traceZoom()*.62, H/1.35);
+  camT.z = z; camT.x = Math.max(span/2 - .15, W/(2*z) - .3); camT.y = G + .3 - H/(2*z);
+  // keep the newest buildings in view when the city is wider than the screen
+  const right = (n)*LW + .2; if (camT.x + W/(2*z) < right) camT.x = right - W/(2*z);
+}
+const toScreen = (lot, p) => [(lot*LW + p[0] - cam.x)*cam.z + W/2, (p[1] - cam.y)*cam.z + H/2];
+const toLot = (lot, sx, sy) => [(sx - W/2)/cam.z + cam.x - lot*LW, (sy - H/2)/cam.z + cam.y];
+
+// ---------- flow ----------
+function loadPiece(i){
+  clearTimers();
+  S.level = i; save();
+  const p = PIECES[i]; run.piece = p; run.si = 0; run.beams = []; run.phase = 'trace'; run.lot = S.city.length;
+  aimAtLot(run.lot); hideMap();
+  setupStroke();
+  const n = p.strokes.length;
+  say(p.name, p.tip + (n>1 ? ` (${n} trazos)` : ''), p.say);
+}
+function setupStroke(){
+  run.pts = resample(run.piece.strokes[run.si], STEP);
+  run.prog = 0; run.ink = []; run.pid = null; run.touched = false; run.off = 0; run.offWarned = false;
+  run.demoT0 = performance.now(); run.nextPing = .15;
+}
+function nextIndex(){
+  if (S.level < PIECES.length-1) return S.level+1;
+  const letters = PIECES.map((p,i)=>p.letter?i:-1).filter(i=>i>=0 && i!==S.level);
+  return letters[Math.floor(Math.random()*letters.length)];
+}
+function goNext(){
+  clearTimers();
+  if (S.pauseEvery && run.session > 0 && run.session % S.pauseEvery === 0 && !run.pauseShown){
+    run.pauseShown = true;
+    $('restTxt').textContent = `Construiste ${run.session} edificios seguidos. Tu ciudad ya tiene ${S.city.length}.`;
+    S.level = nextIndex(); run.piece = PIECES[S.level]; run.lot = S.city.length; save();
+    $('restOv').hidden = false; run.phase = 'idle'; return;
+  }
+  run.pauseShown = false;
+  loadPiece(nextIndex());
+}
+
+// ---------- tracing ----------
+function norm(e){ const r = stage.getBoundingClientRect(); return toLot(run.lot, e.clientX - r.left, e.clientY - r.top); }
+function advance(p){
+  const Wn = Math.ceil(.14/STEP); let best=-1, bd=1e9;
+  const end = Math.min(run.pts.length, run.prog+Wn);
+  for (let j=run.prog;j<end;j++){ const d = dist(p, run.pts[j]); if (d<bd){bd=d; best=j;} }
+  if (bd < TOL){
+    run.off = 0;
+    if (best > run.prog){
+      run.prog = best;
+      const f = run.prog/(run.pts.length-1);
+      if (f >= run.nextPing){ tone(SCALE[Math.min(7, Math.floor(run.nextPing*8))], .16, 'triangle', .12); run.nextPing += .15; }
+    }
+  } else if (++run.off > 28 && !run.offWarned){ run.offWarned = true; say(null, 'Sigue el camino de puntitos. Lo que llevas se guarda.', 'Sigue el camino'); }
+  if (run.prog >= run.pts.length-1-Math.ceil(.035/STEP)) completeStroke();
+}
+stage.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (run.phase === 'tour'){ goNext(); return; }
+  if (run.view === 'map'){ hideMap(); return; }
+  if (run.phase !== 'trace' || run.pid !== null) return;
+  const p = norm(e);
+  if (dist(p, run.pts[run.prog]) > TOL*1.7){
+    run.demoT0 = performance.now(); run.lastTouch = 0;
+    say(null, run.prog ? 'Sigue desde donde ibas, en el círculo verde.' : 'Empieza en el punto verde.', run.prog ? 'Sigue desde el círculo verde' : 'Empieza en el punto verde');
+    tone(330,.15,'sine',.08);
+    return;
+  }
+  try { stage.setPointerCapture(e.pointerId); } catch(_) {}
+  run.pid = e.pointerId; run.touched = true; run.lastTouch = performance.now();
+  run.ink.push([p]);
+});
+stage.addEventListener('pointermove', e => {
+  if (e.pointerId !== run.pid) return;
+  const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [];
+  for (const ev of (evs.length ? evs : [e])){
+    if (run.pid === null) break;
+    const p = norm(ev), seg = run.ink[run.ink.length-1], last = seg[seg.length-1];
+    const n = Math.max(1, Math.ceil(dist(p,last)/(STEP*2)));
+    for (let k=1;k<=n;k++){ advance([last[0]+(p[0]-last[0])*k/n, last[1]+(p[1]-last[1])*k/n]); if (run.pid === null) break; }
+    seg.push(p);
+  }
+});
+const lift = e => { if (e.pointerId !== run.pid) return; run.pid = null; run.lastTouch = performance.now(); };
+stage.addEventListener('pointerup', lift); stage.addEventListener('pointercancel', lift);
+
+function pop(id){ const b = $(id); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop'); }
+function completeStroke(){
+  run.pid = null;
+  run.beams.push(run.piece.strokes[run.si]);
+  const [x,y] = toScreen(run.lot, run.pts[run.pts.length-1]);
+  burst(x, y, 18, C[run.piece.c]);
+  tone(784,.2,'triangle',.16); tone(1047,.3,'triangle',.16,.09);
+  S.bricks++; $('brickN').textContent = S.bricks; pop('bricks');
+  run.si++;
+  if (run.si < run.piece.strokes.length){
+    setupStroke();
+    const pr = PRAISE[Math.floor(Math.random()*PRAISE.length)];
+    say(null, `${pr} Ahora el trazo ${run.si+1}.`, pr);
+  } else completePiece();
+}
+function completePiece(){
+  const p = run.piece; run.phase = 'built'; run.ink = []; run.builtAt = performance.now();
+  S.city.push(p.id); S.done[p.id] = (S.done[p.id]||0)+1; run.session++; save();
+  $('houseN').textContent = S.city.length; pop('houses');
+  for (let i=0;i<6;i++) later(()=>burst(W*(.25+Math.random()*.5), H*(.2+Math.random()*.4), 20, [C.brick,C.sun,C.teal,C.plum,C.go,C.blue][i]), i*90);
+  [523,659,784,1047].forEach((f,i)=>tone(f,.35,'triangle',.16,i*.1));
+  if (p.letter){ say(null, `¡Escondiste la letra ${p.letter} en ${p.name.toLowerCase()}!`, `¡${p.name}! Escondiste la letra ${p.letter}`); }
+  else say(null, `¡Listo! ${p.name} ya está en tu ciudad.`, `¡Listo! ${p.name}`);
+  // build-up, then the camera steps back to show the street, then walks on to the next lot
+  later(()=>{ run.phase = 'tour'; aimOverview(); showMap(); mapNewAt = performance.now() + 450; }, 900);
+  later(goNext, 3600);
+}
+function burst(x,y,n,color){ for (let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, v=4+Math.random()*9; particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-3,life:1,color,size:5+Math.random()*7}); } }
+
+// ---------- scene ----------
+function drawTrim(p, strokes, alpha=1){
+  const a0 = K.ctx.globalAlpha; K.ctx.globalAlpha = a0*alpha;
+  strokes.forEach(st => LINE(st, .055, shade(C[p.c], .55), st.length < 6 ? 'square' : 'round'));
+  K.ctx.globalAlpha = a0;
+}
+function drawBuilding(lot, p, now, grow=1){
+  const base = toScreen(lot, [.5, G]);
+  K = {ctx, z:cam.z, M: q => { const [x,y] = toScreen(lot, q); return [base[0] + (x-base[0])*grow, base[1] + (y-base[1])*grow]; }};
+  K.z = cam.z*grow;
+  p.art(C[p.c], now/1000);
+  drawTrim(p, p.strokes);
+}
+function drawLotDecor(lot){
+  K = {ctx, z:cam.z, M: q => toScreen(lot, q)};
+  if (lot % 2){ R(1.07,G-.32,1.09,G,C.ink); R(1.04,G-.34,1.12,G-.32,C.ink); CIRC(1.08,G-.3,.025,C.win); }
+  else { R(1.065,G-.2,1.095,G,'#8a5a3b'); CIRC(1.08,G-.26,.08,C.grass); CIRC(1.04,G-.2,.06,shade(C.grass,.85)); }
+}
+function drawCrane(lot){
+  K = {ctx, z:cam.z, M: q => toScreen(lot, q)};
+  const y = C.sun, d = shade(C.sun,.7);
+  R(1.0,-.12,1.06,G,y); for (let v=-.1; v<G; v+=.08) LINE([[1.0,v],[1.06,v+.08]],.006,d);
+  R(.2,-.16,1.2,-.11,y); for (let u=.22; u<1.2; u+=.07) LINE([[u,-.16],[u+.05,-.11]],.006,d);
+  R(1.08,-.2,1.2,-.11,C.ink);
+  const hx = .5; LINE([[hx,-.11],[hx,.02]],.005,C.ink); LINE([[hx-.02,.02],[hx+.02,.02],[hx+.02,.05]],.01,C.ink);
+}
+function drawGround(){
+  const gy = (G - cam.y)*cam.z + H/2, z = cam.z;
+  ctx.fillStyle = C.walk; ctx.fillRect(0, gy, W, .06*z);
+  ctx.fillStyle = C.road; ctx.fillRect(0, gy+.06*z, W, .16*z);
+  ctx.fillStyle = C.grass; ctx.fillRect(0, gy+.22*z, W, H);
+  ctx.strokeStyle = C.win; ctx.lineWidth = Math.max(2,.008*z); ctx.setLineDash([.06*z,.06*z]); ctx.lineDashOffset = cam.x*z;
+  ctx.beginPath(); ctx.moveTo(0, gy+.14*z); ctx.lineTo(W, gy+.14*z); ctx.stroke(); ctx.setLineDash([]);
+}
+function drawCars(now){
+  const z = cam.z, gy = (G - cam.y)*z + H/2;
+  [[.00012, C.brick, .09], [-.00009, C.blue, .17]].forEach(([v,col,lane],i)=>{
+    const worldSpan = Math.max(6, (S.city.length+2)*LW);
+    let wx = ((now*v + i*2.3) % worldSpan + worldSpan) % worldSpan - .5;
+    const x = (wx - cam.x)*z + W/2, y = gy + lane*z, w = .2*z, h = .06*z;
+    ctx.fillStyle = col; ctx.fillRect(x-w/2, y-h, w, h*.7); ctx.fillRect(x-w*.28, y-h*1.5, w*.56, h*.6);
+    ctx.fillStyle = C.win; ctx.fillRect(x-w*.22, y-h*1.4, w*.18, h*.4); ctx.fillRect(x+w*.04, y-h*1.4, w*.18, h*.4);
+    ctx.fillStyle = C.ink; ctx.beginPath(); ctx.arc(x-w*.28, y-h*.25, h*.32, 0, 7); ctx.arc(x+w*.28, y-h*.25, h*.32, 0, 7); ctx.fill();
+  });
+}
+function drawSky(now){
+  const g = ctx.createLinearGradient(0,0,0,H); g.addColorStop(0, C['sky-2']); g.addColorStop(1, C.sky); ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  const m = Math.min(W,H);
+  ctx.fillStyle = C.sun; ctx.beginPath(); ctx.arc(W - m*.12, m*.12, m*.06, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.9)';
+  [[.15,.1,1],[.5,.2,.8],[.85,.3,.6]].forEach(([cx,cy,sc],i)=>{ const x = ((cx*W - cam.x*cam.z*.08 + now*.006*(i+1)) % (W+160) + W+160) % (W+160) - 80, y = cy*H, r = m*.04*sc; ctx.beginPath(); ctx.arc(x,y,r,0,7); ctx.arc(x+r*1.1,y-r*.4,r*1.2,0,7); ctx.arc(x+r*2.2,y,r,0,7); ctx.fill(); });
+  // far hills, slow parallax
+  const gy = (G - cam.y)*cam.z + H/2;
+  ctx.fillStyle = 'rgba(124,196,127,.45)'; ctx.beginPath(); ctx.moveTo(0, gy);
+  for (let x=0; x<=W; x+=20){ const wx = x + cam.x*cam.z*.25; ctx.lineTo(x, gy - (30 + 22*Math.sin(wx/140) + 12*Math.sin(wx/53))*Math.min(1, cam.z/250)); }
+  ctx.lineTo(W, gy); ctx.fill();
+}
+function drawGuide(now){
+  const lot = run.lot, p = run.piece, z = cam.z;
+  K = {ctx, z, M: q => toScreen(lot, q)};
+  // blueprint ghost of the finished building
+  ctx.globalAlpha = .2; p.art(C[p.c], 0); ctx.globalAlpha = 1;
+  drawTrim(p, run.beams);
+  if (run.phase !== 'trace') return;
+  p.strokes.slice(run.si+1).forEach(st => { ctx.save(); ctx.setLineDash([z*.012, z*.03]); LINE(st, .012, 'rgba(31,46,68,.35)'); ctx.restore(); });
+  const st = p.strokes[run.si];
+  ctx.save();
+  ctx.globalAlpha = .85; LINE(st, TOL*1.5, C.lane); ctx.globalAlpha = 1;
+  if (run.prog > 0) { ctx.globalAlpha = .75; LINE(run.pts.slice(0, run.prog+1), .055, shade(C[p.c], .55)); ctx.globalAlpha = 1; }
+  ctx.setLineDash([0, z*.035]); LINE(st, .016, C.muted); ctx.setLineDash([]);
+  const N = run.pts.length; ctx.globalAlpha = .6;
+  for (let j = Math.floor(.12/STEP); j < N-Math.floor(.06/STEP); j += Math.floor(.16/STEP)){
+    if (j < run.prog) continue;
+    const a = run.pts[j], b = run.pts[Math.min(N-1,j+3)], ang = Math.atan2(b[1]-a[1], b[0]-a[0]), r = .022;
+    LINE([[a[0]+Math.cos(ang+2.5)*r, a[1]+Math.sin(ang+2.5)*r],[a[0]+Math.cos(ang)*r*.6, a[1]+Math.sin(ang)*r*.6],[a[0]+Math.cos(ang-2.5)*r, a[1]+Math.sin(ang-2.5)*r]], .009, C.ink);
+  }
+  ctx.globalAlpha = 1;
+  const e = run.pts[N-1];
+  if (dist(run.pts[0], e) > .05){ LINE([e,[e[0],e[1]-.07]], .006, C.ink); POLY([[e[0],e[1]-.07],[e[0]+.05,e[1]-.052],[e[0],e[1]-.034]], C.brick); }
+  const pulse = 1 + .08*Math.sin(now/220), s0 = run.pts[0];
+  CIRC(s0[0], s0[1], .045*(run.prog?1:pulse), C.go);
+  const [sx,sy] = K.M(s0); ctx.fillStyle = '#fff'; ctx.font = `800 ${z*.05}px "Baloo 2", sans-serif`; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(String(run.si+1), sx, sy+z*.004); ctx.textAlign='start';
+  if (run.prog > 0 && run.pid === null){ const [rx,ry] = K.M(run.pts[run.prog]); ctx.strokeStyle = C.go; ctx.lineWidth = z*.012; ctx.beginPath(); ctx.arc(rx, ry, z*.04*pulse, 0, 7); ctx.stroke(); }
+  run.ink.forEach(seg => { ctx.globalAlpha = .8; LINE(seg, .028, C.ink); ctx.globalAlpha = 1; });
+  const idle = run.pid === null && (!run.touched || now - run.lastTouch > 3500);
+  if (idle && run.prog === 0){
+    const T = 2400, k = (Math.max(0, now - run.demoT0) % (T+700)) / T;
+    if (k <= 1){ const q = run.pts[Math.floor(k*(N-1))]; CIRC(q[0], q[1], .032, C.sun); const [x,y] = K.M(q); ctx.strokeStyle = C.ink; ctx.lineWidth = z*.006; ctx.beginPath(); ctx.arc(x,y,z*.032,0,7); ctx.stroke(); }
+  }
+  ctx.restore();
+}
+const easeBack = t => { const c=1.7; return 1 + (c+1)*Math.pow(t-1,3) + c*Math.pow(t-1,2); };
+// ---------- board-game map of the whole city ----------
+const GN = 17, isRoad = i => i%4 === 0;
+const isWater = (i,j) => (i>=13 && i<=15 && j>=1 && j<=3) || (i>=1 && i<=3 && j>=13 && j<=15);
+const hash = (i,j) => (((i*73856093) ^ (j*19349663)) >>> 0) % 997;
+// lots fill in neighbourhood rings from the centre, scattered inside each ring
+const LOTS = (() => { const o = [], c = GN/2;
+  for (let i=0;i<GN;i++) for (let j=0;j<GN;j++) if (!isRoad(i) && !isRoad(j) && !isWater(i,j)) o.push([i,j]);
+  const key = ([i,j]) => Math.floor(Math.hypot(i+.5-c, j+.5-c)/2.4)*1000 + hash(i,j);
+  return o.sort((a,b) => key(a)-key(b)); })();
+const mapCv = document.createElement('canvas'), mctx = mapCv.getContext('2d');
+const mcam = {x:0, y:2, tw:80}, mcamT = {x:0, y:2, tw:80};
+let mapFade = 0, mapNewAt = 0;
+const isoX = (i,j) => (i-j)/2, isoY = (i,j) => (i+j)/4;
+function aimMap(){
+  const used = LOTS.slice(0, Math.min(LOTS.length, S.city.length+1));
+  let i0=6, i1=10, j0=6, j1=10;
+  used.forEach(([i,j]) => { i0=Math.min(i0,i-1); i1=Math.max(i1,i+1); j0=Math.min(j0,j-1); j1=Math.max(j1,j+1); });
+  i0=Math.max(0,i0); j0=Math.max(0,j0); i1=Math.min(GN-1,i1); j1=Math.min(GN-1,j1);
+  const xa = isoX(i0, j1+1), xb = isoX(i1+1, j0), ya = isoY(i0, j0), yb = isoY(i1+1, j1+1);
+  mcamT.tw = Math.min(W*(W < H ? 1.4 : .94)/(xb-xa), H*.9/(yb-ya+.9));
+  mcamT.x = (xa+xb)/2; mcamT.y = (ya+yb)/2 - .4;
+}
+function showMap(){ aimMap(); run.view = 'map'; $('btnMap').setAttribute('aria-pressed','true'); }
+function hideMap(){ run.view = 'street'; $('btnMap').setAttribute('aria-pressed','false'); }
+function drawMap(now){
+  const c = mctx, tw = mcam.tw;
+  c.setTransform(dpr,0,0,dpr,0,0);
+  const S2 = (X,Y) => [W/2 + (X-mcam.x)*tw, H/2 + (Y-mcam.y)*tw];
+  const T = (i,j) => S2(isoX(i,j), isoY(i,j));
+  const diamond = (i,j,w=1,h=1) => { const a=T(i,j), b=T(i+w,j), d=T(i+w,j+h), e=T(i,j+h); c.beginPath(); c.moveTo(...a); c.lineTo(...b); c.lineTo(...d); c.lineTo(...e); c.closePath(); };
+  // table
+  const g = c.createLinearGradient(0,0,0,H); g.addColorStop(0, C['sky-2']); g.addColorStop(1, C.sky); c.fillStyle = g; c.fillRect(0,0,W,H);
+  // the board: a thick cream slab with a printed edge
+  const edge = .5;
+  c.save(); c.translate(0, tw*.09); diamond(-edge,-edge,GN+2*edge,GN+2*edge); c.fillStyle = '#B8A57A'; c.fill(); c.restore();
+  diamond(-edge,-edge,GN+2*edge,GN+2*edge); c.fillStyle = '#EFE3C6'; c.fill();
+  c.lineWidth = Math.max(1, tw*.02); c.strokeStyle = '#C9B48A'; c.stroke();
+  const built = new Map(); S.city.forEach((id,k) => { if (LOTS[k]) built.set(LOTS[k].join(','), k); });
+  const next = LOTS[S.city.length];
+  for (let s=0; s<=2*GN-2; s++) for (let i=Math.max(0,s-GN+1); i<=Math.min(GN-1,s); i++){
+    const j = s-i, rd = isRoad(i) || isRoad(j);
+    diamond(i,j);
+    if (rd) c.fillStyle = (isRoad(i) && isRoad(j)) ? '#7A828E' : C.road;
+    else if (isWater(i,j)) c.fillStyle = C.water;
+    else c.fillStyle = (i+j)%2 ? C.grass : shade(C.grass,.93);
+    c.fill(); c.lineWidth = 1; c.strokeStyle = 'rgba(0,0,0,.07)'; c.stroke();
+    if (rd && !(isRoad(i) && isRoad(j))){
+      const [a,b] = isRoad(i) ? [T(i+.5,j+.25), T(i+.5,j+.75)] : [T(i+.25,j+.5), T(i+.75,j+.5)];
+      c.strokeStyle = C.win; c.lineWidth = Math.max(1, tw*.025); c.beginPath(); c.moveTo(...a); c.lineTo(...b); c.stroke();
+    }
+    if (isWater(i,j) && hash(i,j)%3===0){ const [x,y] = T(i+.5,j+.5); c.strokeStyle='rgba(255,255,255,.7)'; c.lineWidth=Math.max(1,tw*.02); c.beginPath(); c.arc(x, y, tw*.08, Math.PI*.1, Math.PI*.9); c.stroke(); }
+  }
+  // standees, back to front
+  const pieces = [];
+  for (let i=0;i<GN;i++) for (let j=0;j<GN;j++){
+    if (isRoad(i) || isRoad(j) || isWater(i,j)) continue;
+    const key = i+','+j;
+    if (built.has(key)) pieces.push({i,j,k:built.get(key)});
+    else if (next && next[0]===i && next[1]===j) pieces.push({i,j,next:true});
+    else if (hash(i,j)%3===0) pieces.push({i,j,tree:true});
+  }
+  pieces.sort((a,b) => (a.i+a.j)-(b.i+b.j));
+  const newest = S.city.length-1;
+  pieces.forEach(pc => {
+    const [cx,cy] = T(pc.i+.5, pc.j+.5);
+    if (pc.tree){ const r = tw*.09; c.fillStyle='#8a5a3b'; c.fillRect(cx-r*.2, cy-r*1.6, r*.4, r*1.6); c.fillStyle = shade(C.grass,.8); c.beginPath(); c.arc(cx, cy-r*2, r*1.1, 0, 7); c.fill(); c.fillStyle = C.grass; c.beginPath(); c.arc(cx+r*.4, cy-r*2.4, r*.8, 0, 7); c.fill(); return; }
+    if (pc.next){
+      const p = .5 + .5*Math.sin(now/250);
+      diamond(pc.i+.12, pc.j+.12, .76, .76); c.setLineDash([tw*.05, tw*.04]); c.lineWidth = Math.max(2, tw*.03); c.strokeStyle = C.sun; c.globalAlpha = .6+.4*p; c.stroke(); c.setLineDash([]); c.globalAlpha = 1;
+      c.fillStyle = C.ink; c.font = `800 ${tw*.28}px "Baloo 2", sans-serif`; c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillText('?', cx, cy + tw*.05 - p*tw*.05); c.textAlign = 'start';
+      return;
+    }
+    const p = byId(S.city[pc.k]); if (!p) return;
+    let grow = 1;
+    if (pc.k === newest && mapNewAt){ const t = (now - mapNewAt)/700; grow = t <= 0 ? 0 : Math.max(.02, easeBack(Math.min(1,t))); if (t>0 && t<1.3){ c.strokeStyle = C.sun; c.globalAlpha = Math.max(0,1-t/1.3); c.lineWidth = tw*.04; c.beginPath(); c.ellipse(cx, cy, tw*.3*(.5+t), tw*.15*(.5+t), 0, 0, 7); c.stroke(); c.globalAlpha = 1; } }
+    if (grow <= 0) return;
+    c.fillStyle = 'rgba(0,0,0,.18)'; c.beginPath(); c.ellipse(cx, cy+tw*.02, tw*.3*grow, tw*.12*grow, 0, 0, 7); c.fill();
+    const s = tw*.7*grow;
+    K = {ctx:c, z:s, M: q => [cx + (q[0]-.5)*s, cy + (q[1]-G)*s]};
+    p.art(C[p.c], now/1000); drawTrim(p, p.strokes);
+  });
+  // title card in the corner, like a board game's box label
+  const nm = S.name ? `Ciudad de ${S.name}` : 'Mi ciudad';
+  c.font = `800 ${Math.max(16, Math.min(24, W*.04))}px "Baloo 2", sans-serif`; c.textBaseline = 'top';
+  const label = `${nm} · ${S.city.length} ${S.city.length===1?'edificio':'edificios'}`, lw = c.measureText(label).width;
+  c.fillStyle = C.paper; c.fillRect(12, 12, lw+24, Math.max(16, Math.min(24, W*.04))*1.6); c.fillStyle = C.ink; c.fillText(label, 24, 16);
+  c.font = `400 ${Math.max(12, Math.min(15, W*.028))}px Andika, sans-serif`;
+  { const hint = run.phase === 'tour' ? 'Toca para la siguiente obra' : 'Toca para volver a la obra', hy = 16 + Math.max(16, Math.min(24, W*.04))*1.6; c.fillStyle = 'rgba(255,248,231,.85)'; c.fillRect(12, hy, c.measureText(hint).width+24, Math.max(12, Math.min(15, W*.028))*1.6); c.fillStyle = C.ink; }
+  c.globalAlpha = .8;
+  c.fillText(run.phase === 'tour' ? 'Toca para la siguiente obra' : 'Toca para volver a la obra', 14, 18 + Math.max(16, Math.min(24, W*.04))*1.6); c.globalAlpha = 1;
+}
+
+function frame(now){
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const k = .085; cam.x += (camT.x-cam.x)*k; cam.y += (camT.y-cam.y)*k; cam.z += (camT.z-cam.z)*k;
+  mcam.x += (mcamT.x-mcam.x)*k; mcam.y += (mcamT.y-mcam.y)*k; mcam.tw += (mcamT.tw-mcam.tw)*k;
+  mapFade += ((run.view === 'map' ? 1 : 0) - mapFade)*.14;
+  if (mapFade > .985){ drawMap(now); ctx.drawImage(mapCv, 0, 0, W, H); drawParticles(); requestAnimationFrame(frame); return; }
+  drawSky(now); drawGround();
+  // visible lots only
+  const first = Math.max(0, Math.floor((cam.x - W/(2*cam.z))/LW) - 1), last = Math.ceil((cam.x + W/(2*cam.z))/LW) + 1;
+  const building = run.piece && run.phase !== 'idle' ? run.lot : -1;
+  for (let lot = first; lot <= last; lot++){
+    if (lot <= S.city.length) drawLotDecor(lot);
+    const id = S.city[lot];
+    if (lot === building && run.phase === 'trace') continue;
+    if (id){
+      let grow = 1;
+      if (lot === building){ const t = Math.min(1, (now - run.builtAt)/650); grow = Math.max(.02, easeBack(t)); }
+      drawBuilding(lot, byId(id), now, grow);
+    }
+  }
+  if (building >= 0 && run.phase === 'trace'){ drawGuide(now); drawCrane(building); }
+  else if (run.phase === 'idle' && run.piece){ K = {ctx, z:cam.z, M:q=>toScreen(run.lot,q)}; ctx.globalAlpha=.2; run.piece.art(C[run.piece.c],0); ctx.globalAlpha=1; drawCrane(run.lot); }
+  drawCars(now);
+  // street sign
+  ctx.fillStyle = C.ink; ctx.font = `700 ${Math.max(13, Math.min(17, W*.03))}px Andika, sans-serif`; ctx.textBaseline = 'top';
+  const nm = S.name ? `Ciudad de ${S.name}` : 'Mi ciudad';
+  ctx.fillText(`${nm} · ${S.city.length} ${S.city.length===1?'edificio':'edificios'}`, 14, 12);
+  if (mapFade > .015){ drawMap(now); ctx.globalAlpha = mapFade; ctx.drawImage(mapCv, 0, 0, W, H); ctx.globalAlpha = 1; }
+  drawParticles();
+  requestAnimationFrame(frame);
+}
+function drawParticles(){
+  for (let i=particles.length-1;i>=0;i--){ const q = particles[i]; q.x+=q.vx; q.y+=q.vy; q.vy += .35; q.life -= .02; if (q.life<=0){ particles.splice(i,1); continue; } ctx.globalAlpha = q.life; ctx.fillStyle = q.color; ctx.fillRect(q.x, q.y, q.size, q.size*.6); }
+  ctx.globalAlpha = 1;
+}
+
+// ---------- layout ----------
+function fit(){
+  dpr = Math.min(2, window.devicePixelRatio||1);
+  const r = $('stageWrap').getBoundingClientRect(); W = Math.max(200, Math.floor(r.width)); H = Math.max(200, Math.floor(r.height));
+  stage.width = W*dpr; stage.height = H*dpr; mapCv.width = W*dpr; mapCv.height = H*dpr;
+  aimMap(); Object.assign(mcam, mcamT);
+  if (run.phase === 'tour') aimOverview(); else aimAtLot(run.lot);
+  Object.assign(cam, camT);
+}
+try { new ResizeObserver(fit).observe($('stageWrap')); } catch(e) { addEventListener('resize', fit); }
+
+// ---------- ui ----------
+function renderWho(){ $('who').textContent = S.name ? `Arquitecto: ${S.name}` : 'Mi ciudad'; }
+function renderSound(){ $('btnSound').setAttribute('aria-pressed', String(S.sound)); }
+$('brickN').textContent = S.bricks; $('houseN').textContent = S.city.length; renderWho(); renderSound();
+const unlockAudio = () => { try { ac = ac || new (window.AudioContext||window.webkitAudioContext)(); ac.resume(); } catch(e) {} };
+
+$('btnStart').onclick = () => {
+  unlockAudio(); $('startOv').hidden = true; run.session = 0;
+  if (S.name) speak(`¡Hola, arquitecto ${S.name}!`);
+  later(()=>loadPiece(S.level || 0), S.name ? 1100 : 0);
+};
+$('btnMore').onclick = () => { $('restOv').hidden = true; loadPiece(S.level); };
+$('btnDone').onclick = () => { $('restOv').hidden = true; run.phase = 'idle'; say('¡Hasta pronto!', 'Tu ciudad te espera.'); $('startOv').hidden = false; };
+$('btnMap').onclick = () => { if (run.phase === 'tour') { goNext(); return; } if (run.view === 'map') hideMap(); else showMap(); };
+$('btnSay').onclick = () => { if (run.piece) speak(run.piece.say); run.demoT0 = performance.now(); run.lastTouch = 0; run.touched = false; };
+$('btnSound').onclick = () => { S.sound = !S.sound; save(); renderSound(); try{ if(!S.sound) speechSynthesis.cancel(); }catch(e){} };
+
+function renderAdult(){
+  const counts = {}; KINDS.forEach(k=>counts[k]=0);
+  S.city.forEach(id => { const p = byId(id); if (p) counts[p.kind] += p.strokes.length; });
+  const label = {vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'};
+  $('skills').innerHTML = KINDS.map(k => `<div class="skill"><b>${counts[k]}</b>${label[k]}</div>`).join('');
+  $('pieces').innerHTML = PIECES.map((p,i) => `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?'letra '+p.letter:p.kind}</span>${p.name}</button>`).join('');
+  $('kidName').value = S.name; $('pauseEvery').value = String(S.pauseEvery);
+  $('btnReset').textContent = 'Borrar ciudad y progreso'; $('btnReset').dataset.arm = '';
+}
+$('btnAdult').onclick = () => { renderAdult(); $('adultOv').hidden = false; };
+$('btnClose').onclick = () => { $('adultOv').hidden = true; };
+$('pieces').onclick = e => { const b = e.target.closest('.piece'); if (!b) return; $('adultOv').hidden = true; $('restOv').hidden = true; if (!$('startOv').hidden){ $('startOv').hidden = true; unlockAudio(); } loadPiece(+b.dataset.i); };
+$('kidName').oninput = e => { S.name = e.target.value.trim(); save(); renderWho(); };
+$('pauseEvery').onchange = e => { S.pauseEvery = +e.target.value; save(); };
+$('btnReset').onclick = e => {
+  const b = e.currentTarget;
+  if (!b.dataset.arm){ b.dataset.arm = '1'; b.textContent = 'Toca otra vez para borrar todo'; return; }
+  clearTimers(); S.city = []; S.bricks = 0; S.done = {}; S.level = 0; save();
+  $('brickN').textContent = 0; $('houseN').textContent = 0; run.session = 0; renderAdult(); loadPiece(0);
+};
+
+// opening still frame: the next lot with its crane, behind the start card
+run.piece = PIECES[S.level] || PIECES[0]; run.lot = S.city.length; run.phase = 'idle';
+$('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip;
+window.__trazos = {run, toScreen, cam, camT};
+fit();
+requestAnimationFrame(frame);
+})();
+</script>
+
+</body></html>
