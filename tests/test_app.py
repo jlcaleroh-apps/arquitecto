@@ -122,6 +122,15 @@ async def main():
         await pg.click('#btnAdult'); await pg.wait_for_timeout(100)
         check('un toque corto no abre el menú de adultos', await pg.locator('#adultOv').is_hidden())
 
+        print('Tienda de ladrillos')
+        await fresh(pg, {'bricks': 29, 'city': ['torre', 'casa']})
+        await pg.click('#btnShop'); await pg.wait_for_timeout(300)
+        dis = await pg.evaluate("[...document.querySelectorAll('#shopGrid button')].filter(b=>b.disabled).map(b=>b.dataset.d)")
+        check('lo que no alcanza aparece bloqueado', set(dis) == {'statue', 'balloon'}, str(dis))
+        await pg.click('#shopGrid button[data-d=tree]'); await pg.wait_for_timeout(300)
+        spot = await pg.evaluate("(() => { const d = __trazos.test.S.decor[0]; return [d.i % 4, d.j % 4]; })()")
+        check('comprar descuenta ladrillos y coloca en una plaza', await pg.inner_text('#brickN') == '23' and spot == [0, 0], str(spot))
+
         print('Repaso inteligente')
         await fresh(pg, {'level': 0, 'skill': {'I': {'lv': 3, 'streak': 0}, 'L': {'lv': 3, 'streak': 0}},
                          'stats': {'days': {}, 'letters': {'I': {'n': 5, 'last': [0, 0]}, 'L': {'n': 5, 'last': [0, 0]},
