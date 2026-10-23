@@ -143,6 +143,21 @@ async def main():
         await pg.click('#btnStart'); await pg.wait_for_timeout(300)
         check('si ya jugó su tiempo, al volver a entrar ve el descanso', await pg.is_visible('#timeOv'))
 
+        print('Viajes por el mundo')
+        trips = await pg.evaluate("""(() => { const t = __trazos.test; return t.TRIPS.map(x => [x.id, x.es, x.en,
+            x.es.replace(/ /g,'').length, t.nameLetters(x.es).length, x.en.replace(/ /g,'').length, t.nameLetters(x.en).length]); })()""")
+        bad = [r[0] for r in trips if r[3] != r[4] or r[5] != r[6]]
+        check(f'las {len(trips)} ciudades se pueden construir con las letras del juego', not bad and len(trips) >= 14, ' '.join(bad))
+        check('incluye Masaya, Managua, León y Granada', {'masaya','managua','leon','granada'} <= {r[0] for r in trips})
+        pts = await pg.evaluate("[18,36,54,72].map(n => __trazos.test.tripPoints(n))")
+        check('un viaje a la mitad del barrio (dos en barrios largos)', pts == [[9],[18],[18,36],[27,45]], str(pts))
+        await fresh(pg, {'city': ['torre'] * 18, 'level': 3})
+        await pg.click('#btnStart'); await pg.wait_for_timeout(200)
+        await pg.evaluate("__trazos.test.goNext()"); await pg.wait_for_timeout(200)
+        check('al llegar a la mitad aparece la postal del viaje', await pg.is_visible('#tripOv'))
+        await pg.click('#btnTripGo'); await pg.wait_for_timeout(1500)
+        check('el viaje empieza por la primera letra (PISA → P)', await pg.evaluate("__trazos.run.piece.id") == 'P')
+
         print('Repaso inteligente')
         await fresh(pg, {'level': 0, 'skill': {'I': {'lv': 3, 'streak': 0}, 'L': {'lv': 3, 'streak': 0}},
                          'stats': {'days': {}, 'letters': {'I': {'n': 5, 'last': [0, 0]}, 'L': {'n': 5, 'last': [0, 0]},

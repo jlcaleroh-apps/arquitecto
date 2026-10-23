@@ -123,6 +123,14 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .shop button span i{width:18px; height:12px; border-radius:3px; background:var(--brick); display:inline-block}
 .shop button:disabled{opacity:.4}
 .shopBtn{font-size:1.2rem}
+.postcard{background:linear-gradient(#FFF8E7,#FDEFD0); border:6px solid #fff; outline:3px dashed #E0603E; outline-offset:-14px}
+.lmIn{animation:lmIn .9s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes lmIn{from{transform:translateY(60px) scale(.3); opacity:0}}
+.pass{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px}
+.pass div{border:3px solid #E5D7B3; border-radius:16px; background:#fff; padding:6px; text-align:center; font-family:var(--display); font-weight:800; color:var(--ink)}
+.pass div.off{color:var(--muted); background:#F3EEDF}
+.pass img{width:90px; height:90px}
+.pass div.on{border-color:var(--brick); transform:rotate(-2deg)}
 .chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
 .chips button{width:44px; height:44px; border-radius:10px; border:2px solid #E5D7B3; background:#fff; font-family:var(--display); font-weight:800; font-size:1.2rem; color:var(--muted)}
 .chips button[aria-pressed="true"]{background:var(--go); border-color:var(--go); color:#fff}
@@ -201,7 +209,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <p data-t="startP"></p>
       <div><span class="label" id="whoL">¿Quién construye hoy?</span><div class="kids" id="kids"></div></div>
       <div class="row langRow"><button class="small-btn langBtn" data-l="es" aria-pressed="true">Español</button><button class="small-btn langBtn" data-l="en" aria-pressed="false">English</button></div>
-      <div class="row"><button class="big-btn" id="btnStart" data-t="btnStart">¡A construir!</button><button class="big-btn alt shopBtn" id="btnShop" aria-label="Decorar">🛒</button><button class="big-btn alt" id="btnName" hidden>🏗️ Construir mi nombre</button></div>
+      <div class="row"><button class="big-btn" id="btnStart" data-t="btnStart">¡A construir!</button><button class="big-btn alt shopBtn" id="btnShop" aria-label="Decorar">🛒</button><button class="big-btn alt shopBtn" id="btnPassport" aria-label="Pasaporte">🛂</button><button class="big-btn alt" id="btnName" hidden>🏗️ Construir mi nombre</button></div>
     </div>
   </div>
   <div class="overlay" id="sheetsOv" hidden>
@@ -211,6 +219,30 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <div class="row"><button class="small-btn" id="shHard"></button><button class="small-btn" id="shName"></button><button class="small-btn" id="shAll"></button><button class="small-btn" id="shNone"></button></div>
       <div class="chips" id="shChips"></div>
       <button class="big-btn" id="btnShPrint">Imprimir</button>
+    </div>
+  </div>
+  <div class="overlay" id="tripOv" hidden>
+    <div class="card postcard" style="text-align:center">
+      <span class="label" id="tripLbl">✈️ ¡Un viaje!</span>
+      <img id="tripSil" alt="" style="width:220px;height:220px;margin:0 auto">
+      <h1 id="tripQ">¿A dónde vamos?</h1>
+      <div class="row" style="justify-content:center"><button class="big-btn" id="btnTripGo">✈️ ¡Vamos!</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="tripDoneOv" hidden>
+    <div class="card postcard" style="text-align:center">
+      <span class="label" id="tripDoneLbl">🛂 Nuevo sello</span>
+      <img id="tripImg" alt="" class="lmIn" style="width:260px;height:260px;margin:0 auto">
+      <h1 id="tripCity">París</h1>
+      <p id="tripMon" style="margin:0"></p>
+      <div class="row" style="justify-content:center"><button class="big-btn" id="btnTripMore">Seguir construyendo</button><button class="big-btn alt" id="btnPassport2">🛂</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="passOv" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h2 id="passH">Mi pasaporte</h2><span id="passN" style="font-family:var(--display);font-weight:800;font-size:1.3rem"></span></div>
+      <div class="pass" id="passGrid"></div>
+      <button class="big-btn alt" id="btnPassClose">✓</button>
     </div>
   </div>
   <div class="overlay" id="timeOv" hidden>
@@ -491,7 +523,7 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.', dailyL:'Límite diario', dailyOff:'Sin límite', dailyOpt:m=>`${m} min al día`, timeH:'¡Hora de descansar!', timeP:n=>`Hoy construiste ${n} edificio(s). Tu ciudad te espera mañana.`, timeV:'¡Hora de descansar! Mañana seguimos.', timeMore:'+10 min (adulto: mantén presionado)', lastBlock:'Última manzana de hoy 🌙', shopH:'¡Decora tu ciudad!', shopV:'¡Decora tu ciudad!', shBtn:'Hojas para imprimir', shP:'Una hoja por letra: el edificio, la letra con el orden de trazos y filas para practicar con lápiz.', shHard:'Le cuestan', shName:'Su nombre', shAll:'Todas', shNone:'Ninguna', shPrint:n=>`Imprimir ${n} hoja(s)`,
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', tripLbl:'✈️ ¡Un viaje!', tripQ:'¿A dónde vamos?', tripGo:'✈️ ¡Vamos!', tripV:'¡Un viaje!', tripTo:w=>`¡A ${w}!`, tripDoneLbl:'🛂 ¡Nuevo sello en tu pasaporte!', passH:'Mi pasaporte', repTrips:'Viajes', dailyL:'Límite diario', dailyOff:'Sin límite', dailyOpt:m=>`${m} min al día`, timeH:'¡Hora de descansar!', timeP:n=>`Hoy construiste ${n} edificio(s). Tu ciudad te espera mañana.`, timeV:'¡Hora de descansar! Mañana seguimos.', timeMore:'+10 min (adulto: mantén presionado)', lastBlock:'Última manzana de hoy 🌙', shopH:'¡Decora tu ciudad!', shopV:'¡Decora tu ciudad!', shBtn:'Hojas para imprimir', shP:'Una hoja por letra: el edificio, la letra con el orden de trazos y filas para practicar con lápiz.', shHard:'Le cuestan', shName:'Su nombre', shAll:'Todas', shNone:'Ninguna', shPrint:n=>`Imprimir ${n} hoja(s)`,
     shTitle:l=>`Letra ${l}`, shNameF:'Nombre:', shDateF:'Fecha:', shTip:'Empieza en el número 1. Primero repasa, luego escribe solo.', bkL:'Copia de seguridad', bkSave:'Guardar copia', bkLoad:'Restaurar copia', bkNever:'Aún no hay copia. Guarda una para no perder las ciudades si se borran los datos de Safari.', bkLast:d=>`Última copia: ${d}.`, bkOld:' Ya pasaron más de 2 semanas.',
     bkAsk:n=>`Esta copia tiene ${n} arquitecto(s). Reemplazará todas las ciudades de este dispositivo. ¿Continuar?`, bkBad:'Ese archivo no es una copia de Trazos de Arquitecto.', bkOk:'Copia restaurada.', penL:'Solo Apple Pencil', penP:'Ignora los dedos y la palma; camino más fino y letra más pequeña, como puente al lápiz. Al usar el lápiz esto se activa solo por un rato.', calmL:'Modo calma', calmP:'Mientras traza, se detienen las nubes, los carros y las animaciones. Útil si se distrae.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
     repDays:'Últimos 7 días (minutos)', repLetters:'Letras', repKey:['Dominada','En práctica','Le cuesta','Sin practicar'], repHard:'Le cuestan más', repNone:'Ninguna por ahora.', repPrint:'Imprimir / PDF', repNote:'Dominada: llegó al nivel 3 o 4 de precisión. Le cuesta: en sus últimos intentos se salió seguido del camino.', repDate:d=>`Generado el ${d}`, nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
@@ -506,7 +538,7 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.', dailyL:'Daily limit', dailyOff:'No limit', dailyOpt:m=>`${m} min a day`, timeH:'Time to rest!', timeP:n=>`Today you built ${n} building(s). Your city will be waiting tomorrow.`, timeV:'Time to rest! See you tomorrow.', timeMore:'+10 min (adult: press and hold)', lastBlock:'Last block for today 🌙', shopH:'Decorate your city!', shopV:'Decorate your city!', shBtn:'Printable sheets', shP:'One sheet per letter: the building, the letter with stroke order and rows to practice with a pencil.', shHard:'Struggling', shName:'Their name', shAll:'All', shNone:'None', shPrint:n=>`Print ${n} sheet(s)`,
+    holdHint:'Adult menu: press and hold for 2 seconds.', tripLbl:'✈️ A trip!', tripQ:'Where are we going?', tripGo:"✈️ Let's go!", tripV:'A trip!', tripTo:w=>`To ${w}!`, tripDoneLbl:'🛂 New stamp in your passport!', passH:'My passport', repTrips:'Trips', dailyL:'Daily limit', dailyOff:'No limit', dailyOpt:m=>`${m} min a day`, timeH:'Time to rest!', timeP:n=>`Today you built ${n} building(s). Your city will be waiting tomorrow.`, timeV:'Time to rest! See you tomorrow.', timeMore:'+10 min (adult: press and hold)', lastBlock:'Last block for today 🌙', shopH:'Decorate your city!', shopV:'Decorate your city!', shBtn:'Printable sheets', shP:'One sheet per letter: the building, the letter with stroke order and rows to practice with a pencil.', shHard:'Struggling', shName:'Their name', shAll:'All', shNone:'None', shPrint:n=>`Print ${n} sheet(s)`,
     shTitle:l=>`Letter ${l}`, shNameF:'Name:', shDateF:'Date:', shTip:'Start at number 1. Trace first, then write on your own.', bkL:'Backup', bkSave:'Save backup', bkLoad:'Restore backup', bkNever:'No backup yet. Save one so cities are not lost if Safari data is erased.', bkLast:d=>`Last backup: ${d}.`, bkOld:' More than 2 weeks ago.',
     bkAsk:n=>`This backup has ${n} architect(s). It will replace every city on this device. Continue?`, bkBad:'That file is not a Trazos de Arquitecto backup.', bkOk:'Backup restored.', penL:'Apple Pencil only', penP:'Ignores fingers and palm; narrower path and smaller letter, as a bridge to the pencil. Using the pencil turns this on for a while.', calmL:'Calm mode', calmP:'While tracing, clouds, cars and animations stop. Useful if the child gets distracted.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
     repDays:'Last 7 days (minutes)', repLetters:'Letters', repKey:['Mastered','Practicing','Struggling','Not yet'], repHard:'Hardest letters', repNone:'None for now.', repPrint:'Print / PDF', repNote:'Mastered: reached precision level 3 or 4. Struggling: often left the path in recent tries.', repDate:d=>`Generated on ${d}`, nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
@@ -602,7 +634,7 @@ function useProfile(id){
   if (id === PROF.cur) return;
   save(); clearTimers(); PROF.cur = id; saveIndex(); S = readProfile(id);
   $('brickN').textContent = S.bricks; $('houseN').textContent = S.city.length;
-  applyLang(); pickVoice(); renderLang(); renderWho(); renderSound(); renderKids(); renderNameBtn(); renderBar(); run.nameAll = null; renderStrip();
+  applyLang(); pickVoice(); renderLang(); renderWho(); renderSound(); renderKids(); renderNameBtn(); renderBar(); run.nameAll = null; run.trip = null; renderStrip();
   document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === (S.lang === 'en' ? 'en' : 'es'))));
   run.piece = PIECES[S.level] || PIECES[0]; run.lot = S.city.length; run.phase = 'idle'; run.beams = []; run.ink = []; run.reveal = null; run.session = 0;
   hideMap(); aimAtLot(run.lot); cam.x = camT.x; cam.y = camT.y; cam.z = camT.z;
@@ -705,7 +737,7 @@ function renderStrip(){
 }
 function startName(){
   const ls = nameLetters(S.name); if (!ls.length) return;
-  clearTimers(); run.nameAll = ls; run.nameI = 0; run.savedLevel = S.level;
+  clearTimers(); run.trip = null; run.nameAll = ls; run.nameI = 0; run.savedLevel = S.level;
   unlockAudio(); $('startOv').hidden = true; renderStrip(); speak(tx().nameStart(S.name));
   later(()=>loadPiece(PIECES.findIndex(p=>p.id===ls[0].id)), 1300);
 }
@@ -730,6 +762,52 @@ function showRest(){
   $('timeH').textContent = tx().timeH; $('timeP').textContent = tx().timeP(n); $('btnTimeMore').textContent = tx().timeMore;
   $('timeOv').hidden = false; [784,659,523].forEach((f,i)=>tone(f,.4,'sine',.12,i*.18)); speak(tx().timeV);
 }
+// one trip per barrio, in the middle (attention often dips after 5–7 min); 2 trips in long barrios. The end of the barrio stays calm
+function tripPoints(total){
+  if (total <= 36) return [Math.round(total/2/MANZANA)*MANZANA];
+  return [1/3, 2/3].map(f => Math.max(MANZANA, Math.round(total*f/MANZANA)*MANZANA));
+}
+const tripDue = () => tripPoints(BARRIO()).includes(S.city.length - S.barrioStart) && !(S.tripMarks||[]).includes(S.city.length);
+function nextTrip(){
+  const seen = (S.trips||[]).map(t => t.id), fresh = TRIPS.filter(t => !seen.includes(t.id));
+  if (fresh.length) return fresh[0];
+  const last = seen.slice(-3); const pool = TRIPS.filter(t => !last.includes(t.id));
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function showPostcard(){
+  const t = nextTrip(); clearTimers(); run.phase = 'idle'; run.pendingTrip = t;
+  S.tripMarks = (S.tripMarks||[]).concat(S.city.length).slice(-20); save();
+  $('tripLbl').textContent = tx().tripLbl; $('tripQ').textContent = tx().tripQ; $('btnTripGo').textContent = tx().tripGo;
+  $('tripSil').src = landmarkImg(t.id, 440, true); $('tripOv').hidden = false;
+  [523,784,1047].forEach((f,i)=>tone(f,.25,'sine',.14,i*.1)); speak(tx().tripV);
+}
+function startTrip(){
+  const t = run.pendingTrip; if (!t) return; run.pendingTrip = null; $('tripOv').hidden = true;
+  run.trip = t; run.nameAll = nameLetters(tripWord(t)); run.nameI = 0; run.savedLevel = S.level; renderStrip();
+  speak(tx().tripTo(titleCase(tripWord(t))));
+  later(()=>loadPiece(PIECES.findIndex(p=>p.id===run.nameAll[0].id)), 1200);
+}
+function showTripDone(){
+  const t = run.trip; run.trip = null; run.nameAll = null; S.level = run.savedLevel;
+  S.trips = (S.trips||[]).filter(x => x.id !== t.id).concat({id:t.id, at:today()});
+  if (!(S.decor||[]).some(d => d.t === 'lm:'+t.id)){ const sp = freeSpot('plaza'); if (sp) S.decor = (S.decor||[]).concat({t:'lm:'+t.id, i:sp[0], j:sp[1], at:Date.now()}); }
+  save(); renderStrip(); run.phase = 'idle'; showMap();
+  $('tripDoneLbl').textContent = tx().tripDoneLbl; $('tripCity').textContent = titleCase(tripWord(t)); $('tripMon').textContent = tripMon(t); $('btnTripMore').textContent = tx().nameMore;
+  const img = $('tripImg'); img.classList.remove('lmIn'); void img.offsetWidth; img.src = landmarkImg(t.id, 520); img.classList.add('lmIn');
+  $('tripDoneOv').hidden = false;
+  for (let i=0;i<14;i++) later(()=>burst(W*(.1+Math.random()*.8), H*(.1+Math.random()*.5), 26, C[COLORS[i%6]]), i*120);
+  [523,659,784,1047,1319,1568,2093].forEach((f,i)=>tone(f,.3,'triangle',.16,i*.11));
+  later(()=>speak((S.lang === 'en' ? '' : '¡') + titleCase(tripWord(t)) + '!'), 500);
+}
+function renderPassport(){
+  const seen = new Set((S.trips||[]).map(t => t.id));
+  $('passH').textContent = tx().passH; $('passN').textContent = `${seen.size} / ${TRIPS.length}`;
+  $('passGrid').innerHTML = TRIPS.map(t => seen.has(t.id)
+    ? `<div class="on"><img src="${landmarkImg(t.id, 180)}" alt="">${titleCase(tripWord(t))}</div>`
+    : `<div class="off"><img src="${landmarkImg(t.id, 180, true)}" alt="" style="opacity:.35">?</div>`).join('');
+}
+let passBack = null;
+function openPassport(back){ passBack = back; renderPassport(); back && (back.hidden = true); $('passOv').hidden = false; }
 function goNext(){
   clearTimers();
   if (!run.nameAll && !(S.city.length - S.barrioStart >= BARRIO()) && limitHit()){
@@ -737,7 +815,8 @@ function goNext(){
     if (run.wrap.left <= 0){ showRest(); return; }
     run.wrap.left--;
   }
-  if (run.nameAll){ if (run.nameI < run.nameAll.length) loadPiece(PIECES.findIndex(p=>p.id===run.nameAll[run.nameI].id)); else showNameDone(); return; }
+  if (!run.wrap && tripDue()){ showPostcard(); return; }
+  if (run.nameAll){ if (run.nameI < run.nameAll.length) loadPiece(PIECES.findIndex(p=>p.id===run.nameAll[run.nameI].id)); else (run.trip ? showTripDone() : showNameDone()); return; }
   if (S.city.length - S.barrioStart >= BARRIO()){ showBarrio(); return; }
   loadPiece(nextIndex());
 }
@@ -973,6 +1052,115 @@ function drawGuide(now){
   ctx.restore();
 }
 const easeBack = t => { const c=1.7; return 1 + (c+1)*Math.pow(t-1,3) + c*Math.pow(t-1,2); };
+// ---------- trips around the world: each city is a word to build, its landmark is the prize ----------
+// Landmarks are original, simple drawings. Origin: (cx, cy) = ground center; u = height unit; y grows downward.
+const TRIPS = [
+  {id:'pisa',     es:'PISA',       en:'PISA',     mes:'La torre inclinada',        men:'The Leaning Tower'},
+  {id:'roma',     es:'ROMA',       en:'ROME',     mes:'El Coliseo',                men:'The Colosseum'},
+  {id:'rio',      es:'RÍO',        en:'RIO',      mes:'El Cristo Redentor',        men:'Christ the Redeemer'},
+  {id:'leon',     es:'LEÓN',       en:'LEON',     mes:'La Catedral de León',       men:'León Cathedral'},
+  {id:'paris',    es:'PARÍS',      en:'PARIS',    mes:'La Torre Eiffel',           men:'The Eiffel Tower'},
+  {id:'china',    es:'CHINA',      en:'CHINA',    mes:'La Gran Muralla',           men:'The Great Wall'},
+  {id:'tokio',    es:'TOKIO',      en:'TOKYO',    mes:'El monte Fuji',             men:'Mount Fuji'},
+  {id:'masaya',   es:'MASAYA',     en:'MASAYA',   mes:'El Volcán Masaya',          men:'Masaya Volcano'},
+  {id:'egipto',   es:'EGIPTO',     en:'EGYPT',    mes:'Las pirámides',             men:'The Pyramids'},
+  {id:'londres',  es:'LONDRES',    en:'LONDON',   mes:'El Big Ben',                men:'Big Ben'},
+  {id:'sidney',   es:'SÍDNEY',     en:'SYDNEY',   mes:'La Ópera de Sídney',        men:'Sydney Opera House'},
+  {id:'granada',  es:'GRANADA',    en:'GRANADA',  mes:'La Catedral de Granada',    men:'Granada Cathedral'},
+  {id:'managua',  es:'MANAGUA',    en:'MANAGUA',  mes:'La Catedral de Managua',    men:'Managua Cathedral'},
+  {id:'nuevayork',es:'NUEVA YORK', en:'NEW YORK', mes:'La Estatua de la Libertad', men:'The Statue of Liberty'},
+];
+function drawLandmark(c, id, cx, cy, u, t){
+  t = t || 0;
+  const X = x => cx + x*u, Y = y => cy + y*u;
+  const P = (pts, col) => { c.fillStyle = col; c.beginPath(); pts.forEach(([x,y],i) => i ? c.lineTo(X(x),Y(y)) : c.moveTo(X(x),Y(y))); c.closePath(); c.fill(); };
+  const B = (x,y,w,h,col) => { c.fillStyle = col; c.fillRect(X(x), Y(y), w*u, h*u); };
+  const O = (x,y,r,col,a0=0,a1=7) => { c.fillStyle = col; c.beginPath(); c.moveTo(X(x),Y(y)); c.arc(X(x), Y(y), r*u, a0, a1); c.fill(); };
+  const L = (pts, w, col) => { c.strokeStyle = col; c.lineWidth = w*u; c.lineCap = 'round'; c.lineJoin = 'round'; c.beginPath(); pts.forEach(([x,y],i) => i ? c.lineTo(X(x),Y(y)) : c.moveTo(X(x),Y(y))); c.stroke(); };
+  const DOME = (x,y,r,col) => { c.fillStyle = col; c.beginPath(); c.arc(X(x), Y(y), r*u, Math.PI, 0); c.fill(); };
+  const stone = '#E9E1CC', stoneD = '#C9BC9A', ink = '#1F2E44';
+  switch (id){
+    case 'pisa': {
+      c.save(); c.translate(X(0), Y(0)); c.rotate(.13); c.translate(-X(0), -Y(0));
+      for (let k=0;k<7;k++){ const y = -.12 - k*.12; B(-.13, y, .26, .11, k%2 ? '#F4EFE2' : stone); for (let a=0;a<4;a++) B(-.11 + a*.065, y+.03, .025, .06, stoneD); }
+      B(-.1, -.98, .2, .14, stone); DOME(0, -.98, .07, stoneD); B(-.15, -.12, .3, .12, stoneD);
+      c.restore(); break; }
+    case 'roma': {
+      P([[-.62,0],[.62,0],[.62,-.5],[.3,-.62],[-.3,-.62],[-.62,-.5]], '#D9A066');
+      P([[.35,-.6],[.62,-.5],[.62,-.25],[.45,-.33]], '#C98A50');
+      for (let r=0;r<3;r++) for (let a=0;a<9;a++){ const x = -.54 + a*.12, y = -.12 - r*.17; if (r === 2 && a > 6) continue; B(x, y-.02, .07, .1 - (r===2?.02:0), '#8A5A33'); }
+      break; }
+    case 'rio': {
+      P([[-.7,0],[-.3,-.42],[-.1,-.5],[.15,-.46],[.45,-.3],[.7,0]], '#5E9E57');
+      P([[-.3,-.42],[-.1,-.5],[.15,-.46],[0,-.3]], '#4E8A49');
+      B(-.025, -.98, .05, .48, '#F4F1EA'); B(-.24, -.9, .48, .05, '#F4F1EA'); O(0, -1.02, .045, '#F4F1EA');
+      P([[-.06,-.5],[.06,-.5],[.04,-.86],[-.04,-.86]], '#F4F1EA'); break; }
+    case 'leon': {
+      B(-.6, -.52, 1.2, .52, '#F7F4EC'); P([[-.6,-.52],[0,-.66],[.6,-.52]], '#E9E4D6');
+      [-.46,.46].forEach(x => { B(x-.12, -.82, .24, .82, '#F7F4EC'); DOME(x, -.82, .12, '#E9E4D6'); B(x-.015, -1.0, .03, .1, '#E9E4D6'); });
+      DOME(0, -.66, .2, '#E9E4D6'); B(-.015, -.92, .03, .08, '#E9E4D6');
+      for (let a=0;a<5;a++) B(-.32 + a*.15, -.4, .06, .22, '#C9C2AE'); B(-.07, -.22, .14, .22, '#8A6E4E'); break; }
+    case 'paris': {
+      const col = '#8C6A4F', dk = '#6E523C';
+      P([[-.42,0],[-.24,0],[-.06,-.72],[.06,-.72],[.24,0],[.42,0],[.1,-.36],[-.1,-.36]], col);
+      c.fillStyle = '#E3F3FA'; c.beginPath(); c.moveTo(X(-.26), Y(0)); c.quadraticCurveTo(X(0), Y(-.36), X(.26), Y(0)); c.fill();
+      B(-.3, -.3, .6, .05, dk); B(-.17, -.62, .34, .04, dk); P([[-.06,-.72],[.06,-.72],[.015,-1.05],[-.015,-1.05]], col);
+      for (let k=0;k<6;k++){ const y = -.38 - k*.05; L([[-.18 + k*.02, y],[.18 - k*.02, y-.05]], .006, dk); } break; }
+    case 'china': {
+      P([[-.75,0],[-.75,-.25],[-.4,-.45],[0,-.3],[.35,-.55],[.75,-.4],[.75,0]], '#7CB872');
+      const wall = [[-.75,-.25],[-.4,-.45],[0,-.3],[.35,-.55],[.75,-.4]];
+      L(wall, .1, '#B9A27E'); L(wall.map(([x,y]) => [x, y-.06]), .03, '#9C8664');
+      [[-.4,-.45],[.35,-.55]].forEach(([x,y]) => { B(x-.08, y-.2, .16, .2, '#A88F68'); P([[x-.11,y-.2],[x,y-.3],[x+.11,y-.2]], '#8A3B2E'); }); break; }
+    case 'tokio': {
+      P([[-.75,0],[-.2,-.7],[.2,-.7],[.75,0]], '#5D7FA8'); P([[-.2,-.7],[.2,-.7],[.3,-.58],[.14,-.6],[0,-.54],[-.14,-.6],[-.3,-.58]], '#F4F7FA');
+      B(-.42, -.36, .04, .36, '#D9443A'); B(-.24, -.36, .04, .36, '#D9443A'); B(-.48, -.4, .34, .05, '#D9443A'); B(-.46, -.31, .3, .03, '#D9443A');
+      O(.45, -.85, .1, '#E8604C'); break; }
+    case 'masaya': {
+      P([[-.75,0],[-.18,-.6],[.18,-.6],[.75,0]], '#5B5150'); P([[-.18,-.6],[.18,-.6],[.1,-.54],[-.1,-.54]], '#3E3635');
+      c.fillStyle = 'rgba(255,120,40,.85)'; c.beginPath(); c.ellipse(X(0), Y(-.6), .14*u, .035*u, 0, 0, 7); c.fill();
+      L([[-.05,-.6],[-.12,-.4],[-.08,-.25]], .03, '#E8603A');
+      for (let k=0;k<3;k++){ const s = ((t*.15) + k/3) % 1; O(.02 + s*.15, -.7 - s*.4, .06 + s*.08, `rgba(220,220,225,${.85 - s*.7})`); } break; }
+    case 'egipto': {
+      P([[-.75,0],[-.3,-.62],[.15,0]], '#E3B867'); P([[-.3,-.62],[.15,0],[-.05,0]], '#C99A4A');
+      P([[.05,0],[.38,-.44],[.71,0]], '#E3B867'); P([[.38,-.44],[.71,0],[.52,0]], '#C99A4A');
+      P([[-.12,0],[0,-.18],[.12,0]], '#D7AA58'); O(.5, -.85, .1, '#F5B22A'); break; }
+    case 'londres': {
+      B(-.14, -.78, .28, .78, '#D9B77A'); for (let k=0;k<6;k++) B(-.1, -.1 - k*.11, .2, .04, '#B8955A');
+      B(-.17, -.9, .34, .14, '#C9A466'); O(0, -.83, .1, '#F4EFE2'); O(0, -.83, .015, ink);
+      L([[0,-.83],[0,-.9]], .012, ink); L([[0,-.83],[.05,-.81]], .012, ink);
+      P([[-.17,-.9],[0,-1.12],[.17,-.9]], '#4E6B5A'); B(-.012, -1.2, .024, .1, '#C9A466'); break; }
+    case 'sidney': {
+      B(-.75, -.1, 1.5, .1, '#5EC3E8'); B(-.6, -.2, 1.2, .1, '#D9C9A8');
+      [[-.45,.3,.42],[-.12,.32,.55],[.22,.3,.45],[.45,.22,.3]].forEach(([x,w,h]) => {
+        P([[x,-.2],[x+w*.15,-.2-h],[x+w,-.2]], '#F7F7F2'); P([[x+w*.15,-.2-h],[x+w,-.2],[x+w*.45,-.2]], '#E2E2DA'); }); break; }
+    case 'granada': {
+      const y = '#F2C14E', r = '#C2412D';
+      B(-.6, -.55, 1.2, .55, y); P([[-.25,-.55],[0,-.72],[.25,-.55]], y);
+      [-.47,.47].forEach(x => { B(x-.13, -.85, .26, .85, y); DOME(x, -.85, .13, r); B(x-.012, -1.02, .024, .08, r); });
+      DOME(0, -.72, .15, r); for (let a=0;a<3;a++) B(-.2 + a*.17, -.42, .07, .2, '#D9A73A'); B(-.07, -.22, .14, .22, '#8A6E4E'); break; }
+    case 'managua': {
+      B(-.6, -.5, 1.2, .5, '#E4E0D6'); B(-.6, -.12, 1.2, .12, '#CFC9BB');
+      for (let r=0;r<2;r++) for (let a=0;a<7;a++) DOME(-.51 + a*.17, -.5 - r*.12, .07, r ? '#D6D0C2' : '#C8C1B1');
+      for (let a=0;a<4;a++) B(-.42 + a*.25, -.38, .1, .2, '#B8B0A0');
+      B(.45, -.9, .1, .4, '#E4E0D6'); L([[.5,-.9],[.5,-1.02]], .012, ink); L([[.46,-.98],[.54,-.98]], .012, ink); break; }
+    case 'nuevayork': {
+      const g = '#6FB3A2', gd = '#4E9282';
+      B(-.24, -.3, .48, .3, '#C9BC9A'); B(-.3, -.06, .6, .06, '#B8AA88'); B(-.17, -.38, .34, .08, '#B8AA88');
+      P([[-.12,-.38],[.12,-.38],[.08,-.78],[-.08,-.78]], g); P([[0,-.38],[.12,-.38],[.08,-.78],[.02,-.6]], gd);
+      O(0, -.84, .07, g); for (let k=-2;k<=2;k++) L([[k*.035,-.9],[k*.07,-.99]], .018, g);
+      L([[.06,-.72],[.16,-.92],[.18,-1.04]], .05, g); B(.14, -1.1, .08, .06, gd);
+      O(.18, -1.15, .05, '#F5B22A'); O(.18, -1.18, .028, '#FFE9A6'); L([[-.09,-.66],[-.14,-.56]], .05, gd); break; }
+  }
+}
+const tripWord = t => S.lang === 'en' ? t.en : t.es;
+const tripMon = t => S.lang === 'en' ? t.men : t.mes;
+const titleCase = w => w.toLowerCase().replace(/(^|\s)\S/g, m => m.toUpperCase());
+function landmarkImg(id, n, silhouette){
+  const cv = document.createElement('canvas'); cv.width = cv.height = n; const c = cv.getContext('2d');
+  drawLandmark(c, id, n/2, n*.9, n*.7, 2);
+  if (silhouette){ c.globalCompositeOperation = 'source-in'; c.fillStyle = '#2C4766'; c.fillRect(0,0,n,n); }
+  return cv.toDataURL();
+}
 // ---------- decorations bought with bricks: they live on plazas (road crossings) and water, never on building lots ----------
 const DECOR = [
   {id:'tree', price:6, spot:'plaza'}, {id:'flowers', price:6, spot:'plaza'}, {id:'lamp', price:10, spot:'plaza'}, {id:'bench', price:10, spot:'plaza'},
@@ -982,6 +1170,7 @@ function drawDecor(c, t, cx, cy, u, now){
   const R2 = (x,y,w,h,col) => { c.fillStyle = col; c.fillRect(cx+x*u, cy+y*u, w*u, h*u); };
   const O = (x,y,r,col) => { c.fillStyle = col; c.beginPath(); c.arc(cx+x*u, cy+y*u, r*u, 0, 7); c.fill(); };
   c.fillStyle = 'rgba(0,0,0,.15)'; c.beginPath(); c.ellipse(cx, cy, .22*u, .08*u, 0, 0, 7); c.fill();
+  if (t.startsWith('lm:')){ drawLandmark(c, t.slice(3), cx, cy, u*.85, now/1000); return; }
   if (t === 'tree'){ R2(-.03,-.3,.06,.3,'#8a5a3b'); O(0,-.42,.17,shade(C.grass,.8)); O(.07,-.5,.12,C.grass); }
   else if (t === 'flowers'){ R2(-.18,-.08,.36,.08,'#8a5a3b'); [[-.12,C.brick],[-.04,C.sun],[.04,C.plum],[.12,C.brick]].forEach(([x,col]) => { R2(x-.005,-.16,.01,.08,C.go); O(x,-.18,.035,col); }); }
   else if (t === 'lamp'){ R2(-.015,-.6,.03,.6,C.ink); R2(-.07,-.64,.14,.05,C.ink); O(0,-.56,.05,C.win); }
@@ -1242,7 +1431,7 @@ function renderReport(){
   const state = letterState;
   const nm = S.name || T.anon(PROF.list.findIndex(k=>k.id===PROF.cur)+1);
   $('repH').textContent = T.repH(nm); $('btnPrint').textContent = T.repPrint; $('btnRepClose').textContent = UI[S.lang==='en'?'en':'es'].btnClose;
-  $('repStats').innerHTML = [[min(days[6].v), T.repToday], [min(week), T.rep7], [min(all), T.repAll], [S.city.length, T.repB], [letters.filter(p=>state(p)!==3).length + '/' + letters.length, T.repL]]
+  $('repStats').innerHTML = [[min(days[6].v), T.repToday], [min(week), T.rep7], [min(all), T.repAll], [S.city.length, T.repB], [(S.trips||[]).length + '/' + TRIPS.length, T.repTrips], [letters.filter(p=>state(p)!==3).length + '/' + letters.length, T.repL]]
     .map(([v,l]) => `<div><b>${v}</b><span>${l}</span></div>`).join('');
   const top = Math.max(60000, ...days.map(d=>d.v)), wd = S.lang === 'en' ? 'en-US' : 'es';
   $('repDaysL').textContent = T.repDays;
@@ -1386,10 +1575,15 @@ $('btnTimeDone').onclick = () => { $('timeOv').hidden = true; hideMap(); say(tx(
   ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, stop));
   b.addEventListener('contextmenu', e => e.preventDefault());
 }
+$('btnTripGo').onclick = () => { unlockAudio(); startTrip(); };
+$('btnTripMore').onclick = () => { $('tripDoneOv').hidden = true; (S.decor||[]).forEach(d => delete d.at); save(); run.session = 0; goNext(); };
+$('btnPassport').onclick = () => openPassport($('startOv'));
+$('btnPassport2').onclick = () => openPassport($('tripDoneOv'));
+$('btnPassClose').onclick = () => { $('passOv').hidden = true; if (passBack) passBack.hidden = false; };
 $('btnReport').onclick = () => { renderReport(); $('adultOv').hidden = true; $('reportOv').hidden = false; };
 $('btnRepClose').onclick = () => { $('reportOv').hidden = true; $('adultOv').hidden = false; };
 $('btnPrint').onclick = () => { try { window.print(); } catch(e) {} };
-$('btnSwitch').onclick = () => { if (run.nameAll){ S.level = run.savedLevel; run.nameAll = null; renderStrip(); } $('adultOv').hidden = true; $('restOv').hidden = true; clearTimers(); run.phase = 'idle'; renderKids(); $('startOv').hidden = false; };
+$('btnSwitch').onclick = () => { if (run.nameAll){ S.level = run.savedLevel; run.nameAll = null; run.trip = null; renderStrip(); } $('adultOv').hidden = true; $('restOv').hidden = true; clearTimers(); run.phase = 'idle'; renderKids(); $('startOv').hidden = false; };
 $('btnDelKid').onclick = e => {
   const b = e.currentTarget;
   if (!b.dataset.arm){ b.dataset.arm = '1'; b.textContent = tx().delKid2; return; }
@@ -1429,7 +1623,7 @@ run.piece = PIECES[S.level] || PIECES[0]; run.lot = S.city.length; run.phase = '
 $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip;
 window.__trazos = {run, toScreen, cam, camT,
   // hooks for the automated tests in tests/test_app.py
-  test: {PIECES, EN, C, G, drawTrim, nextIndex, inLang, letterState, goNext, setK: k => { K = k; }, get S(){ return S; }, get PROF(){ return PROF; }}};
+  test: {PIECES, EN, C, G, drawTrim, nextIndex, inLang, letterState, goNext, TRIPS, tripPoints, nameLetters, setK: k => { K = k; }, get S(){ return S; }, get PROF(){ return PROF; }}};
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 fit();
 requestAnimationFrame(frame);
