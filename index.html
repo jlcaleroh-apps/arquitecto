@@ -217,6 +217,8 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="pen"> <span class="label" id="penL">Solo Apple Pencil</span></label> <span id="penP" style="font-size:.9rem"></span></div>
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="calm"> <span class="label" id="calmL">Modo calma</span></label> <span id="calmP" style="font-size:.9rem"></span></div>
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="prec"> <span class="label" id="precL">Precisión progresiva</span></label> <span id="precP" style="font-size:.9rem"></span></div>
+      <div><span class="label" id="bkL">Copia de seguridad</span> <span id="bkInfo" style="font-size:.9rem"></span>
+        <div class="row" style="margin-top:6px"><button class="small-btn" id="btnBackup">Guardar copia</button><button class="small-btn" id="btnRestore">Restaurar copia</button><input type="file" id="restoreFile" accept="application/json,.json" hidden></div></div>
       <div><span class="label" data-t="installL">Instalar en el iPad</span> <span data-t="installP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="piecesL">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
       <div class="row"><button class="small-btn" id="btnReport">Ver reporte</button><button class="small-btn" id="btnAvatar">Cambiar avatar</button><button class="small-btn" id="btnSwitch" data-t="switchKid">Cambiar de arquitecto</button><button class="small-btn danger" id="btnDelKid">Borrar este arquitecto</button><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
@@ -415,7 +417,8 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.', penL:'Solo Apple Pencil', penP:'Ignora los dedos y la palma; camino más fino y letra más pequeña, como puente al lápiz. Al usar el lápiz esto se activa solo por un rato.', calmL:'Modo calma', calmP:'Mientras traza, se detienen las nubes, los carros y las animaciones. Útil si se distrae.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', bkL:'Copia de seguridad', bkSave:'Guardar copia', bkLoad:'Restaurar copia', bkNever:'Aún no hay copia. Guarda una para no perder las ciudades si se borran los datos de Safari.', bkLast:d=>`Última copia: ${d}.`, bkOld:' Ya pasaron más de 2 semanas.',
+    bkAsk:n=>`Esta copia tiene ${n} arquitecto(s). Reemplazará todas las ciudades de este dispositivo. ¿Continuar?`, bkBad:'Ese archivo no es una copia de Trazos de Arquitecto.', bkOk:'Copia restaurada.', penL:'Solo Apple Pencil', penP:'Ignora los dedos y la palma; camino más fino y letra más pequeña, como puente al lápiz. Al usar el lápiz esto se activa solo por un rato.', calmL:'Modo calma', calmP:'Mientras traza, se detienen las nubes, los carros y las animaciones. Útil si se distrae.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
     repDays:'Últimos 7 días (minutos)', repLetters:'Letras', repKey:['Dominada','En práctica','Le cuesta','Sin practicar'], repHard:'Le cuestan más', repNone:'Ninguna por ahora.', repPrint:'Imprimir / PDF', repNote:'Dominada: llegó al nivel 3 o 4 de precisión. Le cuesta: en sus últimos intentos se salió seguido del camino.', repDate:d=>`Generado el ${d}`, nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
     tapNext:'Toca para la siguiente obra', tapBack:'Toca para volver a la obra', letter:'letra', reset:'Borrar ciudad y progreso', reset2:'Toca otra vez para borrar todo',
     kinds:{vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'},
@@ -428,7 +431,8 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.', penL:'Apple Pencil only', penP:'Ignores fingers and palm; narrower path and smaller letter, as a bridge to the pencil. Using the pencil turns this on for a while.', calmL:'Calm mode', calmP:'While tracing, clouds, cars and animations stop. Useful if the child gets distracted.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
+    holdHint:'Adult menu: press and hold for 2 seconds.', bkL:'Backup', bkSave:'Save backup', bkLoad:'Restore backup', bkNever:'No backup yet. Save one so cities are not lost if Safari data is erased.', bkLast:d=>`Last backup: ${d}.`, bkOld:' More than 2 weeks ago.',
+    bkAsk:n=>`This backup has ${n} architect(s). It will replace every city on this device. Continue?`, bkBad:'That file is not a Trazos de Arquitecto backup.', bkOk:'Backup restored.', penL:'Apple Pencil only', penP:'Ignores fingers and palm; narrower path and smaller letter, as a bridge to the pencil. Using the pencil turns this on for a while.', calmL:'Calm mode', calmP:'While tracing, clouds, cars and animations stop. Useful if the child gets distracted.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
     repDays:'Last 7 days (minutes)', repLetters:'Letters', repKey:['Mastered','Practicing','Struggling','Not yet'], repHard:'Hardest letters', repNone:'None for now.', repPrint:'Print / PDF', repNote:'Mastered: reached precision level 3 or 4. Struggling: often left the path in recent tries.', repDate:d=>`Generated on ${d}`, nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
     tapNext:'Tap for the next building', tapBack:'Tap to go back to building', letter:'letter', reset:'Erase city and progress', reset2:'Tap again to erase everything',
     kinds:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circles', curva:'curves', letra:'strokes in letters'},
@@ -1045,7 +1049,7 @@ function renderAdult(){
   $('skills').innerHTML = KINDS.map(k => `<div class="skill"><b>${counts[k]}</b>${label[k]}</div>`).join('');
   $('pieces').innerHTML = PIECES.map((p,i) => inLang(p) ? `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?tx().letter+' '+p.letter+' '+'●'.repeat(lvOf(p.id)+1)+'○'.repeat(PREC.length-1-lvOf(p.id)):tx().kind[p.kind]}</span>${p.name}</button>` : '').join('');
   $('lang').value = S.lang === 'en' ? 'en' : 'es';
-  $('btnReport').textContent = tx().rep; $('btnAvatar').textContent = tx().avBtn;
+  $('btnReport').textContent = tx().rep; renderBackup(); $('btnAvatar').textContent = tx().avBtn;
   $('pen').checked = !!S.penOnly; $('penL').textContent = tx().penL; $('penP').textContent = tx().penP;
   $('calm').checked = !!S.calm; $('calmL').textContent = tx().calmL; $('calmP').textContent = tx().calmP;
   $('prec').checked = S.progressive !== false; $('precL').textContent = tx().precL; $('precP').textContent = tx().precP;
@@ -1101,6 +1105,44 @@ function renderReport(){
 }
 $('btnAvatar').onclick = () => { const k = PROF.list.find(k=>k.id===PROF.cur), i = PROF.list.indexOf(k); $('adultOv').hidden = true;
   chooseAvatar(avatarOf(k,i)).then(a => { k.avatar = a; saveIndex(); renderKids(); $('adultOv').hidden = false; }); };
+// ---------- backup: every child's city in one file the adult can keep (Files, AirDrop, email) ----------
+const BKEY = 'trazos-arquitecto-copia';
+function renderBackup(){
+  const T = tx(); $('bkL').textContent = T.bkL; $('btnBackup').textContent = T.bkSave; $('btnRestore').textContent = T.bkLoad;
+  let last = 0; try { last = +localStorage.getItem(BKEY) || 0; } catch(e) {}
+  $('bkInfo').textContent = !last ? T.bkNever : T.bkLast(new Date(last).toLocaleDateString(S.lang === 'en' ? 'en-US' : 'es', {day:'numeric', month:'long'})) + (Date.now() - last > 14*864e5 ? T.bkOld : '');
+}
+async function saveBackup(){
+  save();
+  const data = {app:'trazos-arquitecto', v:1, date:new Date().toISOString(), prof:PROF, profiles:{}};
+  PROF.list.forEach(k => { try { data.profiles[k.id] = JSON.parse(localStorage.getItem(KEY+':'+k.id) || 'null') || readProfile(k.id); } catch(e) { data.profiles[k.id] = readProfile(k.id); } });
+  const name = `arquitecto-copia-${new Date().toLocaleDateString('sv')}.json`;
+  const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
+  let done = false;
+  try { const file = new File([blob], name, {type:'application/json'});
+    if (navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:name}); done = true; } } catch(e) { if (e && e.name === 'AbortError') return; }
+  if (!done){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 2000); }
+  try { localStorage.setItem(BKEY, String(Date.now())); } catch(e) {}
+  renderBackup();
+}
+function restoreBackup(file){
+  const r = new FileReader();
+  r.onload = () => {
+    let d = null; try { d = JSON.parse(r.result); } catch(e) {}
+    if (!d || d.app !== 'trazos-arquitecto' || !d.prof || !Array.isArray(d.prof.list) || !d.profiles){ alert(tx().bkBad); return; }
+    if (!confirm(tx().bkAsk(d.prof.list.length))) return;
+    try {
+      PROF.list.forEach(k => localStorage.removeItem(KEY+':'+k.id));
+      d.prof.list.forEach(k => localStorage.setItem(KEY+':'+k.id, JSON.stringify(d.profiles[k.id] || {})));
+      localStorage.setItem(PKEY, JSON.stringify(d.prof));
+    } catch(e) {}
+    alert(tx().bkOk); location.reload();
+  };
+  r.readAsText(file);
+}
+$('btnBackup').onclick = () => { saveBackup(); };
+$('btnRestore').onclick = () => { $('restoreFile').value = ''; $('restoreFile').click(); };
+$('restoreFile').onchange = e => { const f = e.target.files && e.target.files[0]; if (f) restoreBackup(f); };
 $('btnReport').onclick = () => { renderReport(); $('adultOv').hidden = true; $('reportOv').hidden = false; };
 $('btnRepClose').onclick = () => { $('reportOv').hidden = true; $('adultOv').hidden = false; };
 $('btnPrint').onclick = () => { try { window.print(); } catch(e) {} };
