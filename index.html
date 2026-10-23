@@ -174,10 +174,6 @@ const PIECES = [
   {id:'observatorio', name:'El observatorio', kind:'curva', c:'blue', tip:'Sube, pasa arriba y baja.', say:'', uses:'n · m · h · c',
    strokes:[arc(.5,.55,.26,180,360)],
    art:(c,t)=>{ R(.22,.55,.78,G,c); POLY(arc(.5,.55,.26,180,360),'#E7EEF6'); R(.47,.3,.55,.55,shade(c,.5)); LINE([[.51,.38],[.68,.2]],.03,C.ink,'butt'); WINS(.26,.6,.74,.76,4,1); DOOR(.5,.12,.13,shade(c,.55)); for(let i=0;i<3;i++){ const a=t*6+i*2; CIRC(.82+.04*Math.cos(a),.12+.03*Math.sin(a),.006,C.sun); } }},
-  {id:'n', name:'La estación', kind:'curva', c:'brick', tip:'Baja y haz el arco.', say:'',
-   strokes:[L(.3,.4,.3,G),cat(arc(.5,.55,.2,180,360),L(.7,.55,.7,G))],
-   art:(c)=>{ R(.12,.22,.88,G,c); POLY(cat(arc(.5,.55,.2,180,360),[[.7,G],[.3,G]]),'#2a2f38'); R(.38,.66,.62,G,C.brick); R(.42,.7,.58,.78,C.win); CIRC(.43,.85,.02,C.sun); CIRC(.57,.85,.02,C.sun); CIRC(.5,.3,.06,C.paper); LINE([[.5,.3],[.5,.26],[.5,.3],[.53,.3]],.008,C.ink); }},
-  // mayúsculas de líneas rectas
   {id:'I', letter:'I', name:'El faro', kind:'letra', c:'brick', tip:'Una línea hacia abajo.', say:'',
    strokes:[L(.5,.1,.5,G)],
    art:(c,t)=>{ POLY([[.4,.18],[.6,.18],[.66,G],[.34,G]],C.paper); POLY([[.39,.34],[.61,.34],[.63,.5],[.37,.5]],c); POLY([[.36,.66],[.64,.66],[.66,.8],[.34,.8]],c); R(.42,.06,.58,.18,C.win); POLY([[.4,.06],[.5,-.02],[.6,.06]],c); const a=t*1.5; LINE([[.5,.12],[.5+.35*Math.cos(a),.12+.08*Math.sin(a)]],.02,'rgba(255,214,90,.6)'); }},
@@ -262,7 +258,7 @@ const PIECES = [
    strokes:[P([.2,.12],[.8,.12],[.2,G],[.8,G])],
    art:(c)=>{ R(.14,.06,.86,G,shade(C.blue,1.1)); WINS(.2,.18,.8,.84,3,5); }},
 ];
-const LNAME = {A:'a',B:'be',C:'ce',D:'de',E:'e',F:'efe',G:'ge',H:'hache',I:'i',J:'jota',K:'ka',L:'ele',M:'eme',N:'ene',n:'ene','Ñ':'eñe',O:'o',P:'pe',Q:'cu',R:'erre',S:'ese',T:'te',U:'u',V:'uve',W:'doble uve',X:'equis',Y:'ye',Z:'zeta'};
+const LNAME = {A:'a',B:'be',C:'ce',D:'de',E:'e',F:'efe',G:'ge',H:'hache',I:'i',J:'jota',K:'ka',L:'ele',M:'eme',N:'ene','Ñ':'eñe',O:'o',P:'pe',Q:'cu',R:'erre',S:'ese',T:'te',U:'u',V:'uve',W:'doble uve',X:'equis',Y:'ye',Z:'zeta'};
 PIECES.forEach(p=>{ p.say = p.name + '.'; }); // presented by its building name; the letter is named only when it is finished
 const KINDS = ['vertical','horizontal','diagonal','círculo','curva','letra'];
 const PRAISE = ['¡Muy bien!','¡Genial!','¡Eso es!','¡Qué buen trazo!','¡Bien hecho!'];
