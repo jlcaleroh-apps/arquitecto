@@ -36,15 +36,21 @@ button:focus-visible{outline:3px solid var(--sun); outline-offset:2px}
 #app{height:100%; display:grid; grid-template-rows:auto auto auto 1fr; gap:8px; position:relative}
 /* barrio progress without reading: one brick per building, grouped in blocks of 9 */
 #barrioBar{display:flex; gap:10px; align-items:center}
-#barrioBar .blk{flex:1; display:flex; gap:2px; padding:3px; border-radius:7px; background:var(--table-2)}
+#barrioBar .blk{flex:1; min-width:0; display:flex; gap:2px; padding:3px; border-radius:7px; background:var(--table-2)}
 #barrioBar .blk.full{background:var(--sun); box-shadow:0 0 0 2px var(--sun)}
-#barrioBar i{flex:1; height:12px; border-radius:3px; background:#3A5878}
+#barrioBar i{flex:1; min-width:0; height:12px; border-radius:3px; background:#3A5878}
 #barrioBar i.on{background:var(--brick); box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
 #barrioBar .blk.full i.on{background:#C9772A}
 #barrioBar i.now{background:transparent; box-shadow:inset 0 0 0 2px var(--sun); animation:nowB 1.2s ease-in-out infinite}
 #barrioBar i.pop{animation:popB .5s ease-out}
 #barrioBar .goal{font-size:1.3rem; line-height:1; filter:grayscale(1) opacity(.5)}
 #barrioBar .goal.on{filter:none}
+@media (max-width:560px){
+  .msg .tag{font-size:1.1rem} .msg .txt{font-size:.92rem}
+  #nameStrip{width:100%; margin-left:0}
+  #nameStrip span{width:24px; height:28px; font-size:1rem}
+  #barrioBar{gap:5px} #barrioBar .blk{gap:1px; padding:2px} #barrioBar i{height:10px; border-radius:2px}
+}
 @keyframes nowB{50%{box-shadow:inset 0 0 0 2px var(--sun), 0 0 8px var(--sun)}}
 @keyframes popB{0%{transform:scale(2.2); background:var(--sun)}}
 
@@ -66,10 +72,10 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .holdable{position:relative; touch-action:none; background:linear-gradient(90deg, rgba(245,178,42,.45) calc(var(--hold,0)*100%), transparent 0)}
 .iconbtn[aria-pressed="false"]{opacity:.55}
 
-.msg{display:flex; align-items:center; gap:10px; min-height:44px}
+.msg{display:flex; align-items:center; gap:6px 10px; min-height:44px; flex-wrap:wrap; min-width:0}
 .msg .tag{font-family:var(--display); font-weight:800; font-size:1.25rem; color:var(--sun); white-space:nowrap}
 .msg .txt{font-size:1.05rem; color:#E7EEF6; min-width:0}
-#nameStrip{display:flex; gap:4px; margin-left:auto}
+#nameStrip{display:flex; flex-wrap:wrap; gap:4px; margin-left:auto}
 #nameStrip span{width:30px; height:34px; border-radius:8px; display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:1.2rem; background:var(--table-2); color:#6E87A6; border:2px dashed #4A6585}
 #nameStrip span.done{background:var(--c); color:#fff; border:0; box-shadow:inset 0 -3px 0 rgba(0,0,0,.2)}
 #nameStrip span.now{border-color:var(--sun); color:var(--sun)}
@@ -632,7 +638,7 @@ function renderKids(){
 }
 function useProfile(id){
   if (id === PROF.cur) return;
-  save(); clearTimers(); PROF.cur = id; saveIndex(); S = readProfile(id);
+  if (PROF.list.some(k => k.id === PROF.cur)) save(); clearTimers(); PROF.cur = id; saveIndex(); S = readProfile(id);
   $('brickN').textContent = S.bricks; $('houseN').textContent = S.city.length;
   applyLang(); pickVoice(); renderLang(); renderWho(); renderSound(); renderKids(); renderNameBtn(); renderBar(); run.nameAll = null; run.trip = null; renderStrip();
   document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === (S.lang === 'en' ? 'en' : 'es'))));
@@ -790,7 +796,7 @@ function startTrip(){
 function showTripDone(){
   const t = run.trip; run.trip = null; run.nameAll = null; S.level = run.savedLevel;
   S.trips = (S.trips||[]).filter(x => x.id !== t.id).concat({id:t.id, at:today()});
-  if (!(S.decor||[]).some(d => d.t === 'lm:'+t.id)){ const sp = freeSpot('plaza'); if (sp) S.decor = (S.decor||[]).concat({t:'lm:'+t.id, i:sp[0], j:sp[1], at:Date.now()}); }
+  if (!(S.decor||[]).some(d => d.t === 'lm:'+t.id)){ const sp = freeSpot('plaza', true) || freeSpot('plaza'); if (sp) S.decor = (S.decor||[]).concat({t:'lm:'+t.id, i:sp[0], j:sp[1], q:sp[2], at:Date.now()}); }
   save(); renderStrip(); run.phase = 'idle'; showMap();
   $('tripDoneLbl').textContent = tx().tripDoneLbl; $('tripCity').textContent = titleCase(tripWord(t)); $('tripMon').textContent = tripMon(t); $('btnTripMore').textContent = tx().nameMore;
   const img = $('tripImg'); img.classList.remove('lmIn'); void img.offsetWidth; img.src = landmarkImg(t.id, 520); img.classList.add('lmIn');
@@ -1182,13 +1188,20 @@ function drawDecor(c, t, cx, cy, u, now){
   else if (t === 'balloon'){ const f = Math.sin(now/800)*.04; c.strokeStyle = C.ink; c.lineWidth = Math.max(1,u*.01); c.beginPath(); c.moveTo(cx-.06*u, cy+(-.62+f)*u); c.lineTo(cx-.05*u, cy+(-.42+f)*u); c.moveTo(cx+.06*u, cy+(-.62+f)*u); c.lineTo(cx+.05*u, cy+(-.42+f)*u); c.stroke();
     R2(-.06,-.44+f,.12,.08,'#8a5a3b'); O(0,-.82+f,.24,C.brick); c.fillStyle = C.sun; c.fillRect(cx-.06*u, cy+(-1.06+f)*u, .12*u, .48*u); }
 }
-function freeSpot(kind){
-  const taken = new Set((S.decor||[]).map(d => d.i+','+d.j)), c = GN/2, out = [];
+const QUAD = [[.28,.28],[.72,.28],[.28,.72],[.72,.72]];
+function freeSpot(kind, big){
+  const c = GN/2, out = [], at = {};
+  (S.decor||[]).forEach(d => { const k = d.i+','+d.j; (at[k] = at[k] || []).push(d); });
   for (let i=0;i<GN;i++) for (let j=0;j<GN;j++){
-    const ok = kind === 'water' ? isWater(i,j) : (isRoad(i) && isRoad(j) && i>0 && j>0 && i<GN-1 && j<GN-1);
-    if (ok && !taken.has(i+','+j)) out.push([i,j]);
+    const here = at[i+','+j] || [];
+    if (kind === 'water'){ if (isWater(i,j) && !here.length) out.push([i,j,null]); continue; }
+    if (!(isRoad(i) && isRoad(j))) continue;
+    if (big){ if (!here.length) out.push([i,j,null]); continue; }
+    if (here.some(d => d.q == null)) continue; // a landmark (or an older centered item) fills the plaza
+    const q = [0,1,2,3].find(n => !here.some(d => d.q === n)); if (q != null) out.push([i,j,q]);
   }
-  out.sort((a,b) => Math.hypot(a[0]+.5-c,a[1]+.5-c) - Math.hypot(b[0]+.5-c,b[1]+.5-c) || hash(...a) - hash(...b));
+  // plazas near the city first; small items prefer plazas that already have company, so plazas fill up neatly
+  out.sort((a,b) => Math.hypot(a[0]+.5-c,a[1]+.5-c) - Math.hypot(b[0]+.5-c,b[1]+.5-c) || hash(a[0],a[1]) - hash(b[0],b[1]));
   return out[0] || null;
 }
 // ---------- board-game map of the whole city ----------
@@ -1260,13 +1273,13 @@ function drawMap(now){
     else if (next && next[0]===i && next[1]===j) pieces.push({i,j,next:true});
     else if (hash(i,j)%3===0) pieces.push({i,j,tree:true});
   }
-  (S.decor||[]).forEach(d => pieces.push({i:d.i, j:d.j, decor:d.t, at:d.at}));
+  (S.decor||[]).forEach(d => { const o = d.q == null ? [.5,.5] : QUAD[d.q]; pieces.push({i:d.i + o[0] - .5, j:d.j + o[1] - .5, decor:d.t, at:d.at, small: d.q != null}); });
   pieces.sort((a,b) => (a.i+a.j)-(b.i+b.j));
   const newest = S.city.length-1;
   pieces.forEach(pc => {
     const [cx,cy] = T(pc.i+.5, pc.j+.5);
     if (pc.decor){ let g = 1; if (pc.at){ const t = (Date.now() - pc.at)/700; g = t < 1 ? Math.max(.05, easeBack(Math.max(0,t))) : 1; }
-      drawDecor(c, pc.decor, cx, cy + tw*.12, tw*g, now); return; }
+      drawDecor(c, pc.decor, cx, cy + tw*(pc.small ? .05 : .12), tw*g*(pc.small ? .62 : 1), now); return; }
     if (pc.tree){ const r = tw*.09; c.fillStyle='#8a5a3b'; c.fillRect(cx-r*.2, cy-r*1.6, r*.4, r*1.6); c.fillStyle = shade(C.grass,.8); c.beginPath(); c.arc(cx, cy-r*2, r*1.1, 0, 7); c.fill(); c.fillStyle = C.grass; c.beginPath(); c.arc(cx+r*.4, cy-r*2.4, r*.8, 0, 7); c.fill(); return; }
     if (pc.next){
       const p = .5 + .5*Math.sin(now/250);
@@ -1383,7 +1396,11 @@ $('btnSound').onclick = () => { S.sound = !S.sound; save(); renderSound(); try{ 
 
 function renderAdult(){
   const counts = {}; KINDS.forEach(k=>counts[k]=0);
-  S.city.forEach(id => { const p = byId(id); if (p) counts[p.kind] += p.strokes.length; });
+  // count each stroke by its real shape (the tower's roof is horizontal, not vertical); letters keep their own row
+  const shape = st => { if (st.length > 3) return dist(st[0], st[st.length-1]) < .05 ? 'círculo' : 'curva';
+    const dx = Math.abs(st[st.length-1][0]-st[0][0]), dy = Math.abs(st[st.length-1][1]-st[0][1]);
+    return dx < .02 ? 'vertical' : dy < .02 ? 'horizontal' : 'diagonal'; };
+  S.city.forEach(id => { const p = byId(id); if (!p) return; if (p.letter) counts.letra += p.strokes.length; else p.strokes.forEach(st => counts[shape(st)]++); });
   const label = tx().kinds;
   $('skills').innerHTML = KINDS.map(k => `<div class="skill"><b>${counts[k]}</b>${label[k]}</div>`).join('');
   $('pieces').innerHTML = PIECES.map((p,i) => inLang(p) ? `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?tx().letter+' '+p.letter+' '+'●'.repeat(lvOf(p.id)+1)+'○'.repeat(PREC.length-1-lvOf(p.id)):tx().kind[p.kind]}</span>${p.name}</button>` : '').join('');
@@ -1557,7 +1574,7 @@ function openShop(back){ shopBack = back; unlockAudio(); renderShop(); showMap()
 $('shopGrid').onclick = e => {
   const b = e.target.closest('button'); if (!b || b.disabled) return;
   const d = DECOR.find(x => x.id === b.dataset.d), spot = freeSpot(d.spot); if (!spot || S.bricks < d.price) return;
-  S.bricks -= d.price; S.decor = (S.decor||[]).concat({t:d.id, i:spot[0], j:spot[1], at:Date.now()}); save();
+  S.bricks -= d.price; S.decor = (S.decor||[]).concat({t:d.id, i:spot[0], j:spot[1], q:spot[2], at:Date.now()}); save();
   $('brickN').textContent = S.bricks; tone(659,.15,'triangle',.14); tone(988,.25,'triangle',.14,.1);
   $('shopOv').hidden = true; showMap(); later(() => { renderShop(); $('shopOv').hidden = false; }, 1400);
 };
@@ -1582,7 +1599,7 @@ $('btnPassport2').onclick = () => openPassport($('tripDoneOv'));
 $('btnPassClose').onclick = () => { $('passOv').hidden = true; if (passBack) passBack.hidden = false; };
 $('btnReport').onclick = () => { renderReport(); $('adultOv').hidden = true; $('reportOv').hidden = false; };
 $('btnRepClose').onclick = () => { $('reportOv').hidden = true; $('adultOv').hidden = false; };
-$('btnPrint').onclick = () => { try { window.print(); } catch(e) {} };
+$('btnPrint').onclick = () => { document.body.classList.remove('print-sheets'); try { window.print(); } catch(e) {} };
 $('btnSwitch').onclick = () => { if (run.nameAll){ S.level = run.savedLevel; run.nameAll = null; run.trip = null; renderStrip(); } $('adultOv').hidden = true; $('restOv').hidden = true; clearTimers(); run.phase = 'idle'; renderKids(); $('startOv').hidden = false; };
 $('btnDelKid').onclick = e => {
   const b = e.currentTarget;
@@ -1594,7 +1611,7 @@ $('btnDelKid').onclick = e => {
 $('btnReset').onclick = e => {
   const b = e.currentTarget;
   if (!b.dataset.arm){ b.dataset.arm = '1'; b.textContent = tx().reset2; return; }
-  clearTimers(); S.city = []; S.bricks = 0; S.done = {}; S.level = 0; S.barrioStart = 0; S.barrios = 0; S.cursor = undefined; S.decor = []; save(); renderBar();
+  clearTimers(); S.city = []; S.bricks = 0; S.done = {}; S.level = 0; S.barrioStart = 0; S.barrios = 0; S.cursor = undefined; S.decor = []; S.trips = []; S.tripMarks = []; S.skill = {}; S.stats = {days:{}, letters:{}}; S.recent = []; S.rev = 0; save(); renderBar();
   $('brickN').textContent = 0; $('houseN').textContent = 0; run.session = 0; renderAdult(); loadPiece(0);
 };
 
@@ -1623,7 +1640,7 @@ run.piece = PIECES[S.level] || PIECES[0]; run.lot = S.city.length; run.phase = '
 $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip;
 window.__trazos = {run, toScreen, cam, camT,
   // hooks for the automated tests in tests/test_app.py
-  test: {PIECES, EN, C, G, drawTrim, nextIndex, inLang, letterState, goNext, TRIPS, tripPoints, nameLetters, setK: k => { K = k; }, get S(){ return S; }, get PROF(){ return PROF; }}};
+  test: {PIECES, EN, C, G, drawTrim, nextIndex, inLang, letterState, goNext, TRIPS, tripPoints, nameLetters, completeStroke, setK: k => { K = k; }, get S(){ return S; }, get PROF(){ return PROF; }}};
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 fit();
 requestAnimationFrame(frame);

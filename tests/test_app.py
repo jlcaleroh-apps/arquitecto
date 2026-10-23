@@ -158,6 +158,27 @@ async def main():
         await pg.click('#btnTripGo'); await pg.wait_for_timeout(1500)
         check('el viaje empieza por la primera letra (PISA → P)', await pg.evaluate("__trazos.run.piece.id") == 'P')
 
+        print('Errores corregidos (no deben volver)')
+        await fresh(pg, {'bricks': 2000, 'city': ['torre']})
+        await pg.click('#btnShop'); await pg.wait_for_timeout(200)
+        for _ in range(30):
+            await pg.evaluate("document.querySelector('#shopGrid button[data-d=tree]').click()"); await pg.wait_for_timeout(30)
+            await pg.evaluate("document.getElementById('shopOv').hidden = true")
+        n = await pg.evaluate("__trazos.test.S.decor.length")
+        check('caben más de 9 decoraciones (había solo 9 plazas)', n == 30, str(n))
+        await fresh(pg, {'city': ['torre'] * 18, 'tripMarks': [9, 18], 'trips': [{'id': 'pisa'}]})
+        await pg.click('#btnStart'); await pg.wait_for_timeout(200)
+        await pg.focus('#btnAdult'); await pg.keyboard.press('Enter'); await pg.wait_for_timeout(100)
+        await pg.click('#btnReset'); await pg.click('#btnReset'); await pg.wait_for_timeout(300)
+        left = await pg.evaluate("[(__trazos.test.S.tripMarks||[]).length, (__trazos.test.S.trips||[]).length]")
+        check('borrar la ciudad también reinicia los viajes', left == [0, 0], str(left))
+        phone = await b.new_page(viewport={'width': 390, 'height': 844})
+        await phone.goto(URL); await phone.evaluate("localStorage.clear(); localStorage.setItem('trazos-arquitecto-v2:p1', JSON.stringify({city: Array(18).fill('torre'), trips: 'pisa roma rio leon paris china tokio masaya egipto londres sidney granada managua'.split(' ').map(id => ({id}))}))")
+        await phone.reload(); await phone.click('#btnStart'); await phone.wait_for_timeout(200)
+        await phone.evaluate("__trazos.test.goNext()"); await phone.wait_for_timeout(200); await phone.click('#btnTripGo'); await phone.wait_for_timeout(1500)
+        check('en teléfono, NUEVA YORK cabe sin salirse de la pantalla', not await phone.evaluate("document.documentElement.scrollWidth > innerWidth"))
+        await phone.close()
+
         print('Repaso inteligente')
         await fresh(pg, {'level': 0, 'skill': {'I': {'lv': 3, 'streak': 0}, 'L': {'lv': 3, 'streak': 0}},
                          'stats': {'days': {}, 'letters': {'I': {'n': 5, 'last': [0, 0]}, 'L': {'n': 5, 'last': [0, 0]},
