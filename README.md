@@ -17,3 +17,7 @@ Juego de trazos para niños: cada trazo (vertical, horizontal, diagonal, círcul
 ## Sobre la app y el TDAH
 
 Presentación y principios de diseño: https://jlcaleroh-apps.github.io/arquitecto/acerca.html
+
+## Instalar en el iPad (sin internet)
+
+En Safari abre https://jlcaleroh-apps.github.io/arquitecto/ → botón Compartir → **Agregar a pantalla de inicio**. Se abre en pantalla completa y funciona sin conexión (`sw.js` guarda la app; cuando hay internet descarga la versión nueva).

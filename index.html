@@ -1,6 +1,14 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
 <title>Trazos de Arquitecto</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Juego de construir ciudades donde cada edificio esconde un trazo o una letra mayúscula.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2C4766">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Arquitecto">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Andika:wght@400;700&family=Baloo+2:wght@600;800&display=swap">
@@ -83,6 +91,7 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; border:2px solid #D8CBA8; background:#fff; color:var(--ink); min-width:0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
 </style>
+</head><body>
 
 <div id="app">
   <header>
@@ -142,6 +151,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       </div>
       <div><span class="label" data-t="voiceL">Voz</span> <span id="voiceInfo" style="font-size:.9rem"></span>
       </div>
+      <div><span class="label" data-t="installL">Instalar en el iPad</span> <span data-t="installP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="piecesL">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
       <div class="row"><button class="small-btn" id="btnSwitch" data-t="switchKid">Cambiar de arquitecto</button><button class="small-btn danger" id="btnDelKid">Borrar este arquitecto</button><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
     </div>
@@ -359,11 +369,11 @@ const UI = {
   es: { startLbl:'Obra en construcción', startP:'Traza el camino con el dedo, empezando en el <b style="color:var(--go)">punto verde</b>. Cada trazo levanta una parte del edificio, y cada edificio se queda en tu calle.', btnStart:'¡A construir!',
     restP:'Buen momento para terminar por hoy. Tu ciudad se guarda.', btnDone:'Terminar por hoy', adultH:'Para adultos', btnClose:'Cerrar',
     adultP:'Cada edificio lleva trazos de escritura: verticales, horizontales, diagonales, círculos y curvas, y después las letras mayúsculas dentro de la arquitectura. El nombre de cada edificio empieza con su letra. La voz dice el nombre del edificio al empezar y el nombre de la letra al terminarla. La ciudad crece por manzanas de 9 edificios y por barrios: al terminar un barrio hay una gran celebración y un punto natural para parar.',
-    skillsL:'Trazos practicados', nameL:'Nombre', namePh:'Nombre del arquitecto', sizeL:'Tamaño del barrio', langL:'Idioma', voiceL:'Voz', piecesL:'Siguiente obra', switchKid:'Cambiar de arquitecto', about:'Sobre la app y el TDAH', edif:'edificios' },
+    skillsL:'Trazos practicados', nameL:'Nombre', namePh:'Nombre del arquitecto', sizeL:'Tamaño del barrio', langL:'Idioma', voiceL:'Voz', installL:'Instalar en el iPad', installP:'En Safari: botón Compartir → “Agregar a pantalla de inicio”. Así se abre en pantalla completa y funciona sin internet.', piecesL:'Siguiente obra', switchKid:'Cambiar de arquitecto', about:'Sobre la app y el TDAH', edif:'edificios' },
   en: { startLbl:'Under construction', startP:'Trace the path with your finger, starting at the <b style="color:var(--go)">green dot</b>. Each stroke raises part of the building, and every building stays on your street.', btnStart:"Let's build!",
     restP:'A good moment to stop for today. Your city is saved.', btnDone:'Stop for today', adultH:'For adults', btnClose:'Close',
     adultP:'Each building holds writing strokes: vertical, horizontal, diagonal, circles and curves, and then capital letters inside the architecture. Each building name starts with its letter. The voice says the building name at the start and the letter name at the end. The city grows in blocks of 9 buildings and in neighborhoods: finishing a neighborhood brings a big celebration and a natural place to stop.',
-    skillsL:'Strokes practiced', nameL:'Name', namePh:"Architect's name", sizeL:'Neighborhood size', langL:'Language', voiceL:'Voice', piecesL:'Next building', switchKid:'Switch architect', about:'About the app and ADHD', edif:'buildings' },
+    skillsL:'Strokes practiced', nameL:'Name', namePh:"Architect's name", sizeL:'Neighborhood size', langL:'Language', voiceL:'Voice', installL:'Install on the iPad', installP:'In Safari: Share button → “Add to Home Screen”. It opens full screen and works offline.', piecesL:'Next building', switchKid:'Switch architect', about:'About the app and ADHD', edif:'buildings' },
 };
 const save = () => { try { localStorage.setItem(KEY+':'+PROF.cur, JSON.stringify(S)); } catch(e) {} };
 
@@ -932,6 +942,7 @@ $('kids').onclick = e => {
 run.piece = PIECES[S.level] || PIECES[0]; run.lot = S.city.length; run.phase = 'idle';
 $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip;
 window.__trazos = {run, toScreen, cam, camT};
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
 fit();
 requestAnimationFrame(frame);
 })();
