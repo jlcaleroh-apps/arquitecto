@@ -151,6 +151,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       </div>
       <div><span class="label" data-t="voiceL">Voz</span> <span id="voiceInfo" style="font-size:.9rem"></span>
       </div>
+      <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="prec"> <span class="label" id="precL">Precisión progresiva</span></label> <span id="precP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="installL">Instalar en el iPad</span> <span data-t="installP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="piecesL">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
       <div class="row"><button class="small-btn" id="btnSwitch" data-t="switchKid">Cambiar de arquitecto</button><button class="small-btn danger" id="btnDelKid">Borrar este arquitecto</button><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
@@ -319,12 +320,15 @@ function applyLang(){
 }
 const KINDS = ['vertical','horizontal','diagonal','círculo','curva','letra'];
 const PRAISE = ['¡Muy bien!','¡Genial!','¡Eso es!','¡Qué buen trazo!','¡Bien hecho!'];
-const STEP = .006, TOL = .09, MANZANA = 9;
+const STEP = .006, MANZANA = 9;
+// progressive precision: each letter has 4 levels per child. Higher level = narrower path and a smaller letter on screen
+const PREC = [{tol:.09, z:1}, {tol:.075, z:.88}, {tol:.062, z:.77}, {tol:.052, z:.68}];
+const lvOf = id => (S.progressive === false) ? 0 : ((S.skill||{})[id]||{lv:0}).lv;
 const byId = id => PIECES.find(p=>p.id===id);
 
 // ---------- saved progress (per-device convenience) ----------
 const KEY = 'trazos-arquitecto-v2', PKEY = 'trazos-arquitecto-perfiles';
-const DEFAULTS = () => ({level:0, city:[], bricks:0, done:{}, sound:true, name:'', barrioSize:36, barrioStart:0, barrios:0, lang:'es'});
+const DEFAULTS = () => ({level:0, city:[], bricks:0, done:{}, sound:true, name:'', barrioSize:36, barrioStart:0, barrios:0, lang:'es', skill:{}, progressive:true});
 // profile index (PROF): {cur, list:[{id, color}]}; each child's state lives under KEY:id
 let PROF = null;
 try { PROF = JSON.parse(localStorage.getItem(PKEY) || 'null'); } catch(e) {}
@@ -346,7 +350,7 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.',
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
     tapNext:'Toca para la siguiente obra', tapBack:'Toca para volver a la obra', letter:'letra', reset:'Borrar ciudad y progreso', reset2:'Toca otra vez para borrar todo',
     kinds:{vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'},
     kind:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'círculo', curva:'curva'} },
@@ -358,7 +362,7 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.',
+    holdHint:'Adult menu: press and hold for 2 seconds.', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
     tapNext:'Tap for the next building', tapBack:'Tap to go back to building', letter:'letter', reset:'Erase city and progress', reset2:'Tap again to erase everything',
     kinds:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circles', curva:'curves', letra:'strokes in letters'},
     kind:{vertical:'vertical', horizontal:'horizontal', diagonal:'diagonal', 'círculo':'circle', curva:'curve'} },
@@ -439,6 +443,7 @@ function say(tag, txt, voice){ if (tag) $('pieceName').textContent = tag; $('msg
 
 // ---------- run state ----------
 const run = {piece:null, si:0, pts:[], prog:0, ink:[], beams:[], pid:null, touched:false, lastTouch:0, demoT0:0, off:0, offWarned:false, phase:'idle', nextPing:0, builtAt:0, lot:0, timers:[], session:0};
+run.tol = PREC[0].tol; run.zf = 1; run.miss = 0;
 const particles = [];
 const cam = {x:.6, y:.55, z:300}, camT = {x:.6, y:.55, z:300};
 const later = (fn, ms) => run.timers.push(setTimeout(fn, ms));
@@ -458,7 +463,7 @@ const dist = (a,b) => Math.hypot(a[0]-b[0], a[1]-b[1]);
 // ---------- camera ----------
 function traceZoom(){ return Math.min(H/1.18, W/1.3); }
 function aimAtLot(lot){
-  const z = traceZoom();
+  const z = traceZoom() * (run.zf || 1);
   camT.z = z; camT.x = lot*LW + .5 + .08; camT.y = Math.min(.55, G + .26 - H/(2*z));
 }
 function aimOverview(){
@@ -476,7 +481,8 @@ function loadPiece(i){
   clearTimers();
   if (!inLang(PIECES[i])){ S.level = i; i = nextIndex(); }
   S.level = i; save();
-  const p = PIECES[i]; run.piece = p; run.si = 0; run.beams = []; run.phase = 'trace'; run.lot = S.city.length;
+  const p = PIECES[i]; const pr = PREC[p.letter ? lvOf(p.id) : 0]; run.tol = pr.tol; run.zf = pr.z; run.miss = 0;
+  run.piece = p; run.si = 0; run.beams = []; run.phase = 'trace'; run.lot = S.city.length;
   aimAtLot(run.lot); hideMap();
   setupStroke();
   const n = p.strokes.length;
@@ -507,14 +513,14 @@ function advance(p){
   const Wn = Math.ceil(.14/STEP); let best=-1, bd=1e9;
   const end = Math.min(run.pts.length, run.prog+Wn);
   for (let j=run.prog;j<end;j++){ const d = dist(p, run.pts[j]); if (d<bd){bd=d; best=j;} }
-  if (bd < TOL){
+  if (bd < run.tol){
     run.off = 0;
     if (best > run.prog){
       run.prog = best;
       const f = run.prog/(run.pts.length-1);
       if (f >= run.nextPing){ tone(SCALE[Math.min(7, Math.floor(run.nextPing*8))], .16, 'triangle', .12); run.nextPing += .15; }
     }
-  } else if (++run.off > 28 && !run.offWarned){ run.offWarned = true; say(null, tx().path, tx().pathV); }
+  } else if ((run.miss++, ++run.off > 28) && !run.offWarned){ run.offWarned = true; say(null, tx().path, tx().pathV); }
   if (run.prog >= run.pts.length-1-Math.ceil(.035/STEP)) completeStroke();
 }
 stage.addEventListener('pointerdown', e => {
@@ -523,7 +529,8 @@ stage.addEventListener('pointerdown', e => {
   if (run.view === 'map'){ hideMap(); return; }
   if (run.phase !== 'trace' || run.pid !== null) return;
   const p = norm(e);
-  if (dist(p, run.pts[run.prog]) > TOL*1.7){
+  if (dist(p, run.pts[run.prog]) > run.tol*1.7){
+    run.miss += 10;
     run.demoT0 = performance.now(); run.lastTouch = 0;
     say(null, run.prog ? tx().resume : tx().start, run.prog ? tx().resumeV : tx().startV);
     tone(330,.15,'sine',.08);
@@ -564,7 +571,17 @@ function completeStroke(){
 }
 function completePiece(){
   const p = run.piece; run.phase = 'built'; run.ink = []; run.builtAt = performance.now();
-  S.city.push(p.id); S.done[p.id] = (S.done[p.id]||0)+1; run.session++; save();
+  S.city.push(p.id); S.done[p.id] = (S.done[p.id]||0)+1; run.session++;
+  let up = false;
+  if (p.letter && S.progressive !== false){
+    S.skill = S.skill || {}; const k = S.skill[p.id] = S.skill[p.id] || {lv:0, streak:0};
+    const clean = run.miss <= 8, hard = run.miss > 60 || run.offWarned;
+    if (clean){ k.streak = Math.max(0, k.streak) + 1; if (k.streak >= 2 && k.lv < PREC.length-1){ k.lv++; k.streak = 0; up = true; } }
+    else if (hard){ k.streak = Math.min(0, k.streak) - 1; if (k.streak <= -2 && k.lv > 0){ k.lv--; k.streak = 0; } }
+    else k.streak = 0;
+  }
+  save();
+  if (up) later(()=>{ tone(1568,.2,'sine',.12); tone(2093,.3,'sine',.12,.12); $('msgTxt').textContent += '  ' + tx().finer(S.skill[p.id].lv + 1); }, 700);
   $('houseN').textContent = S.city.length; pop('houses');
   for (let i=0;i<6;i++) later(()=>burst(W*(.25+Math.random()*.5), H*(.2+Math.random()*.4), 20, [C.brick,C.sun,C.teal,C.plum,C.go,C.blue][i]), i*90);
   [523,659,784,1047].forEach((f,i)=>tone(f,.35,'triangle',.16,i*.1));
@@ -672,7 +689,7 @@ function drawGuide(now){
   p.strokes.slice(run.si+1).forEach(st => { ctx.save(); ctx.setLineDash([z*.012, z*.03]); LINE(st, .012, 'rgba(31,46,68,.35)'); ctx.restore(); });
   const st = p.strokes[run.si];
   ctx.save();
-  ctx.globalAlpha = .85; LINE(st, TOL*1.5, C.lane); ctx.globalAlpha = 1;
+  ctx.globalAlpha = .85; LINE(st, run.tol*1.5, C.lane); ctx.globalAlpha = 1;
   if (run.prog > 0) { ctx.globalAlpha = .75; LINE(run.pts.slice(0, run.prog+1), .055, shade(C[p.c], .55)); ctx.globalAlpha = 1; }
   // the path itself is a trail of small arrows: each "dot" points where to go
   const N = run.pts.length; ctx.globalAlpha = .75;
@@ -792,7 +809,8 @@ function drawMap(now){
   const label = `${nm} · ${barrioLabel()}`, lw = c.measureText(label).width;
   c.fillStyle = C.paper; c.fillRect(12, 12, lw+24, Math.max(16, Math.min(24, W*.04))*1.6); c.fillStyle = C.ink; c.fillText(label, 24, 16);
   c.font = `400 ${Math.max(12, Math.min(15, W*.028))}px Andika, sans-serif`;
-  { const hint = run.phase === 'tour' ? tx().tapNext : tx().tapBack, hy = 16 + Math.max(16, Math.min(24, W*.04))*1.6; c.fillStyle = 'rgba(255,248,231,.85)'; c.fillRect(12, hy, c.measureText(hint).width+24, Math.max(12, Math.min(15, W*.028))*1.6); c.fillStyle = C.ink; }
+  const hint = run.phase === 'tour' ? tx().tapNext : tx().tapBack;
+  { const hy = 16 + Math.max(16, Math.min(24, W*.04))*1.6; c.fillStyle = 'rgba(255,248,231,.85)'; c.fillRect(12, hy, c.measureText(hint).width+24, Math.max(12, Math.min(15, W*.028))*1.6); c.fillStyle = C.ink; }
   c.globalAlpha = .8;
   c.fillText(hint, 14, 18 + Math.max(16, Math.min(24, W*.04))*1.6); c.globalAlpha = 1;
 }
@@ -883,8 +901,9 @@ function renderAdult(){
   S.city.forEach(id => { const p = byId(id); if (p) counts[p.kind] += p.strokes.length; });
   const label = tx().kinds;
   $('skills').innerHTML = KINDS.map(k => `<div class="skill"><b>${counts[k]}</b>${label[k]}</div>`).join('');
-  $('pieces').innerHTML = PIECES.map((p,i) => inLang(p) ? `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?tx().letter+' '+p.letter:tx().kind[p.kind]}</span>${p.name}</button>` : '').join('');
+  $('pieces').innerHTML = PIECES.map((p,i) => inLang(p) ? `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?tx().letter+' '+p.letter+' '+'●'.repeat(lvOf(p.id)+1)+'○'.repeat(PREC.length-1-lvOf(p.id)):tx().kind[p.kind]}</span>${p.name}</button>` : '').join('');
   $('lang').value = S.lang === 'en' ? 'en' : 'es';
+  $('prec').checked = S.progressive !== false; $('precL').textContent = tx().precL; $('precP').textContent = tx().precP;
   pickVoice(); $('voiceInfo').textContent = voice ? `${voice.name} (${voice.lang})` : (S.lang === 'en' ? 'No English voice installed on this device.' : 'Este dispositivo no tiene voz en español instalada. Instálala en Ajustes → Accesibilidad → Contenido leído → Voces.');
   $('kidName').value = S.name; $('barrioSize').value = String(BARRIO());
   $('btnReset').textContent = tx().reset; $('btnDelKid').textContent = tx().delKid; $('btnDelKid').dataset.arm = ''; $('btnDelKid').hidden = PROF.list.length < 2; $('btnReset').dataset.arm = '';
@@ -907,6 +926,7 @@ $('lang').onchange = e => { S.lang = e.target.value; save(); applyLang(); pickVo
   run.piece = PIECES[S.level]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; speak(run.piece.say); };
 const setLang = l => { S.lang = l; save(); applyLang(); pickVoice(); renderLang(); renderWho(); renderKids(); run.piece = PIECES[S.level] || PIECES[0]; $('pieceName').textContent = run.piece.name; $('msgTxt').textContent = run.piece.tip; document.querySelectorAll('.langBtn').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.l === l))); };
 document.querySelectorAll('.langBtn').forEach(b => b.onclick = () => setLang(b.dataset.l));
+$('prec').onchange = e => { S.progressive = e.target.checked; save(); renderAdult(); };
 $('barrioSize').onchange = e => { S.barrioSize = +e.target.value; save(); };
 $('kidName').oninput = e => { S.name = e.target.value.trim(); save(); renderWho(); renderKids(); };
 $('btnSwitch').onclick = () => { $('adultOv').hidden = true; $('restOv').hidden = true; clearTimers(); run.phase = 'idle'; renderKids(); $('startOv').hidden = false; };
