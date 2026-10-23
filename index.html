@@ -88,14 +88,36 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .lkey{display:flex; flex-wrap:wrap; gap:12px; margin-top:8px; font-size:.85rem}
 .lkey i{display:inline-block; width:12px; height:12px; border-radius:4px; margin-right:4px; vertical-align:-1px}
 .small{font-size:.85rem; color:var(--muted); margin:0}
+#sheets{display:none}
 @media print{
-  body{background:#fff!important; overflow:visible!important; height:auto}
-  #app > *:not(#reportOv){display:none!important}
+  @page{margin:12mm}
+  body{background:#fff!important; overflow:visible!important; height:auto; padding:0!important}
+  body.print-sheets #app{display:none!important}
+  body.print-sheets #sheets{display:block}
+  body:not(.print-sheets) #app > *:not(#reportOv){display:none!important}
   #reportOv{position:static; background:none; padding:0; display:block}
   #reportOv .card{box-shadow:none; max-height:none; width:100%}
   .noprint{display:none!important}
   .lgrid span, .bars i, .lkey i{-webkit-print-color-adjust:exact; print-color-adjust:exact}
 }
+.sheet{break-after:page; color:#1F2E44; font-family:var(--body); padding:0 2mm}
+.sheet:last-child{break-after:auto}
+.sheet header{display:flex; justify-content:space-between; align-items:baseline; border-bottom:2px solid #1F2E44; padding-bottom:4px; margin-bottom:10px}
+.sheet header b{font-family:var(--display); font-size:22px}
+.sheet .fill{font-size:14px}
+.sheet .top{display:flex; gap:16px; align-items:center; margin-bottom:8px}
+.sheet .top img{width:170px; height:170px}
+.sheet .word{font-family:var(--display); font-size:34px}
+.sheet .word b{font-size:56px; color:#E0603E}
+.sheet .lines{height:118px; margin:8px 0 14px; display:flex; gap:14px; align-items:flex-end; padding:0 6px;
+  background:linear-gradient(#1F2E44,#1F2E44) 0 8px/100% 1.5px no-repeat, repeating-linear-gradient(90deg,#9AA9BA 0 8px,transparent 8px 14px) 0 59px/100% 1.5px no-repeat, linear-gradient(#1F2E44,#1F2E44) 0 109px/100% 2px no-repeat}
+.sheet .lines img{height:118px}
+.sheet .tip{font-size:13px; color:#5D7089}
+.sheet .big{display:block; height:300px; margin:0 auto}
+.sheet *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+.chips button{width:44px; height:44px; border-radius:10px; border:2px solid #E5D7B3; background:#fff; font-family:var(--display); font-weight:800; font-size:1.2rem; color:var(--muted)}
+.chips button[aria-pressed="true"]{background:var(--go); border-color:var(--go); color:#fff}
 .nameTiles{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:6px 0}
 .nameTiles span{width:56px; height:64px; border-radius:14px; display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:2.4rem; color:#fff; background:var(--c); box-shadow:inset 0 -6px 0 rgba(0,0,0,.2); animation:tileIn .5s both}
 @keyframes tileIn{from{transform:translateY(30px) scale(.6); opacity:0}}
@@ -174,6 +196,15 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <div class="row"><button class="big-btn" id="btnStart" data-t="btnStart">¡A construir!</button><button class="big-btn alt" id="btnName" hidden>🏗️ Construir mi nombre</button></div>
     </div>
   </div>
+  <div class="overlay" id="sheetsOv" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h2 id="shH">Hojas para imprimir</h2><button class="small-btn" id="btnShClose" data-t="btnClose">Cerrar</button></div>
+      <p id="shP" style="margin:0"></p>
+      <div class="row"><button class="small-btn" id="shHard"></button><button class="small-btn" id="shName"></button><button class="small-btn" id="shAll"></button><button class="small-btn" id="shNone"></button></div>
+      <div class="chips" id="shChips"></div>
+      <button class="big-btn" id="btnShPrint">Imprimir</button>
+    </div>
+  </div>
   <div class="overlay" id="avatarOv" hidden>
     <div class="card">
       <h2 id="avH">Elige tu edificio</h2>
@@ -235,11 +266,12 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
         <div class="row" style="margin-top:6px"><button class="small-btn" id="btnBackup">Guardar copia</button><button class="small-btn" id="btnRestore">Restaurar copia</button><input type="file" id="restoreFile" accept="application/json,.json" hidden></div></div>
       <div><span class="label" data-t="installL">Instalar en el iPad</span> <span data-t="installP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="piecesL">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
-      <div class="row"><button class="small-btn" id="btnReport">Ver reporte</button><button class="small-btn" id="btnAvatar">Cambiar avatar</button><button class="small-btn" id="btnSwitch" data-t="switchKid">Cambiar de arquitecto</button><button class="small-btn danger" id="btnDelKid">Borrar este arquitecto</button><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
+      <div class="row"><button class="small-btn" id="btnReport">Ver reporte</button><button class="small-btn" id="btnSheets">Hojas para imprimir</button><button class="small-btn" id="btnAvatar">Cambiar avatar</button><button class="small-btn" id="btnSwitch" data-t="switchKid">Cambiar de arquitecto</button><button class="small-btn danger" id="btnDelKid">Borrar este arquitecto</button><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
     </div>
   </div>
 </div>
 
+<div id="sheets"></div>
 <script>
 (() => {
 // ---------- geometry (lot coordinates: building box 0..1, y down, ground at G) ----------
@@ -431,7 +463,8 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.', bkL:'Copia de seguridad', bkSave:'Guardar copia', bkLoad:'Restaurar copia', bkNever:'Aún no hay copia. Guarda una para no perder las ciudades si se borran los datos de Safari.', bkLast:d=>`Última copia: ${d}.`, bkOld:' Ya pasaron más de 2 semanas.',
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', shBtn:'Hojas para imprimir', shP:'Una hoja por letra: el edificio, la letra con el orden de trazos y filas para practicar con lápiz.', shHard:'Le cuestan', shName:'Su nombre', shAll:'Todas', shNone:'Ninguna', shPrint:n=>`Imprimir ${n} hoja(s)`,
+    shTitle:l=>`Letra ${l}`, shNameF:'Nombre:', shDateF:'Fecha:', shTip:'Empieza en el número 1. Primero repasa, luego escribe solo.', bkL:'Copia de seguridad', bkSave:'Guardar copia', bkLoad:'Restaurar copia', bkNever:'Aún no hay copia. Guarda una para no perder las ciudades si se borran los datos de Safari.', bkLast:d=>`Última copia: ${d}.`, bkOld:' Ya pasaron más de 2 semanas.',
     bkAsk:n=>`Esta copia tiene ${n} arquitecto(s). Reemplazará todas las ciudades de este dispositivo. ¿Continuar?`, bkBad:'Ese archivo no es una copia de Trazos de Arquitecto.', bkOk:'Copia restaurada.', penL:'Solo Apple Pencil', penP:'Ignora los dedos y la palma; camino más fino y letra más pequeña, como puente al lápiz. Al usar el lápiz esto se activa solo por un rato.', calmL:'Modo calma', calmP:'Mientras traza, se detienen las nubes, los carros y las animaciones. Útil si se distrae.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
     repDays:'Últimos 7 días (minutos)', repLetters:'Letras', repKey:['Dominada','En práctica','Le cuesta','Sin practicar'], repHard:'Le cuestan más', repNone:'Ninguna por ahora.', repPrint:'Imprimir / PDF', repNote:'Dominada: llegó al nivel 3 o 4 de precisión. Le cuesta: en sus últimos intentos se salió seguido del camino.', repDate:d=>`Generado el ${d}`, nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
     tapNext:'Toca para la siguiente obra', tapBack:'Toca para volver a la obra', letter:'letra', reset:'Borrar ciudad y progreso', reset2:'Toca otra vez para borrar todo',
@@ -445,7 +478,8 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.', bkL:'Backup', bkSave:'Save backup', bkLoad:'Restore backup', bkNever:'No backup yet. Save one so cities are not lost if Safari data is erased.', bkLast:d=>`Last backup: ${d}.`, bkOld:' More than 2 weeks ago.',
+    holdHint:'Adult menu: press and hold for 2 seconds.', shBtn:'Printable sheets', shP:'One sheet per letter: the building, the letter with stroke order and rows to practice with a pencil.', shHard:'Struggling', shName:'Their name', shAll:'All', shNone:'None', shPrint:n=>`Print ${n} sheet(s)`,
+    shTitle:l=>`Letter ${l}`, shNameF:'Name:', shDateF:'Date:', shTip:'Start at number 1. Trace first, then write on your own.', bkL:'Backup', bkSave:'Save backup', bkLoad:'Restore backup', bkNever:'No backup yet. Save one so cities are not lost if Safari data is erased.', bkLast:d=>`Last backup: ${d}.`, bkOld:' More than 2 weeks ago.',
     bkAsk:n=>`This backup has ${n} architect(s). It will replace every city on this device. Continue?`, bkBad:'That file is not a Trazos de Arquitecto backup.', bkOk:'Backup restored.', penL:'Apple Pencil only', penP:'Ignores fingers and palm; narrower path and smaller letter, as a bridge to the pencil. Using the pencil turns this on for a while.', calmL:'Calm mode', calmP:'While tracing, clouds, cars and animations stop. Useful if the child gets distracted.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
     repDays:'Last 7 days (minutes)', repLetters:'Letters', repKey:['Mastered','Practicing','Struggling','Not yet'], repHard:'Hardest letters', repNone:'None for now.', repPrint:'Print / PDF', repNote:'Mastered: reached precision level 3 or 4. Struggling: often left the path in recent tries.', repDate:d=>`Generated on ${d}`, nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
     tapNext:'Tap for the next building', tapBack:'Tap to go back to building', letter:'letter', reset:'Erase city and progress', reset2:'Tap again to erase everything',
@@ -511,15 +545,15 @@ function renderLang(){
 // ---------- avatars: a child recognizes their profile by a building, no reading needed ----------
 const AVATARS = ['casa','C','O','Q','X','Z','J','S','N','A','V','parque'];
 const thumbs = {};
-function thumb(id){
-  if (thumbs[id]) return thumbs[id];
+function thumb(id, n = 160){
+  if (thumbs[id+n]) return thumbs[id+n];
   const p = byId(id); if (!p) return '';
-  const n = 160, cv = document.createElement('canvas'); cv.width = cv.height = n; const c = cv.getContext('2d');
+  const cv = document.createElement('canvas'); cv.width = cv.height = n; const c = cv.getContext('2d');
   const sc = n*.74, ox = n*.13, oy = n*.12, keep = K;
   K = {ctx:c, z:sc, M: q => [ox + q[0]*sc, oy + (q[1]+.06)*sc*.95]};
   try { p.art(C[p.c], 0); drawTrim(p, p.strokes); } catch(e) {}
   K = keep; c.fillStyle = C.walk; c.fillRect(0, oy + (G+.06)*sc*.95, n, n);
-  return thumbs[id] = cv.toDataURL();
+  return thumbs[id+n] = cv.toDataURL();
 }
 const avatarOf = (k, i) => k.avatar || AVATARS[i % AVATARS.length];
 function chooseAvatar(cur){
@@ -1089,7 +1123,7 @@ function renderAdult(){
   $('skills').innerHTML = KINDS.map(k => `<div class="skill"><b>${counts[k]}</b>${label[k]}</div>`).join('');
   $('pieces').innerHTML = PIECES.map((p,i) => inLang(p) ? `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?tx().letter+' '+p.letter+' '+'●'.repeat(lvOf(p.id)+1)+'○'.repeat(PREC.length-1-lvOf(p.id)):tx().kind[p.kind]}</span>${p.name}</button>` : '').join('');
   $('lang').value = S.lang === 'en' ? 'en' : 'es';
-  $('btnReport').textContent = tx().rep; renderBackup(); $('btnAvatar').textContent = tx().avBtn;
+  $('btnReport').textContent = tx().rep; $('btnSheets').textContent = tx().shBtn; renderBackup(); $('btnAvatar').textContent = tx().avBtn;
   $('pen').checked = !!S.penOnly; $('penL').textContent = tx().penL; $('penP').textContent = tx().penP;
   $('calm').checked = !!S.calm; $('calmL').textContent = tx().calmL; $('calmP').textContent = tx().calmP;
   $('prec').checked = S.progressive !== false; $('precL').textContent = tx().precL; $('precP').textContent = tx().precP;
@@ -1181,6 +1215,63 @@ function restoreBackup(file){
 $('btnBackup').onclick = () => { saveBackup(); };
 $('btnRestore').onclick = () => { $('restoreFile').value = ''; $('restoreFile').click(); };
 $('restoreFile').onchange = e => { const f = e.target.files && e.target.files[0]; if (f) restoreBackup(f); };
+// ---------- printable sheets: the bridge from the finger to the pencil ----------
+function letterImg(p, h, mode){
+  // mode: 'big' numbers + arrows, 'dots' dotted to trace, 'start' only the start dot, 'blank'
+  const w = Math.round(h*.78), sc = 2, cv = document.createElement('canvas'); cv.width = w*sc; cv.height = h*sc;
+  const c = cv.getContext('2d'); c.scale(sc, sc);
+  const k = (h*.84) / .74, M = q => [w/2 + (q[0]-.5)*k*.86, h*.08 + (q[1]-.09)*k];
+  const line = (st, lw, col, dash) => { c.beginPath(); st.forEach((q,i)=>{ const [x,y] = M(q); i ? c.lineTo(x,y) : c.moveTo(x,y); });
+    c.lineWidth = lw; c.strokeStyle = col; c.lineCap = 'round'; c.lineJoin = 'round'; c.setLineDash(dash || []); c.stroke(); c.setLineDash([]); };
+  if (mode === 'big') p.strokes.forEach(st => line(st, h*.07, '#E3E8EE'));
+  if (mode === 'big' || mode === 'dots') p.strokes.forEach(st => line(st, Math.max(2.2, h*.028), '#8494A7', [.1, h*.07]));
+  const used = [];
+  if (mode !== 'blank') p.strokes.forEach((st,i) => {
+    if (mode === 'start' && i) return;
+    let [x,y] = M(st[0]); const r = mode === 'big' ? h*.05 : h*.04;
+    // two strokes can start at the same spot (A, M, N): slide the later badge along its own stroke so both numbers show
+    if (mode === 'big' && used.some(([ux,uy]) => Math.hypot(ux-x, uy-y) < r*2.2)){
+      const q = st.length > 3 ? st[Math.min(st.length-1, 10)] : [st[0][0] + (st[1][0]-st[0][0])*.3, st[0][1] + (st[1][1]-st[0][1])*.3], [qx,qy] = M(q), a = Math.atan2(qy-y, qx-x);
+      x += Math.cos(a)*r*2.6; y += Math.sin(a)*r*2.6; }
+    used.push([x,y]);
+    if (mode === 'big'){ const q = st[Math.min(st.length-1, st.length > 3 ? 6 : 1)], [x2,y2] = M(st.length > 3 ? q : [st[0][0] + (st[1][0]-st[0][0])*.25, st[0][1] + (st[1][1]-st[0][1])*.25]), a = Math.atan2(y2-y, x2-x), d = r*2.4;
+      c.beginPath(); c.moveTo(x + Math.cos(a)*r*1.3, y + Math.sin(a)*r*1.3); c.lineTo(x + Math.cos(a)*d, y + Math.sin(a)*d); c.lineWidth = 3; c.strokeStyle = '#2E9E62'; c.stroke();
+      c.beginPath(); c.moveTo(x + Math.cos(a)*d + Math.cos(a+2.5)*8, y + Math.sin(a)*d + Math.sin(a+2.5)*8); c.lineTo(x + Math.cos(a)*d, y + Math.sin(a)*d); c.lineTo(x + Math.cos(a)*d + Math.cos(a-2.5)*8, y + Math.sin(a)*d + Math.sin(a-2.5)*8); c.stroke(); }
+    c.beginPath(); c.arc(x, y, r, 0, 7); c.fillStyle = '#2E9E62'; c.fill();
+    if (mode === 'big'){ c.fillStyle = '#fff'; c.font = `800 ${r*1.3}px "Baloo 2", sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(i+1), x, y + r*.08); }
+  });
+  return cv.toDataURL();
+}
+let shSel = new Set();
+function renderSheetsUI(){
+  const T = tx(), letters = PIECES.filter(p => p.letter && inLang(p));
+  $('shH').textContent = T.shBtn; $('shP').textContent = T.shP; $('shHard').textContent = T.shHard; $('shName').textContent = T.shName; $('shAll').textContent = T.shAll; $('shNone').textContent = T.shNone;
+  $('shName').hidden = !nameLetters(S.name).length;
+  $('shChips').innerHTML = letters.map(p => `<button data-id="${p.id}" aria-pressed="${shSel.has(p.id)}">${p.letter}</button>`).join('');
+  $('btnShPrint').textContent = T.shPrint(shSel.size); $('btnShPrint').disabled = !shSel.size;
+}
+function buildSheets(){
+  const T = tx(), order = PIECES.filter(p => p.letter && shSel.has(p.id));
+  $('sheets').innerHTML = order.map(p => {
+    const n = p.name.replace(/^(El|La|Los|Las|The) /,''), word = n[0].toUpperCase() + n.slice(1);
+    const row = modes => `<div class="lines">${modes.map(m => `<img src="${letterImg(p, 118, m)}" alt="">`).join('')}</div>`;
+    return `<section class="sheet"><header><b>Trazos de Arquitecto · ${T.shTitle(p.letter)}</b><span class="fill">${T.shNameF} ${S.name ? '<u>&nbsp;'+S.name+'&nbsp;</u>' : '______________'} &nbsp; ${T.shDateF} __________</span></header>
+      <div class="top"><img src="${thumb(p.id, 300)}" alt=""><img class="big" src="${letterImg(p, 300, 'big')}" alt=""><div class="word"><b>${word[0]}</b>${word.slice(1)}</div></div>
+      ${row(['dots','dots','dots','dots','dots','dots'])}${row(['dots','dots','dots','start','start','start'])}${row(['start','start','start','start','start','start'])}${row(['start','blank','blank','blank','blank','blank'])}
+      <p class="tip">${T.shTip}</p></section>`;
+  }).join('');
+}
+$('btnSheets').onclick = () => {
+  if (!shSel.size){ const hard = PIECES.filter(p => p.letter && inLang(p) && letterState(p) === 2).map(p => p.id); shSel = new Set(hard.length ? hard : [PIECES[S.level] && PIECES[S.level].letter ? PIECES[S.level].id : 'I']); }
+  renderSheetsUI(); $('adultOv').hidden = true; $('sheetsOv').hidden = false; };
+$('btnShClose').onclick = () => { $('sheetsOv').hidden = true; $('adultOv').hidden = false; };
+$('shChips').onclick = e => { const b = e.target.closest('button'); if (!b) return; shSel.has(b.dataset.id) ? shSel.delete(b.dataset.id) : shSel.add(b.dataset.id); renderSheetsUI(); };
+$('shHard').onclick = () => { shSel = new Set(PIECES.filter(p => p.letter && inLang(p) && letterState(p) === 2).map(p => p.id)); renderSheetsUI(); };
+$('shName').onclick = () => { shSel = new Set(nameLetters(S.name).map(l => l.id)); renderSheetsUI(); };
+$('shAll').onclick = () => { shSel = new Set(PIECES.filter(p => p.letter && inLang(p)).map(p => p.id)); renderSheetsUI(); };
+$('shNone').onclick = () => { shSel = new Set(); renderSheetsUI(); };
+$('btnShPrint').onclick = () => { buildSheets(); document.body.classList.add('print-sheets'); setTimeout(() => { try { window.print(); } catch(e) {} }, 300); };
+window.addEventListener('afterprint', () => document.body.classList.remove('print-sheets'));
 $('btnReport').onclick = () => { renderReport(); $('adultOv').hidden = true; $('reportOv').hidden = false; };
 $('btnRepClose').onclick = () => { $('reportOv').hidden = true; $('adultOv').hidden = false; };
 $('btnPrint').onclick = () => { try { window.print(); } catch(e) {} };
