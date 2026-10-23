@@ -103,24 +103,24 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
   </div>
   <div class="overlay" id="restOv" hidden>
     <div class="card">
-      <span class="label">Pausa sugerida</span>
-      <h1>¡Qué ciudad!</h1>
-      <p id="restTxt">Ya construiste muchos edificios.</p>
+      <span class="label" id="restLbl">Barrio terminado</span>
+      <h1 id="restH">¡Barrio terminado!</h1>
+      <div id="restStars" style="font-size:2.4rem;letter-spacing:.15em;color:var(--sun);line-height:1"></div>
+      <p id="restTxt">Construiste 9 edificios.</p>
+      <p>Buen momento para terminar por hoy. Tu ciudad se guarda.</p>
       <div class="row">
-        <button class="big-btn" id="btnMore">Seguir construyendo</button>
-        <button class="big-btn alt" id="btnDone">Descansar</button>
+        <button class="big-btn" id="btnDone">Terminar por hoy</button>
+        <button class="big-btn alt" id="btnMore">Empezar el siguiente</button>
       </div>
     </div>
   </div>
   <div class="overlay" id="adultOv" hidden>
     <div class="card">
       <div class="row" style="justify-content:space-between"><h2>Para adultos</h2><button class="small-btn" id="btnClose">Cerrar</button></div>
-      <p>Cada edificio esconde trazos de escritura: verticales, horizontales, diagonales, círculos y curvas, y después letras completas dentro de la arquitectura (la torre de agua es una T, la fábrica una M, la estación una n). Solo avanza si sigue el camino desde el punto verde, así practica también la dirección. No hay castigo ni límite: el juego no se detiene solo, salvo que elijas una pausa abajo.</p>
+      <p>Cada edificio lleva trazos de escritura: verticales, horizontales, diagonales, círculos y curvas, y después letras completas dentro de la arquitectura (la torre de agua es una T, la fábrica una M, la estación una n). Solo avanza si sigue el camino desde el punto verde, así practica también la dirección. No hay castigo. La ciudad crece por barrios de 9 edificios: al terminar cada barrio hay una celebración y un punto natural para parar, así el juego tiene un final claro cada vez.</p>
       <div><span class="label">Trazos practicados</span><div class="skills" id="skills"></div></div>
       <div class="row">
         <label for="kidName" class="label">Nombre</label><input type="text" id="kidName" placeholder="Nombre del arquitecto" maxlength="20">
-        <label for="pauseEvery" class="label">Pausa sugerida</label>
-        <select id="pauseEvery"><option value="0">Nunca</option><option value="10">Cada 10 edificios</option><option value="20">Cada 20 edificios</option></select>
       </div>
       <div><span class="label">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
       <div class="row"><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
@@ -260,12 +260,12 @@ const LNAME = {A:'a',B:'be',C:'ce',D:'de',E:'e',F:'efe',G:'ge',H:'hache',I:'i',J
 PIECES.forEach(p=>{ if (p.letter && !p.say) p.say = 'Letra ' + LNAME[p.letter] + '.'; });
 const KINDS = ['vertical','horizontal','diagonal','círculo','curva','letra'];
 const PRAISE = ['¡Muy bien!','¡Genial!','¡Eso es!','¡Qué buen trazo!','¡Bien hecho!'];
-const STEP = .006, TOL = .09;
+const STEP = .006, TOL = .09, BARRIO = 9;
 const byId = id => PIECES.find(p=>p.id===id);
 
 // ---------- saved progress (per-device convenience) ----------
 const KEY = 'trazos-arquitecto-v2';
-let S = {level:0, city:[], bricks:0, done:{}, pauseEvery:0, sound:true, name:''};
+let S = {level:0, city:[], bricks:0, done:{}, sound:true, name:'', barrioSeen:0};
 try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(S, JSON.parse(raw)); } catch(e) {}
 S.city = S.city.filter(byId);
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} };
@@ -352,13 +352,7 @@ function nextIndex(){
 }
 function goNext(){
   clearTimers();
-  if (S.pauseEvery && run.session > 0 && run.session % S.pauseEvery === 0 && !run.pauseShown){
-    run.pauseShown = true;
-    $('restTxt').textContent = `Construiste ${run.session} edificios seguidos. Tu ciudad ya tiene ${S.city.length}.`;
-    S.level = nextIndex(); run.piece = PIECES[S.level]; run.lot = S.city.length; save();
-    $('restOv').hidden = false; run.phase = 'idle'; return;
-  }
-  run.pauseShown = false;
+  if (S.city.length && S.city.length % BARRIO === 0 && S.barrioSeen < S.city.length){ showBarrio(); return; }
   loadPiece(nextIndex());
 }
 
@@ -429,11 +423,31 @@ function completePiece(){
   $('houseN').textContent = S.city.length; pop('houses');
   for (let i=0;i<6;i++) later(()=>burst(W*(.25+Math.random()*.5), H*(.2+Math.random()*.4), 20, [C.brick,C.sun,C.teal,C.plum,C.go,C.blue][i]), i*90);
   [523,659,784,1047].forEach((f,i)=>tone(f,.35,'triangle',.16,i*.1));
-  if (p.letter){ say(null, `¡Escondiste la letra ${p.letter} en ${p.name.toLowerCase()}!`, '¡Muy bien!'); }
+  if (p.letter){ say(null, `¡Construiste la letra ${p.letter}!`, `¡Construiste la ${LNAME[p.letter]}!`); }
   else say(null, `¡Listo! ${p.name} ya está en tu ciudad.`, '¡Listo!');
   // build-up, then the camera steps back to show the street, then walks on to the next lot
   later(()=>{ run.phase = 'tour'; aimOverview(); showMap(); mapNewAt = performance.now() + 450; }, 900);
   later(goNext, 3600);
+}
+// a finished barrio is a real ending: celebrate, then offer to stop (or start the next one)
+function showBarrio(){
+  const n = S.city.length / BARRIO, ids = S.city.slice(-BARRIO);
+  const letters = ids.map(byId).filter(p=>p && p.letter).map(p=>p.letter);
+  S.barrioSeen = S.city.length; S.level = nextIndex(); run.piece = PIECES[S.level]; run.lot = S.city.length; save();
+  run.phase = 'idle'; showMap();
+  $('restLbl').textContent = `Barrio ${n} de tu ciudad`;
+  $('restH').textContent = `¡Barrio ${n} terminado!`;
+  $('restTxt').textContent = `Construiste ${BARRIO} edificios` + (letters.length ? ` y las letras ${letters.join(', ')}.` : '.');
+  $('restStars').textContent = '★'.repeat(n);
+  $('btnMore').textContent = `Empezar barrio ${n+1}`;
+  $('restOv').hidden = false;
+  for (let i=0;i<10;i++) later(()=>burst(W*(.15+Math.random()*.7), H*(.15+Math.random()*.5), 26, [C.brick,C.sun,C.teal,C.plum,C.go,C.blue][i%6]), i*140);
+  [523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,.3,'triangle',.16,i*.13));
+  speak(`¡Terminaste el barrio ${n}!`);
+}
+function barrioLabel(){
+  const n = S.city.length, full = n && n % BARRIO === 0 && run.phase !== 'trace';
+  return full ? `Barrio ${n/BARRIO} terminado` : `Barrio ${Math.floor(n/BARRIO)+1} · ${n % BARRIO} de ${BARRIO}`;
 }
 function burst(x,y,n,color){ for (let i=0;i<n;i++){ const a=Math.random()*Math.PI*2, v=4+Math.random()*9; particles.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-3,life:1,color,size:5+Math.random()*7}); } }
 
@@ -506,12 +520,12 @@ function drawGuide(now){
   ctx.save();
   ctx.globalAlpha = .85; LINE(st, TOL*1.5, C.lane); ctx.globalAlpha = 1;
   if (run.prog > 0) { ctx.globalAlpha = .75; LINE(run.pts.slice(0, run.prog+1), .055, shade(C[p.c], .55)); ctx.globalAlpha = 1; }
-  ctx.setLineDash([0, z*.035]); LINE(st, .016, C.muted); ctx.setLineDash([]);
-  const N = run.pts.length; ctx.globalAlpha = .6;
-  for (let j = Math.floor(.12/STEP); j < N-Math.floor(.06/STEP); j += Math.floor(.16/STEP)){
+  // the path itself is a trail of small arrows: each "dot" points where to go
+  const N = run.pts.length; ctx.globalAlpha = .75;
+  for (let j = Math.floor(.075/STEP); j < N-Math.floor(.04/STEP); j += Math.floor(.045/STEP)){
     if (j < run.prog) continue;
-    const a = run.pts[j], b = run.pts[Math.min(N-1,j+3)], ang = Math.atan2(b[1]-a[1], b[0]-a[0]), r = .022;
-    LINE([[a[0]+Math.cos(ang+2.5)*r, a[1]+Math.sin(ang+2.5)*r],[a[0]+Math.cos(ang)*r*.6, a[1]+Math.sin(ang)*r*.6],[a[0]+Math.cos(ang-2.5)*r, a[1]+Math.sin(ang-2.5)*r]], .009, C.ink);
+    const a = run.pts[Math.max(0,j-2)], b = run.pts[Math.min(N-1,j+2)], q = run.pts[j], ang = Math.atan2(b[1]-a[1], b[0]-a[0]), r = .016;
+    LINE([[q[0]+Math.cos(ang+2.4)*r, q[1]+Math.sin(ang+2.4)*r],[q[0]+Math.cos(ang)*r*.7, q[1]+Math.sin(ang)*r*.7],[q[0]+Math.cos(ang-2.4)*r, q[1]+Math.sin(ang-2.4)*r]], .01, C.ink);
   }
   ctx.globalAlpha = 1;
   const e = run.pts[N-1];
@@ -536,7 +550,8 @@ const hash = (i,j) => (((i*73856093) ^ (j*19349663)) >>> 0) % 997;
 // lots fill in neighbourhood rings from the centre, scattered inside each ring
 const LOTS = (() => { const o = [], c = GN/2;
   for (let i=0;i<GN;i++) for (let j=0;j<GN;j++) if (!isRoad(i) && !isRoad(j) && !isWater(i,j)) o.push([i,j]);
-  const key = ([i,j]) => Math.floor(Math.hypot(i+.5-c, j+.5-c)/2.4)*1000 + hash(i,j);
+  const blk = ([i,j]) => [Math.floor(i/4), Math.floor(j/4)];
+  const key = p => { const [bi,bj] = blk(p); return Math.round(Math.hypot(bi*4+2.5-c, bj*4+2.5-c)*10)*1e6 + hash(bi,bj)*1000 + hash(...p); };
   return o.sort((a,b) => key(a)-key(b)); })();
 const mapCv = document.createElement('canvas'), mctx = mapCv.getContext('2d');
 const mcam = {x:0, y:2, tw:80}, mcamT = {x:0, y:2, tw:80};
@@ -581,6 +596,13 @@ function drawMap(now){
     }
     if (isWater(i,j) && hash(i,j)%3===0){ const [x,y] = T(i+.5,j+.5); c.strokeStyle='rgba(255,255,255,.7)'; c.lineWidth=Math.max(1,tw*.02); c.beginPath(); c.arc(x, y, tw*.08, Math.PI*.1, Math.PI*.9); c.stroke(); }
   }
+  // finished barrios: a golden fence around the block
+  for (let b=0; b<Math.floor(S.city.length/BARRIO); b++){
+    const q = LOTS[b*BARRIO]; if (!q) break; const bi = Math.floor(q[0]/4)*4+1, bj = Math.floor(q[1]/4)*4+1;
+    diamond(bi+.06, bj+.06, 2.88, 2.88); c.fillStyle = 'rgba(255,200,60,.22)'; c.fill();
+    c.lineWidth = Math.max(2, tw*.06); c.strokeStyle = C.sun; c.stroke();
+    const [sx,sy] = T(bi+.1, bj+.1); c.fillStyle = C.sun; c.font = `800 ${tw*.4}px "Baloo 2", sans-serif`; c.textAlign='center'; c.textBaseline='middle'; c.fillText('★', sx, sy); c.textAlign='start';
+  }
   // standees, back to front
   const pieces = [];
   for (let i=0;i<GN;i++) for (let j=0;j<GN;j++){
@@ -613,7 +635,7 @@ function drawMap(now){
   // title card in the corner, like a board game's box label
   const nm = S.name ? `Ciudad de ${S.name}` : 'Mi ciudad';
   c.font = `800 ${Math.max(16, Math.min(24, W*.04))}px "Baloo 2", sans-serif`; c.textBaseline = 'top';
-  const label = `${nm} · ${S.city.length} ${S.city.length===1?'edificio':'edificios'}`, lw = c.measureText(label).width;
+  const label = `${nm} · ${barrioLabel()}`, lw = c.measureText(label).width;
   c.fillStyle = C.paper; c.fillRect(12, 12, lw+24, Math.max(16, Math.min(24, W*.04))*1.6); c.fillStyle = C.ink; c.fillText(label, 24, 16);
   c.font = `400 ${Math.max(12, Math.min(15, W*.028))}px Andika, sans-serif`;
   { const hint = run.phase === 'tour' ? 'Toca para la siguiente obra' : 'Toca para volver a la obra', hy = 16 + Math.max(16, Math.min(24, W*.04))*1.6; c.fillStyle = 'rgba(255,248,231,.85)'; c.fillRect(12, hy, c.measureText(hint).width+24, Math.max(12, Math.min(15, W*.028))*1.6); c.fillStyle = C.ink; }
@@ -647,7 +669,7 @@ function frame(now){
   // street sign
   ctx.fillStyle = C.ink; ctx.font = `700 ${Math.max(13, Math.min(17, W*.03))}px Andika, sans-serif`; ctx.textBaseline = 'top';
   const nm = S.name ? `Ciudad de ${S.name}` : 'Mi ciudad';
-  ctx.fillText(`${nm} · ${S.city.length} ${S.city.length===1?'edificio':'edificios'}`, 14, 12);
+  ctx.fillText(`${nm} · ${barrioLabel()}`, 14, 12);
   if (mapFade > .015){ drawMap(now); ctx.globalAlpha = mapFade; ctx.drawImage(mapCv, 0, 0, W, H); ctx.globalAlpha = 1; }
   drawParticles();
   requestAnimationFrame(frame);
@@ -679,8 +701,8 @@ $('btnStart').onclick = () => {
   if (S.name) speak(`¡Hola, arquitecto ${S.name}!`);
   later(()=>loadPiece(S.level || 0), S.name ? 1100 : 0);
 };
-$('btnMore').onclick = () => { $('restOv').hidden = true; loadPiece(S.level); };
-$('btnDone').onclick = () => { $('restOv').hidden = true; run.phase = 'idle'; say('¡Hasta pronto!', 'Tu ciudad te espera.'); $('startOv').hidden = false; };
+$('btnMore').onclick = () => { $('restOv').hidden = true; run.session = 0; loadPiece(S.level); };
+$('btnDone').onclick = () => { $('restOv').hidden = true; run.phase = 'idle'; say('¡Hasta pronto!', 'Tu ciudad te espera.'); speak('¡Hasta pronto, arquitecto!'); $('startOv').hidden = false; };
 $('btnMap').onclick = () => { if (run.phase === 'tour') { goNext(); return; } if (run.view === 'map') hideMap(); else showMap(); };
 $('btnSay').onclick = () => { if (run.piece) speak(run.piece.say); run.demoT0 = performance.now(); run.lastTouch = 0; run.touched = false; };
 $('btnSound').onclick = () => { S.sound = !S.sound; save(); renderSound(); try{ if(!S.sound) speechSynthesis.cancel(); }catch(e){} };
@@ -691,14 +713,13 @@ function renderAdult(){
   const label = {vertical:'verticales', horizontal:'horizontales', diagonal:'diagonales', 'círculo':'círculos', curva:'curvas', letra:'trazos en letras'};
   $('skills').innerHTML = KINDS.map(k => `<div class="skill"><b>${counts[k]}</b>${label[k]}</div>`).join('');
   $('pieces').innerHTML = PIECES.map((p,i) => `<button class="piece${S.done[p.id]?' done':''}${i===S.level?' cur':''}" data-i="${i}"><span class="k">${String(i+1).padStart(2,'0')} · ${p.letter?'letra '+p.letter:p.kind}</span>${p.name}</button>`).join('');
-  $('kidName').value = S.name; $('pauseEvery').value = String(S.pauseEvery);
+  $('kidName').value = S.name;
   $('btnReset').textContent = 'Borrar ciudad y progreso'; $('btnReset').dataset.arm = '';
 }
 $('btnAdult').onclick = () => { renderAdult(); $('adultOv').hidden = false; };
 $('btnClose').onclick = () => { $('adultOv').hidden = true; };
 $('pieces').onclick = e => { const b = e.target.closest('.piece'); if (!b) return; $('adultOv').hidden = true; $('restOv').hidden = true; if (!$('startOv').hidden){ $('startOv').hidden = true; unlockAudio(); } loadPiece(+b.dataset.i); };
 $('kidName').oninput = e => { S.name = e.target.value.trim(); save(); renderWho(); };
-$('pauseEvery').onchange = e => { S.pauseEvery = +e.target.value; save(); };
 $('btnReset').onclick = e => {
   const b = e.currentTarget;
   if (!b.dataset.arm){ b.dataset.arm = '1'; b.textContent = 'Toca otra vez para borrar todo'; return; }
