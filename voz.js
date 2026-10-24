@@ -149,11 +149,11 @@
   function estilos() {
     if (document.getElementById('voz-css')) return;
     const s = document.createElement('style'); s.id = 'voz-css';
-    s.textContent = `.voz{display:flex;flex-direction:column;gap:8px}
+    s.textContent = `.voz-caja{display:flex;flex-direction:column;gap:8px}
 .voz-t{font-weight:700}
-.voz p.voz-p{margin:0;font-size:14px;font-weight:400;line-height:1.35;opacity:.85}
-.voz select{font:inherit;font-size:15px;padding:6px 8px;border-radius:10px;max-width:100%}
-.voz input[type=range]{width:100%;max-width:320px}
+.voz-caja p.voz-p{margin:0;font-size:14px;font-weight:400;line-height:1.35;opacity:.85}
+.voz-caja select{font:inherit;font-size:15px;padding:6px 8px;border-radius:10px;max-width:100%}
+.voz-caja input[type=range]{width:100%;max-width:320px}
 .voz-g{display:flex;flex-wrap:wrap;gap:6px}
 .voz-b{font:inherit;font-weight:700;border:0;border-radius:12px;padding:8px 14px;cursor:pointer;background:#2e2770;color:#fff;min-width:44px}
 .voz-lbl{font-size:.9em;font-weight:600}
@@ -171,7 +171,7 @@
   function pintar(el) {
     const t = T(), L = lang();
     el.innerHTML = '';
-    const caja = document.createElement('div'); caja.className = 'voz';
+    const caja = document.createElement('div'); caja.className = 'voz-caja';   // nombre único: no choca con clases de las apps
     if (!C.sinTitulo) { const h = document.createElement('div'); h.className = 'voz-t'; h.textContent = t.titulo; caja.appendChild(h); }
     if (!hayHabla()) { const p = document.createElement('p'); p.className = 'voz-p'; p.textContent = t.sinHabla; caja.appendChild(p); el.appendChild(caja); return; }
     const p = document.createElement('p'); p.className = 'voz-p'; p.textContent = t.ayuda; caja.appendChild(p);
