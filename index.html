@@ -134,10 +134,11 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .lmIn{animation:lmIn .9s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes lmIn{from{transform:translateY(60px) scale(.3); opacity:0}}
 .pass{display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:10px}
-.pass div{border:3px solid #E5D7B3; border-radius:16px; background:#fff; padding:6px; text-align:center; font-family:var(--display); font-weight:800; color:var(--ink)}
-.pass div.off{color:var(--muted); background:#F3EEDF}
+.pass button{font:inherit; cursor:pointer; display:flex; flex-direction:column; align-items:center}
+.pass div,.pass button{border:3px solid #E5D7B3; border-radius:16px; background:#fff; padding:6px; text-align:center; font-family:var(--display); font-weight:800; color:var(--ink)}
+.pass .off{color:var(--muted); background:#F3EEDF}
 .pass img{width:90px; height:90px}
-.pass div.on{border-color:var(--brick); transform:rotate(-2deg)}
+.pass .on{border-color:var(--brick); transform:rotate(-2deg)}
 .chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
 .chips button{width:44px; height:44px; border-radius:10px; border:2px solid #E5D7B3; background:#fff; font-family:var(--display); font-weight:800; font-size:1.2rem; color:var(--muted)}
 .chips button[aria-pressed="true"]{background:var(--go); border-color:var(--go); color:#fff}
@@ -249,6 +250,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
   <div class="overlay" id="passOv" hidden>
     <div class="card">
       <div class="row" style="justify-content:space-between"><h2 id="passH">Mi pasaporte</h2><span id="passN" style="font-family:var(--display);font-weight:800;font-size:1.3rem"></span></div>
+      <p id="passTap" style="margin:0 0 8px">Toca un lugar para viajar.</p>
       <div class="pass" id="passGrid"></div>
       <button class="big-btn alt" id="btnPassClose">✓</button>
     </div>
@@ -531,7 +533,7 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.', tripLbl:'✈️ ¡Un viaje!', tripQ:'¿A dónde vamos?', tripGo:'✈️ ¡Vamos!', tripV:'¡Un viaje!', tripTo:w=>`¡A ${w}!`, tripDoneLbl:'🛂 ¡Nuevo sello en tu pasaporte!', passH:'Mi pasaporte', repTrips:'Viajes', dailyL:'Límite diario', dailyOff:'Sin límite', dailyOpt:m=>`${m} min al día`, timeH:'¡Hora de descansar!', timeP:n=>`Hoy construiste ${n} edificio(s). Tu ciudad te espera mañana.`, timeV:'¡Hora de descansar! Mañana seguimos.', timeMore:'+10 min (adulto: mantén presionado)', lastBlock:'Última manzana de hoy 🌙', shopH:'¡Decora tu ciudad!', shopV:'¡Decora tu ciudad!', shBtn:'Hojas para imprimir', shP:'Una hoja por letra: el edificio, la letra con el orden de trazos y filas para practicar con lápiz.', shHard:'Le cuestan', shName:'Su nombre', shAll:'Todas', shNone:'Ninguna', shPrint:n=>`Imprimir ${n} hoja(s)`,
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', tripLbl:'✈️ ¡Un viaje!', tripQ:'¿A dónde vamos?', tripGo:'✈️ ¡Vamos!', tripV:'¡Un viaje!', tripTo:w=>`¡A ${w}!`, tripDoneLbl:'🛂 ¡Nuevo sello en tu pasaporte!', passH:'Mi pasaporte', passTap:'Toca un lugar para viajar.', repTrips:'Viajes', dailyL:'Límite diario', dailyOff:'Sin límite', dailyOpt:m=>`${m} min al día`, timeH:'¡Hora de descansar!', timeP:n=>`Hoy construiste ${n} edificio(s). Tu ciudad te espera mañana.`, timeV:'¡Hora de descansar! Mañana seguimos.', timeMore:'+10 min (adulto: mantén presionado)', lastBlock:'Última manzana de hoy 🌙', shopH:'¡Decora tu ciudad!', shopV:'¡Decora tu ciudad!', shBtn:'Hojas para imprimir', shP:'Una hoja por letra: el edificio, la letra con el orden de trazos y filas para practicar con lápiz.', shHard:'Le cuestan', shName:'Su nombre', shAll:'Todas', shNone:'Ninguna', shPrint:n=>`Imprimir ${n} hoja(s)`,
     shTitle:l=>`Letra ${l}`, shNameF:'Nombre:', shDateF:'Fecha:', shTip:'Empieza en el número 1. Primero repasa, luego escribe solo.', bkL:'Copia de seguridad', bkSave:'Guardar copia', bkLoad:'Restaurar copia', bkNever:'Aún no hay copia. Guarda una para no perder las ciudades si se borran los datos de Safari.', bkLast:d=>`Última copia: ${d}.`, bkOld:' Ya pasaron más de 2 semanas.',
     bkAsk:n=>`Esta copia tiene ${n} arquitecto(s). Reemplazará todas las ciudades de este dispositivo. ¿Continuar?`, bkBad:'Ese archivo no es una copia de Trazos de Arquitecto.', bkOk:'Copia restaurada.', penL:'Solo Apple Pencil', penP:'Ignora los dedos y la palma; camino más fino y letra más pequeña, como puente al lápiz. Al usar el lápiz esto se activa solo por un rato.', calmL:'Modo calma', calmP:'Mientras traza, se detienen las nubes, los carros y las animaciones. Útil si se distrae.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
     repDays:'Últimos 7 días (minutos)', repLetters:'Letras', repKey:['Dominada','En práctica','Le cuesta','Sin practicar'], repHard:'Le cuestan más', repNone:'Ninguna por ahora.', repPrint:'Imprimir / PDF', repNote:'Dominada: llegó al nivel 3 o 4 de precisión. Le cuesta: en sus últimos intentos se salió seguido del camino.', repDate:d=>`Generado el ${d}`, nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
@@ -546,7 +548,7 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.', tripLbl:'✈️ A trip!', tripQ:'Where are we going?', tripGo:"✈️ Let's go!", tripV:'A trip!', tripTo:w=>`To ${w}!`, tripDoneLbl:'🛂 New stamp in your passport!', passH:'My passport', repTrips:'Trips', dailyL:'Daily limit', dailyOff:'No limit', dailyOpt:m=>`${m} min a day`, timeH:'Time to rest!', timeP:n=>`Today you built ${n} building(s). Your city will be waiting tomorrow.`, timeV:'Time to rest! See you tomorrow.', timeMore:'+10 min (adult: press and hold)', lastBlock:'Last block for today 🌙', shopH:'Decorate your city!', shopV:'Decorate your city!', shBtn:'Printable sheets', shP:'One sheet per letter: the building, the letter with stroke order and rows to practice with a pencil.', shHard:'Struggling', shName:'Their name', shAll:'All', shNone:'None', shPrint:n=>`Print ${n} sheet(s)`,
+    holdHint:'Adult menu: press and hold for 2 seconds.', tripLbl:'✈️ A trip!', tripQ:'Where are we going?', tripGo:"✈️ Let's go!", tripV:'A trip!', tripTo:w=>`To ${w}!`, tripDoneLbl:'🛂 New stamp in your passport!', passH:'My passport', passTap:'Tap a place to travel there.', repTrips:'Trips', dailyL:'Daily limit', dailyOff:'No limit', dailyOpt:m=>`${m} min a day`, timeH:'Time to rest!', timeP:n=>`Today you built ${n} building(s). Your city will be waiting tomorrow.`, timeV:'Time to rest! See you tomorrow.', timeMore:'+10 min (adult: press and hold)', lastBlock:'Last block for today 🌙', shopH:'Decorate your city!', shopV:'Decorate your city!', shBtn:'Printable sheets', shP:'One sheet per letter: the building, the letter with stroke order and rows to practice with a pencil.', shHard:'Struggling', shName:'Their name', shAll:'All', shNone:'None', shPrint:n=>`Print ${n} sheet(s)`,
     shTitle:l=>`Letter ${l}`, shNameF:'Name:', shDateF:'Date:', shTip:'Start at number 1. Trace first, then write on your own.', bkL:'Backup', bkSave:'Save backup', bkLoad:'Restore backup', bkNever:'No backup yet. Save one so cities are not lost if Safari data is erased.', bkLast:d=>`Last backup: ${d}.`, bkOld:' More than 2 weeks ago.',
     bkAsk:n=>`This backup has ${n} architect(s). It will replace every city on this device. Continue?`, bkBad:'That file is not a Trazos de Arquitecto backup.', bkOk:'Backup restored.', penL:'Apple Pencil only', penP:'Ignores fingers and palm; narrower path and smaller letter, as a bridge to the pencil. Using the pencil turns this on for a while.', calmL:'Calm mode', calmP:'While tracing, clouds, cars and animations stop. Useful if the child gets distracted.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
     repDays:'Last 7 days (minutes)', repLetters:'Letters', repKey:['Mastered','Practicing','Struggling','Not yet'], repHard:'Hardest letters', repNone:'None for now.', repPrint:'Print / PDF', repNote:'Mastered: reached precision level 3 or 4. Struggling: often left the path in recent tries.', repDate:d=>`Generated on ${d}`, nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
@@ -793,9 +795,9 @@ function nextTrip(){
   const last = seen.slice(-3); const pool = TRIPS.filter(t => !last.includes(t.id));
   return pool[Math.floor(Math.random()*pool.length)];
 }
-function showPostcard(){
-  const t = nextTrip(); clearTimers(); run.phase = 'idle'; run.pendingTrip = t;
-  S.tripMarks = (S.tripMarks||[]).concat(S.city.length).slice(-20); save();
+function showPostcard(chosen){
+  const t = chosen || nextTrip(); clearTimers(); run.phase = 'idle'; run.pendingTrip = t;
+  if (!chosen){ S.tripMarks = (S.tripMarks||[]).concat(S.city.length).slice(-20); save(); }
   $('tripLbl').textContent = tx().tripLbl; $('tripQ').textContent = tx().tripQ; $('btnTripGo').textContent = tx().tripGo;
   $('tripWord').textContent = tripWord(t).toUpperCase(); $('tripSil').src = landmarkImg(t.id, 440, true); $('tripOv').hidden = false;
   [523,784,1047].forEach((f,i)=>tone(f,.25,'sine',.14,i*.1)); speak(tx().tripV);
@@ -821,9 +823,10 @@ function showTripDone(){
 function renderPassport(){
   const seen = new Set((S.trips||[]).map(t => t.id));
   $('passH').textContent = tx().passH; $('passN').textContent = `${seen.size} / ${TRIPS.length}`;
+  $('passTap').textContent = tx().passTap;
   $('passGrid').innerHTML = TRIPS.map(t => seen.has(t.id)
-    ? `<div class="on"><img src="${landmarkImg(t.id, 180)}" alt="">${titleCase(tripWord(t))}</div>`
-    : `<div class="off"><img src="${landmarkImg(t.id, 180, true)}" alt="" style="opacity:.35">?</div>`).join('');
+    ? `<button class="on" data-trip="${t.id}" aria-label="${titleCase(tripWord(t))}"><img src="${landmarkImg(t.id, 180)}" alt="">${titleCase(tripWord(t))}</button>`
+    : `<button class="off" data-trip="${t.id}" aria-label="?"><img src="${landmarkImg(t.id, 180, true)}" alt="" style="opacity:.35">?</button>`).join('');
 }
 let passBack = null;
 function openPassport(back){ passBack = back; renderPassport(); back && (back.hidden = true); $('passOv').hidden = false; }
@@ -1609,6 +1612,13 @@ $('btnTripGo').onclick = () => { unlockAudio(); startTrip(); };
 $('btnTripMore').onclick = () => { $('tripDoneOv').hidden = true; (S.decor||[]).forEach(d => delete d.at); save(); run.session = 0; goNext(); };
 $('btnPassport').onclick = () => openPassport($('startOv'));
 $('btnPassport2').onclick = () => openPassport($('tripDoneOv'));
+$('passGrid').onclick = e => {
+  const b = e.target.closest('[data-trip]'); if (!b) return;
+  const t = TRIPS.find(x => x.id === b.dataset.trip); if (!t) return;
+  $('passOv').hidden = true; $('startOv').hidden = true; $('tripDoneOv').hidden = true; passBack = null;
+  if (limitHit()){ showRest(); return; }
+  unlockAudio(); showPostcard(t);
+};
 $('btnPassClose').onclick = () => { $('passOv').hidden = true; if (passBack) passBack.hidden = false; };
 $('btnReport').onclick = () => { renderReport(); $('adultOv').hidden = true; $('reportOv').hidden = false; };
 $('btnRepClose').onclick = () => { $('reportOv').hidden = true; $('adultOv').hidden = false; };

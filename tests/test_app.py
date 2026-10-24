@@ -161,6 +161,14 @@ async def main():
         strip = await pg.evaluate("[...document.querySelectorAll('#nameStrip span')].map(s => s.textContent).join('')")
         check('la ciudad se ve completa desde el inicio, no letra por letra', strip == 'PISA', strip)
 
+        await fresh(pg, {'city': ['torre'] * 3, 'level': 3})
+        await pg.click('#btnPassport'); await pg.wait_for_timeout(200)
+        await pg.click('#passGrid [data-trip=roma]'); await pg.wait_for_timeout(200)
+        check('desde el pasaporte se puede elegir un lugar (ROMA)', await pg.is_visible('#tripOv') and await pg.text_content('#tripWord') == 'ROMA')
+        await pg.click('#btnTripGo'); await pg.wait_for_timeout(1500)
+        check('el viaje elegido empieza por su primera letra (ROMA → R)', await pg.evaluate("__trazos.run.piece.id") == 'R')
+        check('un viaje elegido no gasta el viaje sorpresa del barrio', await pg.evaluate("(__trazos.test.S.tripMarks||[]).length") == 0)
+
         print('Errores corregidos (no deben volver)')
         await fresh(pg, {'bricks': 2000, 'city': ['torre']})
         await pg.click('#btnShop'); await pg.wait_for_timeout(200)
