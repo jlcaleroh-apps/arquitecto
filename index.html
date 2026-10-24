@@ -66,9 +66,7 @@ header{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
 .iconbtn svg{width:24px; height:24px}
 /* adult button: a ring fills while it is held */
 #btnAdult{position:relative; touch-action:none}
-#btnAdult::after{content:''; position:absolute; inset:-4px; border-radius:15px; pointer-events:none; opacity:0;
-  background:conic-gradient(var(--sun) calc(var(--hold,0)*1turn), transparent 0); -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)); mask:radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px))}
-#btnAdult.holding::after{opacity:1}
+
 .holdable{position:relative; touch-action:none; background:linear-gradient(90deg, rgba(245,178,42,.45) calc(var(--hold,0)*100%), transparent 0)}
 .iconbtn[aria-pressed="false"]{opacity:.55}
 
@@ -344,6 +342,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
 <div id="sheets"></div>
 <script src="respaldo.js"></script>
 <script src="voz.js"></script>
+<script src="adulto.js"></script>
 <script>
 (() => {
 // ---------- geometry (lot coordinates: building box 0..1, y down, ground at G) ----------
@@ -1532,15 +1531,7 @@ function renderAdult(){
 }
 // the adult menu opens only after a 2-second press, so children cannot erase a city by accident
 const openAdult = () => { renderAdult(); $('adultOv').hidden = false; };
-{ const b = $('btnAdult'), HOLD = 2000; let t0 = 0, raf = 0;
-  const stop = () => { cancelAnimationFrame(raf); t0 = 0; b.classList.remove('holding'); b.style.setProperty('--hold', 0); };
-  const tick = now => { const k = Math.min(1, (now - t0)/HOLD); b.style.setProperty('--hold', k);
-    if (k >= 1){ stop(); tone(988,.15,'sine',.12); openAdult(); } else raf = requestAnimationFrame(tick); };
-  b.addEventListener('pointerdown', e => { e.preventDefault(); t0 = performance.now(); b.classList.add('holding'); raf = requestAnimationFrame(tick); });
-  ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, () => { if (t0 && performance.now() - t0 < HOLD) $('msgTxt').textContent = tx().holdHint; stop(); }));
-  b.addEventListener('contextmenu', e => e.preventDefault());
-  b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openAdult(); } }); // keyboard users (adults) open directly
-}
+Adulto.mantener($('btnAdult'), () => { tone(988,.15,'sine',.12); openAdult(); }, { aviso: () => tx().holdHint, color: 'rgba(245,178,42,.5)' });   // gesto común adulto.js
 $('btnClose').onclick = () => { $('adultOv').hidden = true; };
 $('pieces').onclick = e => { const b = e.target.closest('.piece'); if (!b) return; $('adultOv').hidden = true; $('restOv').hidden = true; if (!$('startOv').hidden){ $('startOv').hidden = true; unlockAudio(); } loadPiece(+b.dataset.i); };
 $('lang').onchange = e => { S.lang = e.target.value; save(); applyLang(); pickVoice(); renderLang(); renderWho(); renderAdult(); renderKids();

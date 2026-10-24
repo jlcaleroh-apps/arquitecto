@@ -35,6 +35,7 @@ Esta app sigue el [estándar común](https://github.com/jlcaleroh-apps/plantilla
   - Es el mismo archivo en todas las apps: si se mejora, se copia igual en cada repo.
   - Cada app declara qué claves de almacenamiento son suyas, porque todas comparten el dominio `jlcaleroh-apps.github.io`.
 - **`voz.js` · Prueba de voz:** en el panel del adulto, elegir la voz del iPad para cada idioma, ajustar la velocidad y escuchar ejemplos de la app para comprobar que se pronuncian bien. La elección se guarda en el dispositivo.
+- **`adulto.js` · Gesto del panel del adulto:** mantener presionado 2 segundos; el botón se llena de color y, si se suelta antes, aparece un aviso. Así los niños no lo abren por accidente.
 
 ## Contacto
 jlcaleroh@gmail.com
