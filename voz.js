@@ -16,11 +16,15 @@
        decir: (texto, lang) => {},                // opcional: usar el habla propia de la app
        claseBoton: 'small-btn',                   // opcional
        sinTitulo: false,                          // opcional
+       grabar: true,                              // opcional: botón "Grabar" en cada ejemplo (voz del adulto)
      });
      Voz.montar(elemento);                        // dibuja el bloque
      // En el habla de la app:
      const v = Voz.elegida(lang); if (v) u.voice = v, u.lang = v.lang;   // voz elegida por el adulto (o null)
      u.rate *= Voz.velocidad(lang);                                      // 1 = normal
+     // Para una letra, sílaba o palabra sola: usa la grabación del adulto si existe; si no, la voz del iPad.
+     Voz.decirUnidad('ma');            // devuelve una promesa que termina al acabar el audio
+     // Respaldo: Voz.exportarGrabaciones() → {texto: dataURL}; Voz.importarGrabaciones(obj)
 */
 (function () {
   'use strict';
@@ -33,6 +37,8 @@
       sinVocesEn: 'No encontré voces en inglés en este dispositivo. En el iPad: Ajustes → Accesibilidad → Contenido leído → Voces → Inglés.',
       sinHabla: 'Este navegador no tiene voz.',
       normal: 'normal', lenta: 'más lenta', rapida: 'más rápida',
+      grabar: 'Grabar', miVoz: 'Mi voz ✓', hablando: 'Hablando…', sinMic: 'Sin micrófono',
+      notaGrabar: 'Grabar: toca y di la palabra en 2 segundos. «Mi voz ✓» = se usa tu grabación; tócalo para borrarla. Las grabaciones viajan en el respaldo.',
     },
     en: {
       titulo: 'Voice check',
@@ -42,6 +48,8 @@
       sinVocesEn: 'No English voices found on this device. On iPad: Settings → Accessibility → Spoken Content → Voices → English.',
       sinHabla: 'This browser has no voice.',
       normal: 'normal', lenta: 'slower', rapida: 'faster',
+      grabar: 'Record', miVoz: 'My voice ✓', hablando: 'Speaking…', sinMic: 'No microphone',
+      notaGrabar: 'Record: tap and say the word within 2 seconds. “My voice ✓” = your recording is used; tap it to delete. Recordings travel in the backup.',
     },
   };
   let C = null;
@@ -77,6 +85,67 @@
       speechSynthesis.speak(u);
     } catch (e) {}
   }
+  /* ---------- grabaciones del adulto (IndexedDB, claves "app:texto") ---------- */
+  const clips = {};                 // texto -> Blob (solo de esta app)
+  let db = null, listo = null;
+  function abrirDB() {
+    if (listo) return listo;
+    listo = new Promise(res => {
+      try {
+        const r = indexedDB.open('jlcaleroh-voz', 1);
+        r.onupgradeneeded = () => r.result.createObjectStore('clips');
+        r.onsuccess = () => { db = r.result; try {
+          const pre = C.app + ':', cur = db.transaction('clips').objectStore('clips').openCursor();
+          cur.onsuccess = () => { const c = cur.result; if (c) { if (String(c.key).startsWith(pre)) clips[String(c.key).slice(pre.length)] = c.value; c.continue(); } else res(db); };
+          cur.onerror = () => res(db);
+        } catch (e) { res(db); } };
+        r.onerror = () => res(null);
+      } catch (e) { res(null); }
+    });
+    return listo;
+  }
+  function guardarClip(t, blob) { clips[t] = blob; try { db && db.transaction('clips', 'readwrite').objectStore('clips').put(blob, C.app + ':' + t); } catch (e) {} }
+  function borrarClip(t) { delete clips[t]; try { db && db.transaction('clips', 'readwrite').objectStore('clips').delete(C.app + ':' + t); } catch (e) {} }
+  const puedeGrabar = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder);
+  function decirUnidad(texto, dicho) {
+    const blob = clips[texto];
+    if (!blob) { decir(dicho || texto); return new Promise(r => setTimeout(r, 600 + String(dicho || texto).length * 90)); }
+    return new Promise(res => {
+      try { hayHabla() && speechSynthesis.cancel(); } catch (e) {}
+      const url = URL.createObjectURL(blob), a = new Audio(url);
+      const fin = () => { URL.revokeObjectURL(url); res(); };
+      a.onended = fin; a.onerror = fin;
+      a.play().catch(() => { fin(); decir(dicho || texto); });
+      setTimeout(res, 4000);
+    });
+  }
+  const aDataURL = bl => new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => res(null); r.readAsDataURL(bl); });
+  async function exportarGrabaciones() { await abrirDB(); const out = {}; for (const [k, bl] of Object.entries(clips)) { const u = await aDataURL(bl); if (u) out[k] = u; } return out; }
+  async function importarGrabaciones(obj) {
+    await abrirDB();
+    for (const [k, u] of Object.entries(obj || {})) {
+      try { const bl = u instanceof Blob ? u : await (await fetch(u)).blob(); guardarClip(k, bl); } catch (e) {}
+    }
+    await new Promise(r => setTimeout(r, 300));
+  }
+  let grabando = false;
+  async function grabar(texto, boton, alTerminar) {
+    if (clips[texto]) { borrarClip(texto); alTerminar(); return; }
+    if (grabando) return; grabando = true;
+    const t = T();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({audio: true});
+      const rec = new MediaRecorder(stream), partes = [];
+      rec.ondataavailable = e => { if (e.data && e.data.size) partes.push(e.data); };
+      rec.onstop = () => {
+        stream.getTracks().forEach(x => x.stop()); grabando = false;
+        if (partes.length) { guardarClip(texto, new Blob(partes, {type: rec.mimeType || 'audio/mp4'})); setTimeout(() => decirUnidad(texto), 150); }
+        alTerminar();
+      };
+      boton.textContent = t.hablando; rec.start(); setTimeout(() => { try { rec.stop(); } catch (e) {} }, 1800);
+    } catch (e) { grabando = false; boton.textContent = t.sinMic; setTimeout(alTerminar, 1800); }
+  }
+
   function estilos() {
     if (document.getElementById('voz-css')) return;
     const s = document.createElement('style'); s.id = 'voz-css';
@@ -87,7 +156,10 @@
 .voz input[type=range]{width:100%;max-width:320px}
 .voz-g{display:flex;flex-wrap:wrap;gap:6px}
 .voz-b{font:inherit;font-weight:700;border:0;border-radius:12px;padding:8px 14px;cursor:pointer;background:#2e2770;color:#fff;min-width:44px}
-.voz-lbl{font-size:.9em;font-weight:600}`;
+.voz-lbl{font-size:.9em;font-weight:600}
+.voz-it{display:inline-flex;gap:3px;align-items:stretch}
+.voz-it .voz-r{font-size:12px;padding:6px 8px;min-width:0;opacity:.9}
+.voz-it .voz-r.voz-tiene{outline:3px solid #3f9a4c;outline-offset:-3px}`;
     document.head.appendChild(s);
   }
   function btn(texto, extra) {
@@ -123,8 +195,17 @@
     lr.appendChild(document.createElement('br')); lr.appendChild(rg); caja.appendChild(lr);
     // ejemplos
     const g = document.createElement('div'); g.className = 'voz-g';
-    ej().forEach(x => { const b = btn(x.t); b.onclick = () => decir(x.d); g.appendChild(b); });
+    const conGrabar = C.grabar && puedeGrabar();
+    ej().forEach(x => {
+      const b = btn(x.t); b.onclick = () => decirUnidad(x.t, x.d);
+      if (!conGrabar) { g.appendChild(b); return; }
+      const it = document.createElement('span'); it.className = 'voz-it';
+      const r = btn(clips[x.t] ? t.miVoz : t.grabar, 'voz-r' + (clips[x.t] ? ' voz-tiene' : ''));
+      r.onclick = () => grabar(x.t, r, () => { r.textContent = clips[x.t] ? t.miVoz : t.grabar; r.classList.toggle('voz-tiene', !!clips[x.t]); });
+      it.append(b, r); g.appendChild(it);
+    });
     caja.appendChild(g);
+    if (conGrabar) { const n = document.createElement('p'); n.className = 'voz-p'; n.textContent = t.notaGrabar; caja.appendChild(n); }
     if (C.frase) { const f = btn(t.frase); f.onclick = () => { try { decir(C.frase(L)); } catch (e) {} }; const w = document.createElement('div'); w.appendChild(f); caja.appendChild(w); }
     el.appendChild(caja);
   }
@@ -133,10 +214,14 @@
   if (hayHabla()) { try { speechSynthesis.addEventListener('voiceschanged', () => { if (C) refrescar(); }); } catch (e) {} }
 
   window.Voz = {
-    iniciar(cfg) { C = cfg; estilos(); return this; },
+    iniciar(cfg) { C = cfg; estilos(); abrirDB().then(() => refrescar()); return this; },
     montar(el) { if (!C || !el) return; if (!montados.includes(el)) montados.push(el); pintar(el); },
+    decirUnidad: (texto, dicho) => C ? decirUnidad(texto, dicho) : Promise.resolve(),
+    tieneGrabacion: texto => !!clips[texto],
+    exportarGrabaciones: () => C ? exportarGrabaciones() : Promise.resolve({}),
+    importarGrabaciones: obj => C ? importarGrabaciones(obj) : Promise.resolve(),
     elegida: L => C ? elegida(L) : null,
     velocidad: L => C ? velocidad(L) : 1,
-    version: 1,
+    version: 2,
   };
 })();

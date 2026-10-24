@@ -343,6 +343,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
 <script src="respaldo.js"></script>
 <script src="voz.js"></script>
 <script src="adulto.js"></script>
+<script src="pantalla.js"></script>
 <script>
 (() => {
 // ---------- geometry (lot coordinates: building box 0..1, y down, ground at G) ----------
@@ -1585,6 +1586,8 @@ if (window.Respaldo) Respaldo.iniciar({
   },
 });
 function renderBackup(){ if (window.Respaldo) Respaldo.montar($('respaldoBox')); if (window.Voz) Voz.montar($('vozBox')); }
+// Pantalla encendida mientras juega: componente común pantalla.js
+if (window.Pantalla) Pantalla.iniciar({ minutos: 3 });
 // Prueba de voz: componente común voz.js (igual en todas las apps de jlcaleroh-apps)
 if (window.Voz) Voz.iniciar({
   app: 'arquitecto', idioma: () => S.lang, claseBoton: 'small-btn',

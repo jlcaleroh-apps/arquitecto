@@ -1,8 +1,8 @@
 // Offline support for Trazos de Arquitecto.
 // Pages: network first (so updates arrive when online), cache as fallback.
 // Everything else (icons, fonts): cache first, refreshed in the background.
-const CACHE = 'arquitecto-v5';
-const CORE = ['./', './index.html', './acerca.html', './manifest.webmanifest', './respaldo.js', './voz.js', './adulto.js',
+const CACHE = 'arquitecto-v7';
+const CORE = ['./', './index.html', './acerca.html', './manifest.webmanifest', './respaldo.js', './voz.js', './adulto.js', './pantalla.js',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
