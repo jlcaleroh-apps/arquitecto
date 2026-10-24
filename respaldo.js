@@ -67,8 +67,8 @@
     const s = document.createElement('style'); s.id = 'rsp-css';
     s.textContent = `.rsp{display:flex;flex-direction:column;gap:6px}
 .rsp-t{font-weight:700}
-.rsp-info{margin:0;font-size:.9em;line-height:1.35;opacity:.85}
-.rsp-info.rsp-old{opacity:1;font-weight:600}
+.rsp p.rsp-info{margin:0;font-size:14px;font-weight:400;line-height:1.35;opacity:.85}
+.rsp p.rsp-info.rsp-old{opacity:1;font-weight:600}
 .rsp-fila{display:flex;flex-wrap:wrap;gap:8px}
 .rsp-fondo{position:fixed;inset:0;z-index:2147483000;background:rgba(10,10,30,.55);display:flex;align-items:center;justify-content:center;padding:20px}
 .rsp-caja{background:#fffaf0;color:#1d1b3a;border-radius:20px;padding:20px;max-width:440px;width:100%;font:16px/1.4 system-ui,-apple-system,sans-serif;box-shadow:0 20px 50px rgba(0,0,0,.35)}

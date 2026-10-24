@@ -332,6 +332,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="pen"> <span class="label" id="penL">Solo Apple Pencil</span></label> <span id="penP" style="font-size:.9rem"></span></div>
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="calm"> <span class="label" id="calmL">Modo calma</span></label> <span id="calmP" style="font-size:.9rem"></span></div>
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="prec"> <span class="label" id="precL">Precisión progresiva</span></label> <span id="precP" style="font-size:.9rem"></span></div>
+      <div id="vozBox"></div>
       <div id="respaldoBox"></div>
       <div><span class="label" data-t="installL">Instalar en el iPad</span> <span data-t="installP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="piecesL">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
@@ -342,6 +343,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
 
 <div id="sheets"></div>
 <script src="respaldo.js"></script>
+<script src="voz.js"></script>
 <script>
 (() => {
 // ---------- geometry (lot coordinates: building box 0..1, y down, ground at G) ----------
@@ -600,8 +602,9 @@ function speak(t){
   try {
     if (!voice || voiceLang !== (S.lang === 'en' ? 'en' : 'es')) pickVoice();
     speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t);
-    u.lang = voice ? voice.lang : (S.lang === 'en' ? 'en-US' : 'es-MX'); if (voice) u.voice = voice;
-    u.rate = S.lang === 'en' ? 1 : 1.08; u.pitch = 1.1; speechSynthesis.speak(u);
+    const L = S.lang === 'en' ? 'en' : 'es', v = (window.Voz && Voz.elegida(L)) || voice;   // voz elegida por el adulto en "Prueba de voz"
+    u.lang = v ? v.lang : (L === 'en' ? 'en-US' : 'es-MX'); if (v) u.voice = v;
+    u.rate = (L === 'en' ? 1 : 1.08) * (window.Voz ? Voz.velocidad(L) : 1); u.pitch = 1.1; speechSynthesis.speak(u);
   } catch(e) {}
 }
 function renderLang(){
@@ -1590,7 +1593,14 @@ if (window.Respaldo) Respaldo.iniciar({
     return {datos, ninos: d.prof.list.length};
   },
 });
-function renderBackup(){ if (window.Respaldo) Respaldo.montar($('respaldoBox')); }
+function renderBackup(){ if (window.Respaldo) Respaldo.montar($('respaldoBox')); if (window.Voz) Voz.montar($('vozBox')); }
+// Prueba de voz: componente común voz.js (igual en todas las apps de jlcaleroh-apps)
+if (window.Voz) Voz.iniciar({
+  app: 'arquitecto', idioma: () => S.lang, claseBoton: 'small-btn',
+  ejemplos: L => (L === 'en' ? ['A','B','E','H','M','R','W','Y'] : ['A','B','E','H','M','Ñ','R','W']).map(l => ({t:l, d:(L === 'en' ? (LN.en || {})[l] : LNAME[l]) || l})),
+  frase: L => L === 'en' ? 'Great job! You built the letter M.' : '¡Muy bien! Construiste la letra eme.',
+  decir: t => { const s = S.sound; S.sound = true; speak(t); S.sound = s; },
+});
 // ---------- printable sheets: the bridge from the finger to the pencil ----------
 function letterImg(p, h, mode){
   // mode: 'big' numbers + arrows, 'dots' dotted to trace, 'start' only the start dot, 'blank'
