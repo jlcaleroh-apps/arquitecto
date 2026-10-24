@@ -533,7 +533,7 @@ const TXT = {
     bTxt:(b,l)=>`Construiste ${b} edificios` + (l.length ? ` y ${l.length} letras: ${l.join(' ')}.` : '.'), bMore:n=>`Empezar barrio ${n}`, bV:n=>`¡Terminaste el barrio ${n}!`,
     label:(n,k,t)=>`Barrio ${n} · ${k} de ${t}`, hi:n=>`¡Hola, arquitecto ${n}!`, bye:'¡Hasta pronto!', byeT:'Tu ciudad te espera.', byeV:'¡Hasta pronto, arquitecto!',
     who2:'¿Quién construye hoy?', newKid:'+ Nuevo', newName:'¿Cómo se llama el nuevo arquitecto?', anon:n=>`Arquitecto ${n}`, delKid:'Borrar este arquitecto', delKid2:'Toca otra vez para borrar a este arquitecto', switchKid:'Cambiar de arquitecto',
-    holdHint:'Menú de adultos: mantén presionado 2 segundos.', tripLbl:'✈️ ¡Un viaje!', tripQ:'¿A dónde vamos?', tripGo:'✈️ ¡Vamos!', tripV:'¡Un viaje!', tripTo:w=>`¡A ${w}!`, tripDoneLbl:'🛂 ¡Nuevo sello en tu pasaporte!', passH:'Mi pasaporte', passTap:'Toca un lugar para viajar.', repTrips:'Viajes', dailyL:'Límite diario', dailyOff:'Sin límite', dailyOpt:m=>`${m} min al día`, timeH:'¡Hora de descansar!', timeP:n=>`Hoy construiste ${n} edificio(s). Tu ciudad te espera mañana.`, timeV:'¡Hora de descansar! Mañana seguimos.', timeMore:'+10 min (adulto: mantén presionado)', lastBlock:'Última manzana de hoy 🌙', shopH:'¡Decora tu ciudad!', shopV:'¡Decora tu ciudad!', shBtn:'Hojas para imprimir', shP:'Una hoja por letra: el edificio, la letra con el orden de trazos y filas para practicar con lápiz.', shHard:'Le cuestan', shName:'Su nombre', shAll:'Todas', shNone:'Ninguna', shPrint:n=>`Imprimir ${n} hoja(s)`,
+    holdHint:'Menú de adultos: mantén presionado 2 segundos.', tripLbl:'✈️ ¡Un viaje!', tripQ:'¿A dónde vamos?', tripGo:'✈️ ¡Vamos!', tripV:'¡Un viaje!', tripTo:w=>`¡A ${w}!`, tripTip:w=>`Escribe ${w}. Empieza en el punto verde.`, tripWordDone:w=>`¡Escribiste ${w}!`, tripDoneLbl:'🛂 ¡Nuevo sello en tu pasaporte!', passH:'Mi pasaporte', passTap:'Toca un lugar para viajar.', repTrips:'Viajes', dailyL:'Límite diario', dailyOff:'Sin límite', dailyOpt:m=>`${m} min al día`, timeH:'¡Hora de descansar!', timeP:n=>`Hoy construiste ${n} edificio(s). Tu ciudad te espera mañana.`, timeV:'¡Hora de descansar! Mañana seguimos.', timeMore:'+10 min (adulto: mantén presionado)', lastBlock:'Última manzana de hoy 🌙', shopH:'¡Decora tu ciudad!', shopV:'¡Decora tu ciudad!', shBtn:'Hojas para imprimir', shP:'Una hoja por letra: el edificio, la letra con el orden de trazos y filas para practicar con lápiz.', shHard:'Le cuestan', shName:'Su nombre', shAll:'Todas', shNone:'Ninguna', shPrint:n=>`Imprimir ${n} hoja(s)`,
     shTitle:l=>`Letra ${l}`, shNameF:'Nombre:', shDateF:'Fecha:', shTip:'Empieza en el número 1. Primero repasa, luego escribe solo.', bkL:'Copia de seguridad', bkSave:'Guardar copia', bkLoad:'Restaurar copia', bkNever:'Aún no hay copia. Guarda una para no perder las ciudades si se borran los datos de Safari.', bkLast:d=>`Última copia: ${d}.`, bkOld:' Ya pasaron más de 2 semanas.',
     bkAsk:n=>`Esta copia tiene ${n} arquitecto(s). Reemplazará todas las ciudades de este dispositivo. ¿Continuar?`, bkBad:'Ese archivo no es una copia de Trazos de Arquitecto.', bkOk:'Copia restaurada.', penL:'Solo Apple Pencil', penP:'Ignora los dedos y la palma; camino más fino y letra más pequeña, como puente al lápiz. Al usar el lápiz esto se activa solo por un rato.', calmL:'Modo calma', calmP:'Mientras traza, se detienen las nubes, los carros y las animaciones. Útil si se distrae.', avH:'¡Elige tu edificio!', avV:'¡Elige tu edificio!', avBtn:'Cambiar avatar', rep:'Ver reporte', repH:n=>`Reporte de ${n}`, repToday:'Minutos hoy', rep7:'Minutos (7 días)', repAll:'Minutos en total', repB:'Edificios', repL:'Letras practicadas',
     repDays:'Últimos 7 días (minutos)', repLetters:'Letras', repKey:['Dominada','En práctica','Le cuesta','Sin practicar'], repHard:'Le cuestan más', repNone:'Ninguna por ahora.', repPrint:'Imprimir / PDF', repNote:'Dominada: llegó al nivel 3 o 4 de precisión. Le cuesta: en sus últimos intentos se salió seguido del camino.', repDate:d=>`Generado el ${d}`, nameBtn:'🏗️ Construir mi nombre', nameStart:n=>`¡La calle de ${n}!`, nameLbl:n=>`La calle de ${n}`, nameDone:'¡Construiste tu nombre!', nameMore:'Seguir construyendo', finer:n=>`⭐ ¡Trazo más fino! Nivel ${n}.`, precL:'Precisión progresiva', precP:'La letra se hace más pequeña y el camino más angosto cuando el niño la traza bien 2 veces seguidas.',
@@ -548,7 +548,7 @@ const TXT = {
     bTxt:(b,l)=>`You built ${b} buildings` + (l.length ? ` and ${l.length} letters: ${l.join(' ')}.` : '.'), bMore:n=>`Start neighborhood ${n}`, bV:n=>`You finished neighborhood ${n}!`,
     label:(n,k,t)=>`Neighborhood ${n} · ${k} of ${t}`, hi:n=>`Hi, architect ${n}!`, bye:'See you soon!', byeT:'Your city is waiting.', byeV:'See you soon, architect!',
     who2:'Who is building today?', newKid:'+ New', newName:"What is the new architect's name?", anon:n=>`Architect ${n}`, delKid:'Delete this architect', delKid2:'Tap again to delete this architect', switchKid:'Switch architect',
-    holdHint:'Adult menu: press and hold for 2 seconds.', tripLbl:'✈️ A trip!', tripQ:'Where are we going?', tripGo:"✈️ Let's go!", tripV:'A trip!', tripTo:w=>`To ${w}!`, tripDoneLbl:'🛂 New stamp in your passport!', passH:'My passport', passTap:'Tap a place to travel there.', repTrips:'Trips', dailyL:'Daily limit', dailyOff:'No limit', dailyOpt:m=>`${m} min a day`, timeH:'Time to rest!', timeP:n=>`Today you built ${n} building(s). Your city will be waiting tomorrow.`, timeV:'Time to rest! See you tomorrow.', timeMore:'+10 min (adult: press and hold)', lastBlock:'Last block for today 🌙', shopH:'Decorate your city!', shopV:'Decorate your city!', shBtn:'Printable sheets', shP:'One sheet per letter: the building, the letter with stroke order and rows to practice with a pencil.', shHard:'Struggling', shName:'Their name', shAll:'All', shNone:'None', shPrint:n=>`Print ${n} sheet(s)`,
+    holdHint:'Adult menu: press and hold for 2 seconds.', tripLbl:'✈️ A trip!', tripQ:'Where are we going?', tripGo:"✈️ Let's go!", tripV:'A trip!', tripTo:w=>`To ${w}!`, tripTip:w=>`Write ${w}. Start at the green dot.`, tripWordDone:w=>`You wrote ${w}!`, tripDoneLbl:'🛂 New stamp in your passport!', passH:'My passport', passTap:'Tap a place to travel there.', repTrips:'Trips', dailyL:'Daily limit', dailyOff:'No limit', dailyOpt:m=>`${m} min a day`, timeH:'Time to rest!', timeP:n=>`Today you built ${n} building(s). Your city will be waiting tomorrow.`, timeV:'Time to rest! See you tomorrow.', timeMore:'+10 min (adult: press and hold)', lastBlock:'Last block for today 🌙', shopH:'Decorate your city!', shopV:'Decorate your city!', shBtn:'Printable sheets', shP:'One sheet per letter: the building, the letter with stroke order and rows to practice with a pencil.', shHard:'Struggling', shName:'Their name', shAll:'All', shNone:'None', shPrint:n=>`Print ${n} sheet(s)`,
     shTitle:l=>`Letter ${l}`, shNameF:'Name:', shDateF:'Date:', shTip:'Start at number 1. Trace first, then write on your own.', bkL:'Backup', bkSave:'Save backup', bkLoad:'Restore backup', bkNever:'No backup yet. Save one so cities are not lost if Safari data is erased.', bkLast:d=>`Last backup: ${d}.`, bkOld:' More than 2 weeks ago.',
     bkAsk:n=>`This backup has ${n} architect(s). It will replace every city on this device. Continue?`, bkBad:'That file is not a Trazos de Arquitecto backup.', bkOk:'Backup restored.', penL:'Apple Pencil only', penP:'Ignores fingers and palm; narrower path and smaller letter, as a bridge to the pencil. Using the pencil turns this on for a while.', calmL:'Calm mode', calmP:'While tracing, clouds, cars and animations stop. Useful if the child gets distracted.', avH:'Pick your building!', avV:'Pick your building!', avBtn:'Change avatar', rep:'View report', repH:n=>`${n}'s report`, repToday:'Minutes today', rep7:'Minutes (7 days)', repAll:'Minutes total', repB:'Buildings', repL:'Letters practiced',
     repDays:'Last 7 days (minutes)', repLetters:'Letters', repKey:['Mastered','Practicing','Struggling','Not yet'], repHard:'Hardest letters', repNone:'None for now.', repPrint:'Print / PDF', repNote:'Mastered: reached precision level 3 or 4. Struggling: often left the path in recent tries.', repDate:d=>`Generated on ${d}`, nameBtn:'🏗️ Build my name', nameStart:n=>`${n}'s street!`, nameLbl:n=>`${n}'s street`, nameDone:'You built your name!', nameMore:'Keep building', finer:n=>`⭐ Finer stroke! Level ${n}.`, precL:'Progressive precision', precP:'The letter gets smaller and the path narrower when the child traces it well twice in a row.',
@@ -744,16 +744,6 @@ function renderStrip(){
   const el = $('nameStrip'); if (!run.nameAll){ el.hidden = true; return; }
   el.hidden = false;
   const cls = i => i < run.nameI ? 'done' : (i === run.nameI ? 'now' : '');
-  if (run.trip){
-    // trips: the whole city name is visible from the start (sight word); each letter lights up as it is built
-    let k = 0;
-    el.innerHTML = [...tripWord(run.trip).toUpperCase()].map(ch => {
-      if (ch === ' ') return '<span class="gap"></span>';
-      const l = run.nameAll[k]; if (!l || l.ch !== ch) return '';
-      const i = k++; return `<span class="${cls(i)}" style="--c:var(--${COLORS[i%COLORS.length]})">${ch}</span>`;
-    }).join('');
-    return;
-  }
   el.innerHTML = run.nameAll.map((l,i) => `<span class="${cls(i)}" style="--c:var(--${COLORS[i%COLORS.length]})">${i < run.nameI ? l.ch : '·'}</span>`).join('');
 }
 function startName(){
@@ -804,12 +794,111 @@ function showPostcard(chosen){
 }
 function startTrip(){
   const t = run.pendingTrip; if (!t) return; run.pendingTrip = null; $('tripOv').hidden = true;
-  run.trip = t; run.nameAll = nameLetters(tripWord(t)); run.nameI = 0; run.savedLevel = S.level; renderStrip();
+  run.trip = t; run.nameAll = null; run.savedLevel = S.level; renderStrip();
   speak(tx().tripTo(titleCase(tripWord(t))));
-  later(()=>loadPiece(PIECES.findIndex(p=>p.id===run.nameAll[0].id)), 1200);
+  later(()=>loadTripWord(t), 1200);
+}
+// ---------- a trip is ONE board: the monument (grey) and the whole city name under it; the child writes the word in place ----------
+const lmCache = {};
+function lmCanvas(id, sil){
+  const k = id + (sil ? ':s' : ''); if (lmCache[k]) return lmCache[k];
+  const n = 512, cv = document.createElement('canvas'); cv.width = cv.height = n; const c = cv.getContext('2d');
+  drawLandmark(c, id, n/2, n*.9, n*.7, 2);
+  if (sil){ c.globalCompositeOperation = 'source-in'; c.fillStyle = '#9AA7B8'; c.fillRect(0,0,n,n); }
+  return lmCache[k] = cv;
+}
+const ACUTE = /[ÁÉÍÓÚ]/;
+function tripLayout(t){
+  const word = tripWord(t).toUpperCase(), rows = word.split(' ').filter(Boolean);
+  const two = rows.length > 1, cellH = two ? .2 : .3, gap = cellH*.24;
+  const hOf = pc => { const ys = (pc.id === 'Ñ' ? pc.strokes.slice(0, 2) : pc.strokes).flat().map(q=>q[1]); return Math.max(...ys) - Math.min(...ys); };
+  const strokes = [], letterOf = [], letters = [], accents = [];
+  const top = two ? .42 : .5, rowGap = cellH*.45;
+  let widest = 0;
+  rows.forEach((row, ri) => {
+    const items = [];
+    for (const ch of row){
+      const base = ch === 'Ñ' ? (S.lang === 'en' ? 'N' : 'Ñ') : ch.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const pc = byId(base); if (!pc) continue;
+      const pts = pc.strokes.flat(), x0 = Math.min(...pts.map(q=>q[0])), x1 = Math.max(...pts.map(q=>q[0])), y1 = Math.max(...pts.map(q=>q[1]));
+      const sc = cellH / hOf(pc); items.push({ch, pc, x0, y1, sc, w:(x1-x0)*sc});
+    }
+    const rowW = items.reduce((a,it)=>a+it.w,0) + gap*Math.max(0, items.length-1); widest = Math.max(widest, rowW);
+    const bottom = top + cellH + ri*(cellH + rowGap);
+    let x = .5 - rowW/2;
+    items.forEach(it => {
+      const li = letters.length; letters.push({ch: it.ch, id: it.pc.id});
+      it.pc.strokes.forEach(st => { strokes.push(st.map(q => [x + (q[0]-it.x0)*it.sc, bottom - (it.y1-q[1])*it.sc])); letterOf.push(li); });
+      if (ACUTE.test(it.ch)) accents.push({li, a:[x + it.w*.42, bottom - cellH*1.22], b:[x + it.w*.64, bottom - cellH*1.42]});
+      x += it.w + gap;
+    });
+  });
+  const bottom = top + cellH + (rows.length-1)*(cellH + rowGap);
+  return {strokes, letterOf, letters, accents, cellH, width: Math.max(widest, .9), lm:{x:.5, y: top - (two ? .09 : .1), u: two ? .25 : .3}, box:[.5 - Math.max(widest,.9)/2 - .12, .0, .5 + Math.max(widest,.9)/2 + .12, bottom + .07]};
+}
+function tripPiece(t){
+  const Lw = tripLayout(t), w = titleCase(tripWord(t));
+  const pc = {id:'trip:'+t.id, trip:t, c:'brick', name:w, tip:tx().tripTip(tripWord(t).toUpperCase()), say:'', ...Lw};
+  pc.art = () => drawTripBoard(pc, performance.now(), false);
+  return pc;
+}
+function aimTrip(p){
+  const z = Math.min(H/((p.box[3]-p.box[1]) + .12), W/((p.box[2]-p.box[0]) + .1), traceZoom()*1.1);
+  camT.z = z; camT.x = run.lot*LW + .5; camT.y = (p.box[1] + p.box[3])/2;
+}
+function loadTripWord(t){
+  clearTimers();
+  const p = tripPiece(t);
+  run.piece = p; run.si = 0; run.beams = []; run.phase = 'trace'; run.lot = S.city.length; run.miss = 0; run.t0 = performance.now(); run.zf = 1;
+  aimTrip(p); hideMap();
+  const zNow = Math.min(H/((p.box[3]-p.box[1]) + .12), W/((p.box[2]-p.box[0]) + .1), traceZoom()*1.1);
+  run.tol = Math.min(PREC[0].tol * traceZoom()/zNow, p.cellH*.3);
+  setupStroke();
+  say(p.name, p.tip);
+}
+// the board: a cream card in the street so neighbours don't distract; monument above, word below
+function drawTripBoard(p, now, done){
+  const z = cam.z; K = {ctx, z, M: q => toScreen(run.lot, q)};
+  const [x0,y0] = K.M([p.box[0], p.box[1]]), [x1,y1] = K.M([p.box[2], p.box[3]]);
+  ctx.save(); ctx.fillStyle = '#FFF8E7'; ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(x0, y0, x1-x0, y1-y0, z*.05); else ctx.rect(x0, y0, x1-x0, y1-y0);
+  ctx.fill(); ctx.lineWidth = Math.max(3, z*.008); ctx.setLineDash([z*.025, z*.018]); ctx.strokeStyle = C.brick; ctx.stroke(); ctx.setLineDash([]);
+  // monument: grey while writing; it fills with colour (bottom to top) and bounces when the word is finished
+  const k = done ? Math.min(1, Math.max(0, (now - run.builtAt)/900)) : 0;
+  const bounce = done ? easeBack(Math.min(1, (now - run.builtAt)/650)) : 1, sz = p.lm.u*z/.7*(done ? .9 + .1*bounce : 1);
+  const [bx, by] = K.M([p.lm.x, p.lm.y]), dx = bx - sz/2, dy = by - sz*.9;
+  ctx.drawImage(lmCanvas(p.trip.id, true), dx, dy, sz, sz);
+  if (k > 0){ ctx.save(); ctx.beginPath(); ctx.rect(dx, dy + sz*(1-k), sz, sz*k); ctx.clip(); ctx.drawImage(lmCanvas(p.trip.id, false), dx, dy, sz, sz); ctx.restore(); }
+  // the whole word is always visible (sight word): soft ghost letters, then the strokes already built on top
+  ctx.globalAlpha = done ? .0 : 1;
+  p.strokes.forEach(st => LINE(st, .05, 'rgba(31,46,68,.16)'));
+  p.accents.forEach(a => LINE([a.a, a.b], .04, 'rgba(31,46,68,.16)'));
+  ctx.globalAlpha = 1;
+  const cur = run.phase === 'trace' ? p.letterOf[run.si] : p.letters.length;
+  p.strokes.forEach((st, i) => {
+    const li = p.letterOf[i], col = C[COLORS[li % COLORS.length]];
+    if (done){ const t = Math.min(1, Math.max(0, (now - run.builtAt - 300 - li*110)/350)); if (t <= 0) return; const s2 = .9 + .1*easeBack(t);
+      const c0 = st.reduce((a,q)=>[a[0]+q[0]/st.length, a[1]+q[1]/st.length],[0,0]);
+      LINE(st.map(q=>[c0[0]+(q[0]-c0[0])*s2, c0[1]+(q[1]-c0[1])*s2]), .07, col); }
+    else if (li < cur) LINE(st, .06, col);
+    else if (i < run.si) LINE(st, .055, shade(C.brick, .55));
+  });
+  p.accents.forEach(a => { if (done || a.li < cur) LINE([a.a, a.b], .05, C[COLORS[a.li % COLORS.length]]); });
+  ctx.restore();
+}
+function completeTripWord(){
+  const p = run.piece; run.phase = 'built'; run.ink = []; run.builtAt = performance.now(); run.session++;
+  { const st = S.stats = S.stats || {days:{}, letters:{}}; const day = today();
+    const d = st.days[day] = st.days[day] || {ms:0, n:0}; d.ms += Math.min(300000, performance.now() - (run.t0 || performance.now())); d.n++; }
+  save();
+  for (let i=0;i<10;i++) later(()=>burst(W*(.2+Math.random()*.6), H*(.15+Math.random()*.45), 24, C[COLORS[i%6]]), 250 + i*110);
+  [523,659,784,1047,1319].forEach((f,i)=>tone(f,.3,'triangle',.16,i*.1));
+  later(()=>speak((S.lang === 'en' ? '' : '¡') + p.name + '!'), 350);
+  say(null, tx().tripWordDone(p.name));
+  later(showTripDone, 3000);
 }
 function showTripDone(){
-  const t = run.trip; run.trip = null; run.nameAll = null; S.level = run.savedLevel;
+  const t = run.trip; run.trip = null; run.nameAll = null; S.level = run.savedLevel; run.piece = PIECES[S.level] || PIECES[0];
   S.trips = (S.trips||[]).filter(x => x.id !== t.id).concat({id:t.id, at:today()});
   if (!(S.decor||[]).some(d => d.t === 'lm:'+t.id)){ const sp = freeSpot('plaza', true) || freeSpot('plaza'); if (sp) S.decor = (S.decor||[]).concat({t:'lm:'+t.id, i:sp[0], j:sp[1], q:sp[2], at:Date.now()}); }
   save(); renderStrip(); run.phase = 'idle'; showMap();
@@ -818,7 +907,7 @@ function showTripDone(){
   $('tripDoneOv').hidden = false;
   for (let i=0;i<14;i++) later(()=>burst(W*(.1+Math.random()*.8), H*(.1+Math.random()*.5), 26, C[COLORS[i%6]]), i*120);
   [523,659,784,1047,1319,1568,2093].forEach((f,i)=>tone(f,.3,'triangle',.16,i*.11));
-  later(()=>speak((S.lang === 'en' ? '' : '¡') + titleCase(tripWord(t)) + '!'), 500);
+  later(()=>speak(tripMon(t)), 500);
 }
 function renderPassport(){
   const seen = new Set((S.trips||[]).map(t => t.id));
@@ -866,7 +955,7 @@ stage.addEventListener('pointerdown', e => {
   if (run.phase === 'tour'){ goNext(); return; }
   if (run.view === 'map'){ hideMap(); return; }
   if (run.phase !== 'trace' || run.pid !== null) return;
-  if (e.pointerType === 'pen'){ if (!run.penSeen && !S.penOnly){ run.penSeen = performance.now(); run.zf *= .85; aimAtLot(run.lot); } run.penSeen = performance.now(); }
+  if (e.pointerType === 'pen'){ if (!run.penSeen && !S.penOnly){ run.penSeen = performance.now(); run.zf *= .85; run.piece.trip ? aimTrip(run.piece) : aimAtLot(run.lot); } run.penSeen = performance.now(); }
   else if (e.pointerType === 'touch' && penOn()) return; // palm resting on the screen
   const p = norm(e);
   if (dist(p, run.pts[run.prog]) > tolNow()*1.7){
@@ -902,6 +991,12 @@ function completeStroke(){
   tone(784,.2,'triangle',.16); tone(1047,.3,'triangle',.16,.09);
   S.bricks++; $('brickN').textContent = S.bricks; pop('bricks');
   run.si++;
+  if (run.piece.trip){
+    const p = run.piece, li = p.letterOf[run.si-1];
+    if (run.si >= p.strokes.length){ completeTripWord(); return; }
+    if (p.letterOf[run.si] !== li){ burst(x, y, 26, C[COLORS[li % COLORS.length]]); tone(1319,.2,'sine',.12,.15); }
+    setupStroke(); return;
+  }
   if (run.si < run.piece.strokes.length){
     setupStroke();
     const pr = PRAISE[Math.floor(Math.random()*PRAISE.length)];
@@ -1038,11 +1133,11 @@ function drawSky(now){
 function drawGuide(now){
   const lot = run.lot, p = run.piece, z = cam.z;
   K = {ctx, z, M: q => toScreen(lot, q)};
-  // blueprint ghost of the finished building
-  ctx.globalAlpha = .2; p.art(C[p.c], 0); ctx.globalAlpha = 1;
-  drawTrim(p, run.beams);
+  // blueprint ghost of the finished building (trips: the monument board with the whole word)
+  if (p.trip){ drawTripBoard(p, now, false); K = {ctx, z, M: q => toScreen(lot, q)}; }
+  else { ctx.globalAlpha = .2; p.art(C[p.c], 0); ctx.globalAlpha = 1; drawTrim(p, run.beams); }
   if (run.phase !== 'trace') return;
-  p.strokes.slice(run.si+1).forEach(st => { ctx.save(); ctx.setLineDash([z*.012, z*.03]); LINE(st, .012, 'rgba(31,46,68,.35)'); ctx.restore(); });
+  p.strokes.slice(run.si+1).filter((_,j) => !p.trip || p.letterOf[run.si+1+j] === p.letterOf[run.si]).forEach(st => { ctx.save(); ctx.setLineDash([z*.012, z*.03]); LINE(st, .012, 'rgba(31,46,68,.35)'); ctx.restore(); });
   const st = p.strokes[run.si];
   ctx.save();
   ctx.globalAlpha = .85; LINE(st, tolNow()*1.5, C.lane); ctx.globalAlpha = 1;
@@ -1348,7 +1443,8 @@ function frame(now){
       drawBuilding(lot, byId(id), tw, grow);
     }
   }
-  if (building >= 0 && run.phase === 'trace'){ drawGuide(now); drawCrane(building); }
+  if (building >= 0 && run.phase === 'trace'){ drawGuide(now); if (!run.piece.trip) drawCrane(building); }
+  else if (run.piece && run.piece.trip && run.phase === 'built') drawTripBoard(run.piece, now, true);
   else if (run.phase === 'idle' && run.piece){ K = {ctx, z:cam.z, M:q=>toScreen(run.lot,q)}; ctx.globalAlpha=.2; run.piece.art(C[run.piece.c],0); ctx.globalAlpha=1; drawCrane(run.lot); }
   if (!calm) drawCars(now);
   drawReveal(now);
@@ -1387,7 +1483,7 @@ function fit(){
   const r = $('stageWrap').getBoundingClientRect(); W = Math.max(200, Math.floor(r.width)); H = Math.max(200, Math.floor(r.height));
   stage.width = W*dpr; stage.height = H*dpr; mapCv.width = W*dpr; mapCv.height = H*dpr;
   aimMap(); Object.assign(mcam, mcamT);
-  if (run.phase === 'tour') aimOverview(); else aimAtLot(run.lot);
+  if (run.phase === 'tour') aimOverview(); else if (run.piece && run.piece.trip && run.phase !== 'idle') aimTrip(run.piece); else aimAtLot(run.lot);
   Object.assign(cam, camT);
 }
 try { new ResizeObserver(fit).observe($('stageWrap')); } catch(e) { addEventListener('resize', fit); }
