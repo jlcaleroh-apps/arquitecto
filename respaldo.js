@@ -18,6 +18,7 @@
        claseBoton: 's-btn',                       // opcional: clase de botón de la app
        extra: { guardar: async () => obj, restaurar: async obj => {} },  // opcional: datos fuera de localStorage
        convertir: d => datos | null,              // opcional: leer respaldos con formato anterior
+       renombrar: k => k,                         // opcional: nombre nuevo de una clave guardada en respaldos viejos
        ultimoAntiguo: () => ms                    // opcional: fecha de un respaldo hecho con el sistema anterior
      });
      Respaldo.montar(elemento);                   // dibuja el bloque dentro del panel del adulto
@@ -148,6 +149,7 @@
     if (d.formato === FORMATO && d.app === C.app && d.datos && typeof d.datos === 'object') { datos = d.datos; extra = d.extra || null; }
     else if (C.convertir) { try { const r = C.convertir(d); if (r) { datos = r.datos || r; ninos = r.ninos || ninos; } } catch (e) { datos = null; } }
     if (!datos) { await dialogo(T().malo(C.nombre), T().cerrar); return; }
+    if (C.renombrar) { const r = {}; Object.keys(datos).forEach(k => { let n = k; try { n = C.renombrar(k); } catch (e) {} r[n] = datos[k]; }); datos = r; }
     const f = fecha ? fechaTexto(Date.parse(fecha), true) : '?';
     if (!(await dialogo(T().pregunta(C.nombre, f, ninos ? T().ninos(ninos) : ''), T().si, T().no))) return;
     try {
