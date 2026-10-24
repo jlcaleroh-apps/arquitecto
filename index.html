@@ -332,8 +332,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="pen"> <span class="label" id="penL">Solo Apple Pencil</span></label> <span id="penP" style="font-size:.9rem"></span></div>
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="calm"> <span class="label" id="calmL">Modo calma</span></label> <span id="calmP" style="font-size:.9rem"></span></div>
       <div><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="prec"> <span class="label" id="precL">Precisión progresiva</span></label> <span id="precP" style="font-size:.9rem"></span></div>
-      <div><span class="label" id="bkL">Copia de seguridad</span> <span id="bkInfo" style="font-size:.9rem"></span>
-        <div class="row" style="margin-top:6px"><button class="small-btn" id="btnBackup">Guardar copia</button><button class="small-btn" id="btnRestore">Restaurar copia</button><input type="file" id="restoreFile" accept="application/json,.json" hidden></div></div>
+      <div id="respaldoBox"></div>
       <div><span class="label" data-t="installL">Instalar en el iPad</span> <span data-t="installP" style="font-size:.9rem"></span></div>
       <div><span class="label" data-t="piecesL">Siguiente obra</span><div class="pieces" id="pieces"></div></div>
       <div class="row"><button class="small-btn" id="btnReport">Ver reporte</button><button class="small-btn" id="btnSheets">Hojas para imprimir</button><button class="small-btn" id="btnAvatar">Cambiar avatar</button><button class="small-btn" id="btnSwitch" data-t="switchKid">Cambiar de arquitecto</button><button class="small-btn danger" id="btnDelKid">Borrar este arquitecto</button><a class="small-btn" href="acerca.html" target="_blank" style="text-decoration:none" data-t="about">Sobre la app y el TDAH</a><button class="small-btn danger" id="btnReset">Borrar ciudad y progreso</button></div>
@@ -342,6 +341,7 @@ input[type=text],select{font:inherit; padding:8px 10px; border-radius:10px; bord
 </div>
 
 <div id="sheets"></div>
+<script src="respaldo.js"></script>
 <script>
 (() => {
 // ---------- geometry (lot coordinates: building box 0..1, y down, ground at G) ----------
@@ -1574,44 +1574,23 @@ function renderReport(){
 }
 $('btnAvatar').onclick = () => { const k = PROF.list.find(k=>k.id===PROF.cur), i = PROF.list.indexOf(k); $('adultOv').hidden = true;
   chooseAvatar(avatarOf(k,i)).then(a => { k.avatar = a; saveIndex(); renderKids(); $('adultOv').hidden = false; }); };
-// ---------- backup: every child's city in one file the adult can keep (Files, AirDrop, email) ----------
-const BKEY = 'trazos-arquitecto-copia';
-function renderBackup(){
-  const T = tx(); $('bkL').textContent = T.bkL; $('btnBackup').textContent = T.bkSave; $('btnRestore').textContent = T.bkLoad;
-  let last = 0; try { last = +localStorage.getItem(BKEY) || 0; } catch(e) {}
-  $('bkInfo').textContent = !last ? T.bkNever : T.bkLast(new Date(last).toLocaleDateString(S.lang === 'en' ? 'en-US' : 'es', {day:'numeric', month:'long'})) + (Date.now() - last > 14*864e5 ? T.bkOld : '');
-}
-async function saveBackup(){
-  save();
-  const data = {app:'trazos-arquitecto', v:1, date:new Date().toISOString(), prof:PROF, profiles:{}};
-  PROF.list.forEach(k => { try { data.profiles[k.id] = JSON.parse(localStorage.getItem(KEY+':'+k.id) || 'null') || readProfile(k.id); } catch(e) { data.profiles[k.id] = readProfile(k.id); } });
-  const name = `arquitecto-copia-${new Date().toLocaleDateString('sv')}.json`;
-  const blob = new Blob([JSON.stringify(data)], {type:'application/json'});
-  let done = false;
-  try { const file = new File([blob], name, {type:'application/json'});
-    if (navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:name}); done = true; } } catch(e) { if (e && e.name === 'AbortError') return; }
-  if (!done){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 2000); }
-  try { localStorage.setItem(BKEY, String(Date.now())); } catch(e) {}
-  renderBackup();
-}
-function restoreBackup(file){
-  const r = new FileReader();
-  r.onload = () => {
-    let d = null; try { d = JSON.parse(r.result); } catch(e) {}
-    if (!d || d.app !== 'trazos-arquitecto' || !d.prof || !Array.isArray(d.prof.list) || !d.profiles){ alert(tx().bkBad); return; }
-    if (!confirm(tx().bkAsk(d.prof.list.length))) return;
-    try {
-      PROF.list.forEach(k => localStorage.removeItem(KEY+':'+k.id));
-      d.prof.list.forEach(k => localStorage.setItem(KEY+':'+k.id, JSON.stringify(d.profiles[k.id] || {})));
-      localStorage.setItem(PKEY, JSON.stringify(d.prof));
-    } catch(e) {}
-    alert(tx().bkOk); location.reload();
-  };
-  r.readAsText(file);
-}
-$('btnBackup').onclick = () => { saveBackup(); };
-$('btnRestore').onclick = () => { $('restoreFile').value = ''; $('restoreFile').click(); };
-$('restoreFile').onchange = e => { const f = e.target.files && e.target.files[0]; if (f) restoreBackup(f); };
+// ---------- backup: componente común respaldo.js (igual en todas las apps de jlcaleroh-apps) ----------
+const BKEY = 'trazos-arquitecto-copia';   // fecha del respaldo hecho con el sistema anterior
+if (window.Respaldo) Respaldo.iniciar({
+  app: 'arquitecto', nombre: 'Trazos de Arquitecto',
+  clave: k => k === PKEY || k === KEY || k.startsWith(KEY + ':'),
+  idioma: () => S.lang, antes: () => save(), claseBoton: 'small-btn',
+  contarNinos: () => PROF.list.length,
+  ultimoAntiguo: () => localStorage.getItem(BKEY),
+  // respaldos guardados antes del componente común
+  convertir: d => {
+    if (d.app !== 'trazos-arquitecto' || !d.prof || !Array.isArray(d.prof.list) || !d.profiles) return null;
+    const datos = {[PKEY]: JSON.stringify(d.prof)};
+    d.prof.list.forEach(k => { datos[KEY + ':' + k.id] = JSON.stringify(d.profiles[k.id] || {}); });
+    return {datos, ninos: d.prof.list.length};
+  },
+});
+function renderBackup(){ if (window.Respaldo) Respaldo.montar($('respaldoBox')); }
 // ---------- printable sheets: the bridge from the finger to the pencil ----------
 function letterImg(p, h, mode){
   // mode: 'big' numbers + arrows, 'dots' dotted to trace, 'start' only the start dot, 'blank'
