@@ -29,6 +29,8 @@ En Safari abre https://jlcaleroh-apps.github.io/arquitecto/ → botón Compartir
 Local: `pip install playwright && python -m playwright install chromium && python3 tests/test_app.py`
 
 ## Componentes comunes (iguales en todas las apps de jlcaleroh-apps)
+Esta app sigue el [estándar común](https://github.com/jlcaleroh-apps/plantilla/blob/main/ESTANDAR.md). Las apps nuevas se crean desde [plantilla](https://github.com/jlcaleroh-apps/plantilla).
+
 - **`respaldo.js` · Respaldo del progreso:** en el panel del adulto, "Guardar respaldo" crea un archivo con el progreso de todos los niños (se guarda en Archivos, AirDrop o correo) y "Restaurar respaldo" lo carga en este u otro iPad. Muestra la fecha del último respaldo y avisa si pasaron más de 2 semanas. También pide al iPad que no borre los datos de la app.
   - Es el mismo archivo en todas las apps: si se mejora, se copia igual en cada repo.
   - Cada app declara qué claves de almacenamiento son suyas, porque todas comparten el dominio `jlcaleroh-apps.github.io`.
