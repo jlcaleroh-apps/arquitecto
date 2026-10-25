@@ -249,6 +249,10 @@ footer{padding:32px 0 48px; color:#9FB2C8; font-size:.9rem; border-top:1px solid
     <h2>Instálala en el iPad</h2>
     <p class="intro">En Safari, toca Compartir → “Agregar a pantalla de inicio”. Se abre en pantalla completa, sin barras, y funciona sin internet.</p>
 
+    <div class="kicker" style="margin-top:40px">Otras apps</div>
+    <h2>Conoce las otras apps</h2>
+    <div id="otrasApps" style="max-width:640px"></div>
+
     <div class="kicker" style="margin-top:40px">Contacto</div>
     <h2>¿Dudas o ideas?</h2>
     <p class="intro">Escribe a <a href="mailto:jlcaleroh@gmail.com">jlcaleroh@gmail.com</a>.</p>
@@ -266,5 +270,7 @@ footer{padding:32px 0 48px; color:#9FB2C8; font-size:.9rem; border-top:1px solid
 <footer>
   <div class="wrap">Trazos de Arquitecto · <a href="https://github.com/jlcaleroh-apps/arquitecto">código en GitHub</a> · <a href="./">abrir el juego</a><br>Contacto: <a href="mailto:jlcaleroh@gmail.com">jlcaleroh@gmail.com</a></div>
 </footer>
+<script src="apps.js"></script>
+<script>Apps.montar(document.getElementById('otrasApps'), { actual: 'arquitecto', idioma: 'es' });</script>
 </body>
 </html>
